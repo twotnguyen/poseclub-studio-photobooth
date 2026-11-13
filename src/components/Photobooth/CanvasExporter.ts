@@ -6,6 +6,7 @@ interface RenderOptions {
   frameColor: FrameColor;
   filter: FilterType;
   brandName: string;
+  customFooterText?: string;
   location: string;
   dateStr: string;
 }
@@ -51,8 +52,8 @@ const drawGrain = (ctx: CanvasRenderingContext2D, width: number, height: number,
 };
 
 export const renderPhotostripToCanvas = async (options: RenderOptions): Promise<HTMLCanvasElement> => {
-  const { images, layout, frameColor, filter, brandName, location, dateStr } = options;
-
+  const { images, layout, frameColor, filter, brandName, customFooterText, location, dateStr } = options;
+  const mainLabel = customFooterText && customFooterText.trim().length > 0 ? customFooterText.trim() : brandName;
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Could not get canvas context');
@@ -126,7 +127,7 @@ export const renderPhotostripToCanvas = async (options: RenderOptions): Promise<
     ctx.font = '600 54px "Playfair Display", "Cormorant Garamond", Georgia, serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(brandName.toUpperCase(), W / 2, footerY + 140);
+    ctx.fillText(mainLabel.toUpperCase(), W / 2, footerY + 140);
 
     // Decorative line
     ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)';
@@ -209,7 +210,7 @@ export const renderPhotostripToCanvas = async (options: RenderOptions): Promise<
     ctx.font = '600 56px "Playfair Display", "Cormorant Garamond", Georgia, serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(brandName.toUpperCase(), W / 2, footerY + 120);
+    ctx.fillText(mainLabel.toUpperCase(), W / 2, footerY + 120);
 
     ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)';
     ctx.lineWidth = 1.5;
@@ -240,6 +241,65 @@ export const downloadCanvas = (canvas: HTMLCanvasElement, filename: string) => {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+};
+export const renderIndividualPhoto = async (
+  imageSrc: string,
+  index: number,
+  filter: FilterType,
+  brandName: string,
+  dateStr: string
+): Promise<HTMLCanvasElement> => {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('No canvas context');
+
+  const W = 1200;
+  const H = 1500;
+  canvas.width = W;
+  canvas.height = H;
+
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = '#EEEEEE';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(40, 40, W - 80, H - 80);
+
+  const img = await loadImage(imageSrc);
+  const photoW = W - 120;
+  const photoH = 1180;
+
+  ctx.save();
+  applyCanvasFilter(ctx, filter);
+
+  const targetAspect = photoW / photoH;
+  const imgAspect = img.width / img.height;
+  let sx = 0, sy = 0, sw = img.width, sh = img.height;
+  if (imgAspect > targetAspect) {
+    sw = img.height * targetAspect;
+    sx = (img.width - sw) / 2;
+  } else {
+    sh = img.width / targetAspect;
+    sy = (img.height - sh) / 2;
+  }
+
+  ctx.drawImage(img, sx, sy, sw, sh, 60, 60, photoW, photoH);
+  ctx.restore();
+
+  ctx.strokeStyle = '#222222';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(60, 60, photoW, photoH);
+
+  ctx.fillStyle = '#111111';
+  ctx.font = '600 38px "Playfair Display", Georgia, serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(brandName.toUpperCase(), W / 2, 1340);
+
+  ctx.fillStyle = '#777777';
+  ctx.font = '500 20px "Inter", sans-serif';
+  ctx.fillText(`SHOT 0${index + 1}  •  ${dateStr.toUpperCase()}`, W / 2, 1400);
+
+  return canvas;
 };
 
 export const printCanvas = (canvas: HTMLCanvasElement) => {

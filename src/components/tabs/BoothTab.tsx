@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Sparkles, Camera, ArrowLeft, RefreshCw, Upload, Download, Printer, Check, Plus, Minus, RotateCcw } from 'lucide-react';
+import { Sparkles, Camera, ArrowLeft, RefreshCw, Upload, Download, Printer, Check, Plus, Minus, RotateCcw, Ticket } from 'lucide-react';
 import { sounds } from '../Photobooth/SoundEffects';
-import { renderPhotostripToCanvas, downloadCanvas, printCanvas } from '../Photobooth/CanvasExporter';
+import { renderPhotostripToCanvas, renderIndividualPhoto, downloadCanvas, printCanvas } from '../Photobooth/CanvasExporter';
 import { FilterType, FrameColor, LayoutType } from '../Photobooth/types';
 import { Language, TRANSLATIONS } from '../../i18n/translations';
-
+import { FrameMockup } from '../Photobooth/FrameMockup';
 interface BoothTabProps {
   language: Language;
   onBackToHome: () => void;
@@ -23,7 +23,11 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
   const [filter, setFilter] = useState<FilterType>('bw-contrast');
   const [frameColor, setFrameColor] = useState<FrameColor>('black');
   const [printCopies, setPrintCopies] = useState<number>(1);
-
+  const [customText, setCustomText] = useState<string>('');
+  const [showVoucherModal, setShowVoucherModal] = useState<boolean>(false);
+  const [voucherInput, setVoucherInput] = useState<string>('');
+  const [voucherMessage, setVoucherMessage] = useState<string | null>(null);
+  const [singlesDownloaded, setSinglesDownloaded] = useState<boolean>(false);
   // Camera & Capture states
   const videoRef = React.useRef<HTMLVideoElement | null>(null);
   const streamRef = React.useRef<MediaStream | null>(null);
@@ -208,6 +212,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
         frameColor,
         filter,
         brandName: 'poseclub studio',
+        customFooterText: customText.trim(),
         location: 'Fullerton, CA',
         dateStr: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
       });
@@ -215,6 +220,29 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
       downloadCanvas(canvas, `poseclub-photostrip-${timestamp}.png`);
       setDownloadSuccess(true);
       setTimeout(() => setDownloadSuccess(false), 2500);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleDownloadSingles = async () => {
+    setIsExporting(true);
+    try {
+      for (let i = 0; i < shots.length; i++) {
+        const singleCanvas = await renderIndividualPhoto(
+          shots[i],
+          i,
+          filter,
+          customText.trim() || 'poseclub studio',
+          new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        );
+        downloadCanvas(singleCanvas, `poseclub-individual-0${i + 1}-${Date.now()}.png`);
+        await new Promise((r) => setTimeout(r, 250));
+      }
+      setSinglesDownloaded(true);
+      setTimeout(() => setSinglesDownloaded(false), 2500);
     } catch (err) {
       console.error(err);
     } finally {
@@ -230,6 +258,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
         frameColor,
         filter,
         brandName: 'poseclub studio',
+        customFooterText: customText.trim(),
         location: 'Fullerton, CA',
         dateStr: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
       });
@@ -271,14 +300,14 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
           </div>
 
           {/* 6 Styles Grid from Canva Slide 2 */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-4xl w-full mx-auto my-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-5 max-w-4xl w-full mx-auto my-auto">
             {[
               { id: 1, title: 'STYLE 1', desc: '1 Photo Polaroid', count: 1, lay: 'grid-2x2' as LayoutType },
               { id: 2, title: 'STYLE 2', desc: '2 Photos Strip (1x2)', count: 2, lay: 'strip-1x4' as LayoutType },
               { id: 3, title: 'STYLE 3', desc: '4 Photos Grid (2x2)', count: 4, lay: 'grid-2x2' as LayoutType },
               { id: 4, title: 'STYLE 4', desc: '4 Photos Classic (1x4)', count: 4, lay: 'strip-1x4' as LayoutType },
-              { id: 5, title: 'STYLE 5', desc: '6 Photos Vertical', count: 6, lay: 'strip-1x4' as LayoutType },
-              { id: 6, title: 'STYLE 6', desc: '9 Photos Collage', count: 9, lay: 'grid-2x2' as LayoutType },
+              { id: 5, title: 'STYLE 5', desc: '6 Photos Vertical (2x3)', count: 6, lay: 'strip-1x4' as LayoutType },
+              { id: 6, title: 'STYLE 6', desc: '9 Photos Grid (3x3)', count: 9, lay: 'grid-2x2' as LayoutType },
             ].map((style) => {
               const isSelected = selectedStyle === style.id;
               return (
@@ -288,54 +317,24 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                     setSelectedStyle(style.id);
                     setLayout(style.lay);
                   }}
-                  className={`relative p-5 rounded-2xl border-2 transition-all flex flex-col items-center justify-between text-center group ${
+                  className={`relative p-3.5 rounded-[26px] bg-white transition-all flex flex-col items-center justify-between text-center group cursor-pointer ${
                     isSelected
-                      ? 'border-black bg-white shadow-lg scale-102'
-                      : 'border-black/20 bg-white/40 hover:border-black/50'
+                      ? 'border-2 border-black shadow-lg scale-102 ring-1 ring-black/10'
+                      : 'border border-[#C5A880]/50 hover:border-black/70 hover:shadow-md'
                   }`}
                 >
-                  <p className="font-editorial text-sm font-semibold tracking-wider text-black">
+                  {/* Style Header */}
+                  <p className="font-serif text-sm tracking-[0.2em] uppercase font-medium text-black pt-0.5">
                     {style.title}
                   </p>
 
-                  {/* Wireframe Mockup Visual */}
-                  <div className="h-24 w-16 my-2 border border-black/30 rounded bg-[#FAF8F5] p-1.5 flex flex-col justify-between shadow-inner">
-                    {style.id === 1 && (
-                      <div className="aspect-square bg-amber-100/70 border border-black/20 rounded-sm" />
-                    )}
-                    {style.id === 2 && (
-                      <div className="h-full flex flex-col gap-1">
-                        <div className="flex-1 bg-amber-100/70 border border-black/20 rounded-sm" />
-                        <div className="flex-1 bg-amber-100/70 border border-black/20 rounded-sm" />
-                      </div>
-                    )}
-                    {style.id === 3 && (
-                      <div className="h-full grid grid-cols-2 gap-1">
-                        <div className="bg-amber-100/70 border border-black/20 rounded-sm" />
-                        <div className="bg-amber-100/70 border border-black/20 rounded-sm" />
-                        <div className="bg-amber-100/70 border border-black/20 rounded-sm" />
-                        <div className="bg-amber-100/70 border border-black/20 rounded-sm" />
-                      </div>
-                    )}
-                    {style.id === 4 && (
-                      <div className="h-full flex flex-col gap-1">
-                        <div className="flex-1 bg-amber-100/70 border border-black/20 rounded-sm" />
-                        <div className="flex-1 bg-amber-100/70 border border-black/20 rounded-sm" />
-                        <div className="flex-1 bg-amber-100/70 border border-black/20 rounded-sm" />
-                        <div className="flex-1 bg-amber-100/70 border border-black/20 rounded-sm" />
-                      </div>
-                    )}
-                    {style.id >= 5 && (
-                      <div className="h-full grid grid-cols-2 gap-1">
-                        {[...Array(6)].map((_, i) => (
-                          <div key={i} className="bg-amber-100/70 border border-black/20 rounded-sm" />
-                        ))}
-                      </div>
-                    )}
-                    <span className="font-script text-[9px] text-black/60 text-center -mt-0.5">poseclub</span>
+                  {/* Accurate Canva Overlapping Mockup */}
+                  <div className="my-1 flex items-center justify-center">
+                    <FrameMockup styleId={style.id} />
                   </div>
 
-                  <p className="text-[10px] font-mono text-black/60 uppercase">
+                  {/* Style Subtitle */}
+                  <p className="text-[10px] font-mono text-black/50 uppercase pb-0.5">
                     {t.styles.find(s => s.id === style.id)?.desc || style.desc}
                   </p>
                 </button>
@@ -343,29 +342,42 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
             })}
           </div>
 
-          {/* Bottom Bar: Back & Next Button */}
-          <div className="w-full max-w-4xl mx-auto flex items-center justify-between pt-2">
+          {/* Bottom Bar: Back & Next Button Matching Canva Slide 2 */}
+          <div className="w-full max-w-4xl mx-auto flex items-center justify-between pt-1">
             <button
               onClick={onBackToHome}
-              className="w-12 h-12 rounded-full border border-black/40 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-black font-mono text-xs uppercase"
+              className="w-14 h-14 rounded-full border border-black/60 bg-white hover:bg-black hover:text-white transition-all flex flex-col items-center justify-center text-black shadow-xs cursor-pointer group"
               title={t.back}
             >
-              <ArrowLeft className="w-4 h-4" />
+              <span className="text-[9px] font-serif uppercase tracking-widest leading-none">BACK</span>
+              <span className="text-xs leading-none mt-1 group-hover:-translate-x-0.5 transition-transform">←</span>
             </button>
 
-            {/* Brand signature */}
-            <div className="flex items-center gap-2">
-              <span className="font-script text-2xl text-black">poseclub</span>
-              <span className="font-editorial text-xs tracking-widest text-black/60 uppercase">studio</span>
+            {/* Brand signature (Canva slide 2 style) */}
+            <div className="flex flex-col items-center">
+              <span className="text-[9px] font-mono tracking-[0.3em] text-black/50 uppercase">POSECLUB</span>
+              <span className="font-script text-2xl text-black -mt-1">studio</span>
+              <div className="w-16 h-[1px] bg-black/20 mt-0.5" />
             </div>
 
-            <button
-              onClick={() => setStep('filter-select')}
-              className="px-8 py-3 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-xs font-mono uppercase tracking-widest transition-all shadow-md flex items-center gap-2"
-            >
-              <span>{t.next}</span>
-              <span>✦</span>
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowVoucherModal(true)}
+                className="w-14 h-14 rounded-full border border-black/60 bg-white hover:bg-black hover:text-white transition-all flex flex-col items-center justify-center text-black shadow-xs cursor-pointer group"
+                title={t.voucherBtn}
+              >
+                <span className="text-[8px] font-serif uppercase tracking-widest leading-none">{t.voucherBtn}</span>
+                <Ticket className="w-3.5 h-3.5 mt-0.5 opacity-70 group-hover:opacity-100" />
+              </button>
+
+              <button
+                onClick={() => setStep('filter-select')}
+                className="px-8 py-3 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-xs font-mono uppercase tracking-widest transition-all shadow-md flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95"
+              >
+                <span>{t.next}</span>
+                <span>✦</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -449,6 +461,21 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                   </button>
                 </div>
               </div>
+
+              {/* Custom Text Label on Strip (mysketchbooth feature) */}
+              <div className="space-y-1.5 pt-1">
+                <label className="text-xs font-mono uppercase tracking-widest text-black/60">
+                  {t.customTextLabel}
+                </label>
+                <input
+                  type="text"
+                  value={customText}
+                  onChange={(e) => setCustomText(e.target.value)}
+                  placeholder={t.customTextPlaceholder}
+                  maxLength={26}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-black/20 bg-white text-xs font-mono focus:border-black focus:outline-none shadow-xs"
+                />
+              </div>
             </div>
 
             {/* Right Column: Live Frame Preview */}
@@ -477,8 +504,8 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
 
                 {/* Bottom Watermark */}
                 <div className="pt-3 text-center">
-                  <p className="font-editorial text-xs font-bold tracking-widest uppercase">
-                    poseclub studio
+                  <p className="font-editorial text-xs font-bold tracking-widest uppercase truncate max-w-[180px]">
+                    {customText.trim() ? customText.trim().toUpperCase() : 'POSECLUB STUDIO'}
                   </p>
                   <p className="text-[8px] font-mono tracking-wider opacity-60">
                     FULLERTON, CA
@@ -734,8 +761,26 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                 </button>
 
                 <button
+                  onClick={handleDownloadSingles}
+                  disabled={isExporting}
+                  className="w-full py-2.5 rounded-full border border-black/30 hover:border-black text-black hover:bg-black/5 text-xs font-mono uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  {singlesDownloaded ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>{t.downloadSuccess}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>{t.downloadSinglesBtn}</span>
+                    </>
+                  )}
+                </button>
+
+                <button
                   onClick={handlePrint}
-                  className="w-full py-2.5 rounded-full border border-black/30 hover:border-black text-black hover:bg-black/5 text-xs font-mono uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                  className="w-full py-2.5 rounded-full border border-black/30 hover:border-black text-black hover:bg-black/5 text-xs font-mono uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Printer className="w-3.5 h-3.5" />
                   <span>{t.printBtn}</span>
@@ -788,8 +833,8 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
 
                 {/* Watermark Bottom */}
                 <div className="pt-3 text-center space-y-0.5">
-                  <p className="font-editorial text-xs font-bold tracking-widest uppercase">
-                    poseclub studio
+                  <p className="font-editorial text-xs font-bold tracking-widest uppercase truncate max-w-[200px] mx-auto">
+                    {customText.trim() ? customText.trim().toUpperCase() : 'POSECLUB STUDIO'}
                   </p>
                   <div className="w-8 h-[1px] bg-current opacity-30 mx-auto" />
                   <p className="text-[8px] font-mono tracking-wider opacity-70">
@@ -823,7 +868,68 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
           </div>
         </div>
       )}
+      {/* Voucher Code Keypad Modal (Canva Slide 4) */}
+      {showVoucherModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border-2 border-black rounded-[28px] p-6 max-w-sm w-full space-y-4 shadow-2xl relative text-center">
+            <button
+              onClick={() => {
+                setShowVoucherModal(false);
+                setVoucherMessage(null);
+              }}
+              className="absolute top-4 right-4 text-black/50 hover:text-black text-xs font-mono p-1"
+            >
+              ✕
+            </button>
+            <div className="space-y-1 pt-1">
+              <span className="text-[9px] font-mono tracking-widest text-black/50 uppercase">PROMOTION CODE</span>
+              <h3 className="font-editorial text-xl font-medium tracking-wider text-black">
+                {t.voucherTitle}
+              </h3>
+            </div>
 
+            {/* Voucher Screen Display */}
+            <div className="w-full h-12 border-2 border-black rounded-xl flex items-center justify-center text-xl font-mono tracking-[0.25em] bg-[#FAF8F5]">
+              {voucherInput || '— — — —'}
+            </div>
+
+            {voucherMessage && (
+              <p className="text-xs text-emerald-600 font-mono font-medium">{voucherMessage}</p>
+            )}
+
+            {/* Keypad 1-9 (exact Canva Slide 4 design) */}
+            <div className="grid grid-cols-3 gap-2.5 max-w-[220px] mx-auto pt-1">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                <button
+                  key={num}
+                  onClick={() => setVoucherInput((prev) => (prev.length < 8 ? prev + num : prev))}
+                  className="w-16 h-12 rounded-xl border border-black/30 hover:border-black hover:bg-black hover:text-white font-mono text-base font-semibold transition-colors cursor-pointer"
+                >
+                  {num}
+                </button>
+              ))}
+              <button
+                onClick={() => setVoucherInput('')}
+                className="w-16 h-12 rounded-xl border border-black/30 hover:bg-black/10 font-mono text-xs uppercase cursor-pointer"
+              >
+                CLEAR
+              </button>
+              <button
+                onClick={() => setVoucherInput((prev) => (prev.length < 8 ? prev + '0' : prev))}
+                className="w-16 h-12 rounded-xl border border-black/30 hover:border-black hover:bg-black hover:text-white font-mono text-base font-semibold cursor-pointer"
+              >
+                0
+              </button>
+              <button
+                onClick={() => setVoucherMessage(t.voucherApplied)}
+                className="w-16 h-12 rounded-xl border-2 border-black bg-black text-white hover:bg-black/85 font-mono text-xs font-bold cursor-pointer"
+              >
+                APPLY
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
