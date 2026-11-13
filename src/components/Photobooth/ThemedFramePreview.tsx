@@ -62,7 +62,7 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
 
       {/* Main Themed Frame Display */}
       <div
-        className="relative rounded-2xl md:rounded-3xl border-2 shadow-2xl transition-all duration-300 p-2 sm:p-3 md:p-4 flex flex-col items-center justify-between"
+        className="relative rounded-2xl md:rounded-3xl border-2 shadow-2xl transition-all duration-300 p-2 sm:p-2.5 md:p-3 flex flex-col items-center justify-between"
         style={{
           backgroundColor: currentTheme.bgColor,
           borderColor: currentTheme.borderColor,
@@ -71,7 +71,7 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
       >
         {/* ================= STYLE 1: POLAROID ================= */}
         {selectedStyle === 1 && (
-          <div className="w-[170px] sm:w-[210px] md:w-[320px] lg:w-[360px] xl:w-[380px] flex flex-col items-center">
+          <div className="w-[160px] sm:w-[190px] md:w-[260px] lg:w-[290px] flex flex-col items-center">
             {currentTheme.isTextBar && (
               <p
                 className="font-mono text-[9px] md:text-xs font-bold tracking-widest uppercase mb-1.5"
@@ -112,7 +112,13 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
 
         {/* ================= STYLE 2, 4: VERTICAL STRIP (Classic 1x4 or 1x2) ================= */}
         {(selectedStyle === 2 || selectedStyle === 4) && (
-          <div className="w-[105px] sm:w-[125px] md:w-[145px] lg:w-[160px] xl:w-[175px] flex flex-col items-center relative">
+          <div
+            className={`flex flex-col items-center relative ${
+              selectedStyle === 4
+                ? 'w-[98px] sm:w-[108px] md:w-[114px] lg:w-[116px]'
+                : 'w-[110px] sm:w-[125px] md:w-[140px] lg:w-[150px]'
+            }`}
+          >
             
             {/* Stars Decor (Image #1) */}
             {currentTheme.id === 'stars' && (
@@ -147,7 +153,7 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
             )}
 
             {/* Photo Slots List */}
-            <div className="w-full space-y-1 sm:space-y-1.5 md:space-y-2">
+            <div className="w-full space-y-1 sm:space-y-1.5">
               {[...Array(selectedStyle === 2 ? 2 : 4)].map((_, idx) => (
                 <div key={idx} className="space-y-0.5">
                   {/* Theme Text Bar (Images #7, #8, #9, #10) */}
@@ -188,9 +194,9 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
             </div>
 
             {/* Bottom Watermark */}
-            <div className="pt-2 sm:pt-2.5 pb-0.5 text-center w-full">
+            <div className="pt-1.5 sm:pt-2 pb-0.5 text-center w-full">
               <p
-                className="font-editorial text-[9px] sm:text-[10px] md:text-xs font-bold tracking-widest uppercase truncate max-w-[130px] md:max-w-[190px] mx-auto"
+                className="font-editorial text-[8px] sm:text-[9px] md:text-[10px] font-bold tracking-widest uppercase truncate max-w-[100px] md:max-w-[112px] mx-auto"
                 style={{ color: currentTheme.textColor }}
               >
                 {customText.trim() ? customText.trim().toUpperCase() : 'POSECLUB STUDIO'}
@@ -204,10 +210,10 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
           <div
             className={`flex flex-col items-center relative ${
               selectedStyle === 3
-                ? 'w-[160px] sm:w-[200px] md:w-[330px] lg:w-[370px] xl:w-[400px]'
+                ? 'w-[160px] sm:w-[190px] md:w-[270px] lg:w-[300px]'
                 : selectedStyle === 5
-                ? 'w-[145px] sm:w-[180px] md:w-[290px] lg:w-[330px] xl:w-[360px]'
-                : 'w-[180px] sm:w-[220px] md:w-[360px] lg:w-[410px] xl:w-[450px]'
+                ? 'w-[130px] sm:w-[155px] md:w-[200px] lg:w-[220px]'
+                : 'w-[170px] sm:w-[200px] md:w-[290px] lg:w-[325px]'
             }`}
           >
             {currentTheme.isTextBar && (
