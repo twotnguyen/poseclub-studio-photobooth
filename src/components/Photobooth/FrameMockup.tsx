@@ -154,61 +154,47 @@ export const FrameMockup: React.FC<FrameMockupProps> = ({ styleId }) => {
       );
 
     case 4:
-      // STYLE 4: Two overlapping 6-photo landscape cards (3x2)
+      // STYLE 4: Two overlapping 4-photo classic vertical strips (1x4)
       return (
-        <div className="relative w-[160px] h-[116px] flex items-center justify-center">
-          {/* Card behind */}
+        <div className="relative w-[150px] h-[116px] flex items-center justify-center">
+          {/* Strip behind */}
           <div
             className="absolute bg-white shadow-xs flex flex-col justify-between"
             style={{
-              width: '102px',
-              height: '68px',
-              left: '8px',
-              top: '8px',
+              width: '46px',
+              height: '104px',
+              left: '26px',
+              top: '2px',
               border: borderCol,
               padding: '4px',
             }}
           >
-            <div className="grid grid-cols-3 gap-1">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="h-[21px]" style={{ backgroundColor: photoBg, border: borderCol }} />
+            <div className="flex flex-col gap-1">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="w-full h-[18px]" style={{ backgroundColor: photoBg, border: borderCol }} />
               ))}
             </div>
-            <div className="text-center py-0.5 -my-1">
-              <span className="font-script text-[8px] text-black leading-none">studio</span>
-            </div>
-            <div className="grid grid-cols-3 gap-1">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="h-[21px]" style={{ backgroundColor: photoBg, border: borderCol }} />
-              ))}
-            </div>
+            <span className="font-script text-[7px] text-black text-center leading-none mt-1">studio</span>
           </div>
 
-          {/* Card in front */}
+          {/* Strip in front */}
           <div
             className="absolute bg-white shadow-md flex flex-col justify-between z-10"
             style={{
-              width: '102px',
-              height: '68px',
-              left: '50px',
-              top: '38px',
+              width: '46px',
+              height: '104px',
+              left: '68px',
+              top: '12px',
               border: borderCol,
               padding: '4px',
             }}
           >
-            <div className="grid grid-cols-3 gap-1">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="h-[21px]" style={{ backgroundColor: photoBg, border: borderCol }} />
+            <div className="flex flex-col gap-1">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="w-full h-[18px]" style={{ backgroundColor: photoBg, border: borderCol }} />
               ))}
             </div>
-            <div className="text-center py-0.5 -my-1">
-              <span className="font-script text-[8px] text-black leading-none">studio</span>
-            </div>
-            <div className="grid grid-cols-3 gap-1">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="h-[21px]" style={{ backgroundColor: photoBg, border: borderCol }} />
-              ))}
-            </div>
+            <span className="font-script text-[7px] text-black text-center leading-none mt-1">studio</span>
           </div>
         </div>
       );
