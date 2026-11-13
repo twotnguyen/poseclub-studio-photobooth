@@ -394,77 +394,255 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
             </p>
           </div>
 
-          {/* Center Split: Controls on Left, Preview on Right */}
-          <div className="max-w-4xl w-full mx-auto my-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-            
-            {/* Left Column: Filter and Border buttons */}
-            <div className="md:col-span-6 space-y-6">
-              {/* Filter Buttons */}
-              <div className="space-y-2">
-                <label className="text-xs font-mono uppercase tracking-widest text-black/60">
+          {/* CENTER: Exact Selected Frame Style with Live Filter Effect */}
+          <div className="flex-1 flex items-center justify-center my-auto py-2">
+            <div
+              className={`p-3.5 rounded-2xl border-2 shadow-2xl flex flex-col justify-between transition-all duration-300 ${
+                isDark
+                  ? 'bg-[#0E0E0E] text-white border-black shadow-black/30'
+                  : 'bg-[#FAF9F6] text-black border-black/30 shadow-stone-300/60'
+              }`}
+            >
+              {/* STYLE 1: 1 Photo Polaroid */}
+              {selectedStyle === 1 && (
+                <div className="w-[180px] flex flex-col items-center">
+                  <div className="w-[160px] aspect-square rounded-xs overflow-hidden border border-black/30 relative shadow-xs">
+                    <img
+                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80"
+                      alt="Preview 1"
+                      style={getFilterStyle()}
+                      className="w-full h-full object-cover transition-all duration-300"
+                    />
+                    {filter === 'bw-film' && (
+                      <div className="absolute inset-0 bg-amber-900/10 mix-blend-color pointer-events-none" />
+                    )}
+                  </div>
+                  <div className="pt-2.5 pb-1 text-center">
+                    <p className="font-editorial text-xs font-bold tracking-widest uppercase truncate max-w-[160px]">
+                      {customText.trim() ? customText.trim().toUpperCase() : 'POSECLUB STUDIO'}
+                    </p>
+                    <p className="text-[8px] font-mono tracking-wider opacity-60">FULLERTON, CA</p>
+                  </div>
+                </div>
+              )}
+
+              {/* STYLE 2: 2 Photos Strip 1x2 */}
+              {selectedStyle === 2 && (
+                <div className="w-[130px] flex flex-col items-center">
+                  <div className="w-[114px] space-y-1">
+                    {[
+                      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+                      'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80',
+                    ].map((src, idx) => (
+                      <div key={idx} className="aspect-[4/3] rounded-xs overflow-hidden border border-black/30 relative shadow-xs">
+                        <img
+                          src={src}
+                          alt={`Preview ${idx + 1}`}
+                          style={getFilterStyle()}
+                          className="w-full h-full object-cover transition-all duration-300"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="pt-2 text-center">
+                    <p className="font-editorial text-[11px] font-bold tracking-widest uppercase truncate max-w-[120px]">
+                      {customText.trim() ? customText.trim().toUpperCase() : 'POSECLUB STUDIO'}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* STYLE 3: 4 Photos Grid 2x2 */}
+              {selectedStyle === 3 && (
+                <div className="w-[180px] flex flex-col items-center">
+                  <div className="w-[160px] grid grid-cols-2 gap-1">
+                    {[
+                      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+                      'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80',
+                      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80',
+                      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+                    ].map((src, idx) => (
+                      <div key={idx} className="aspect-square rounded-xs overflow-hidden border border-black/30 relative shadow-xs">
+                        <img
+                          src={src}
+                          alt={`Preview ${idx + 1}`}
+                          style={getFilterStyle()}
+                          className="w-full h-full object-cover transition-all duration-300"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="pt-2 text-center">
+                    <p className="font-editorial text-xs font-bold tracking-widest uppercase truncate max-w-[160px]">
+                      {customText.trim() ? customText.trim().toUpperCase() : 'POSECLUB STUDIO'}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* STYLE 4: 4 Photos Classic Strip 1x4 */}
+              {selectedStyle === 4 && (
+                <div className="w-[110px] flex flex-col items-center">
+                  <div className="w-[96px] space-y-1">
+                    {[
+                      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+                      'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80',
+                      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80',
+                      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+                    ].map((src, idx) => (
+                      <div key={idx} className="aspect-[4/3] rounded-xs overflow-hidden border border-black/30 relative shadow-xs">
+                        <img
+                          src={src}
+                          alt={`Preview ${idx + 1}`}
+                          style={getFilterStyle()}
+                          className="w-full h-full object-cover transition-all duration-300"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="pt-2 text-center">
+                    <p className="font-editorial text-[9px] font-bold tracking-widest uppercase truncate max-w-[96px]">
+                      {customText.trim() ? customText.trim().toUpperCase() : 'POSECLUB'}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* STYLE 5: 6 Photos Vertical 2x3 */}
+              {selectedStyle === 5 && (
+                <div className="w-[145px] flex flex-col items-center">
+                  <div className="w-[130px] grid grid-cols-2 gap-1">
+                    {[
+                      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+                      'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80',
+                      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80',
+                      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+                      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+                      'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80',
+                    ].map((src, i) => (
+                      <div key={i} className="aspect-[4/3] rounded-xs overflow-hidden border border-black/30 relative shadow-xs">
+                        <img
+                          src={src}
+                          alt={`Preview ${i + 1}`}
+                          style={getFilterStyle()}
+                          className="w-full h-full object-cover transition-all duration-300"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="pt-2 text-center">
+                    <p className="font-editorial text-[10px] font-bold tracking-widest uppercase truncate max-w-[130px]">
+                      {customText.trim() ? customText.trim().toUpperCase() : 'POSECLUB STUDIO'}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* STYLE 6: 9 Photos Grid 3x3 */}
+              {selectedStyle === 6 && (
+                <div className="w-[185px] flex flex-col items-center">
+                  <div className="w-[170px] grid grid-cols-3 gap-0.5">
+                    {[
+                      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+                      'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80',
+                      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80',
+                      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+                      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+                      'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80',
+                      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80',
+                      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+                      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+                    ].map((src, i) => (
+                      <div key={i} className="aspect-square rounded-xs overflow-hidden border border-black/30 relative shadow-xs">
+                        <img
+                          src={src}
+                          alt={`Preview ${i + 1}`}
+                          style={getFilterStyle()}
+                          className="w-full h-full object-cover transition-all duration-300"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="pt-2 text-center">
+                    <p className="font-editorial text-[10px] font-bold tracking-widest uppercase truncate max-w-[170px]">
+                      {customText.trim() ? customText.trim().toUpperCase() : 'POSECLUB STUDIO'}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* BELOW: Controls Dock (Filters, Frame Color & Custom Text) */}
+          <div className="max-w-3xl w-full mx-auto bg-white border border-black/15 rounded-2xl p-3 shadow-xs space-y-2.5 my-1">
+            {/* Row 1: Filters */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <label className="text-[10px] font-mono uppercase tracking-widest text-black/60 font-semibold">
                   {t.filterLabel}
                 </label>
-                <div className="space-y-2">
-                  {[
-                    { id: 'bw-contrast', label: 'B&W Contrast', desc: 'Đen trắng điện ảnh tương phản cao' },
-                    { id: 'bw-film', label: 'B&W Film Grain', desc: 'Hạt phim hoài niệm cổ điển' },
-                    { id: 'natural', label: 'Clean Natural', desc: 'Màu tự nhiên sáng trong trẻo' },
-                  ].map((f) => (
-                    <button
-                      key={f.id}
-                      onClick={() => setFilter(f.id as FilterType)}
-                      className={`w-full p-3 rounded-xl border text-left transition-all flex items-center justify-between ${
-                        filter === f.id
-                          ? 'border-black bg-black text-white shadow-md'
-                          : 'border-black/20 bg-white hover:border-black/60 text-black'
-                      }`}
-                    >
-                      <div>
-                        <p className="text-xs font-semibold">{t.filters.find(fl => fl.id === f.id)?.label || f.label}</p>
-                        <p className={`text-[10px] ${filter === f.id ? 'text-white/70' : 'text-black/50'}`}>
-                          {t.filters.find(fl => fl.id === f.id)?.desc || f.desc}
-                        </p>
-                      </div>
-                      {filter === f.id && <Sparkles className="w-3.5 h-3.5" />}
-                    </button>
-                  ))}
-                </div>
+                <span className="text-[10px] font-mono text-black/45">
+                  {filter === 'bw-contrast' && 'High Contrast Monochrome'}
+                  {filter === 'bw-film' && 'Warm Retro Film Sepia'}
+                  {filter === 'natural' && 'Vivid Natural Colors'}
+                </span>
               </div>
-
-              {/* Frame Color */}
-              <div className="space-y-2">
-                <label className="text-xs font-mono uppercase tracking-widest text-black/60">
-                  {t.frameColorLabel}
-                </label>
-                <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-2">
+                {t.filters.map((f) => (
                   <button
-                    onClick={() => setFrameColor('black')}
-                    className={`p-3 rounded-xl border flex items-center justify-center gap-2 transition-all ${
-                      frameColor === 'black'
+                    key={f.id}
+                    onClick={() => setFilter(f.id as FilterType)}
+                    className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
+                      filter === f.id
                         ? 'border-black bg-black text-white shadow-md'
-                        : 'border-black/20 bg-white text-black'
+                        : 'border-black/20 bg-stone-50 hover:border-black/50 text-black'
                     }`}
                   >
-                    <div className="w-3.5 h-3.5 rounded-full bg-black border border-white" />
+                    <p className="text-xs font-semibold">{f.label}</p>
+                    <p className={`text-[9px] mt-0.5 ${filter === f.id ? 'text-white/70' : 'text-black/50'}`}>
+                      {f.desc}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Row 2: Frame Color & Custom Text */}
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center pt-1 border-t border-black/10">
+              {/* Frame Color */}
+              <div className="sm:col-span-5 space-y-1">
+                <label className="text-[10px] font-mono uppercase tracking-widest text-black/60 font-semibold">
+                  {t.frameColorLabel}
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => setFrameColor('black')}
+                    className={`py-1.5 px-3 rounded-xl border flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      frameColor === 'black'
+                        ? 'border-black bg-black text-white shadow-md'
+                        : 'border-black/20 bg-stone-50 text-black'
+                    }`}
+                  >
+                    <div className="w-3 h-3 rounded-full bg-black border border-white" />
                     <span className="text-xs font-mono">{t.noirBlack}</span>
                   </button>
                   <button
                     onClick={() => setFrameColor('white')}
-                    className={`p-3 rounded-xl border flex items-center justify-center gap-2 transition-all ${
+                    className={`py-1.5 px-3 rounded-xl border flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                       frameColor === 'white'
                         ? 'border-black bg-white text-black ring-2 ring-black shadow-md'
-                        : 'border-black/20 bg-white text-black'
+                        : 'border-black/20 bg-stone-50 text-black'
                     }`}
                   >
-                    <div className="w-3.5 h-3.5 rounded-full bg-white border border-black" />
+                    <div className="w-3 h-3 rounded-full bg-white border border-black" />
                     <span className="text-xs font-mono">{t.pureWhite}</span>
                   </button>
                 </div>
               </div>
 
-              {/* Custom Text Label on Strip (mysketchbooth feature) */}
-              <div className="space-y-1.5 pt-1">
-                <label className="text-xs font-mono uppercase tracking-widest text-black/60">
+              {/* Custom Text */}
+              <div className="sm:col-span-7 space-y-1">
+                <label className="text-[10px] font-mono uppercase tracking-widest text-black/60 font-semibold">
                   {t.customTextLabel}
                 </label>
                 <input
@@ -473,67 +651,40 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                   onChange={(e) => setCustomText(e.target.value)}
                   placeholder={t.customTextPlaceholder}
                   maxLength={26}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-black/20 bg-white text-xs font-mono focus:border-black focus:outline-none shadow-xs"
+                  className="w-full px-3 py-1.5 rounded-xl border border-black/20 bg-stone-50 text-xs font-mono focus:border-black focus:outline-none"
                 />
               </div>
             </div>
-
-            {/* Right Column: Live Frame Preview */}
-            <div className="md:col-span-6 flex justify-center">
-              <div
-                className={`w-52 p-4 rounded-xl border shadow-xl flex flex-col items-center justify-between transition-colors duration-300 ${
-                  isDark
-                    ? 'bg-[#0E0E0E] text-white border-black'
-                    : 'bg-[#FAF9F6] text-black border-black/20'
-                }`}
-              >
-                {/* 4 Dummy Shots Preview */}
-                <div className="w-full space-y-2">
-                  {[0, 1, 2, 3].map((idx) => (
-                    <div
-                      key={idx}
-                      className="aspect-[4/3] rounded bg-stone-300 overflow-hidden relative border border-black/10 flex items-center justify-center"
-                    >
-                      <Camera className="w-5 h-5 opacity-40 text-black" />
-                      <span className="absolute bottom-1 right-1 text-[8px] font-mono bg-black/50 text-white px-1 rounded">
-                        0{idx + 1}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Bottom Watermark */}
-                <div className="pt-3 text-center">
-                  <p className="font-editorial text-xs font-bold tracking-widest uppercase truncate max-w-[180px]">
-                    {customText.trim() ? customText.trim().toUpperCase() : 'POSECLUB STUDIO'}
-                  </p>
-                  <p className="text-[8px] font-mono tracking-wider opacity-60">
-                    FULLERTON, CA
-                  </p>
-                </div>
-              </div>
-            </div>
-
           </div>
 
-          {/* Bottom Bar */}
-          <div className="w-full max-w-4xl mx-auto flex items-center justify-between pt-2">
+          {/* Bottom Bar: Back & Next Button */}
+          <div className="w-full max-w-3xl mx-auto flex items-center justify-between pt-1 pb-1">
             <button
               onClick={() => setStep('frame-select')}
-              className="w-12 h-12 rounded-full border border-black/40 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-black"
+              className="w-13 h-13 rounded-full border border-black/50 bg-white hover:bg-black hover:text-white transition-all flex flex-col items-center justify-center text-black shadow-xs cursor-pointer group"
               title={t.back}
             >
-              <ArrowLeft className="w-4 h-4" />
+              <span className="text-[8px] font-serif uppercase tracking-widest leading-none">BACK</span>
+              <span className="text-xs leading-none mt-0.5 group-hover:-translate-x-0.5 transition-transform">←</span>
             </button>
+
+            {/* Brand signature */}
+            <div className="flex flex-col items-center">
+              <span className="text-[8px] font-mono tracking-[0.3em] text-black/50 uppercase">POSECLUB</span>
+              <span className="font-script text-2xl text-black -mt-1">studio</span>
+              <div className="w-14 h-[1px] bg-black/20 mt-0.5" />
+            </div>
+
             <button
               onClick={() => {
                 setShots([]);
                 setCurrentShotIndex(0);
                 setStep('camera');
               }}
-              className="px-8 py-3 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-xs font-mono uppercase tracking-widest transition-all shadow-md flex items-center gap-2"
+              className="px-8 py-2.5 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-xs font-mono uppercase tracking-widest transition-all shadow-md flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95"
             >
               <span>{t.startCapture}</span>
+              <span>✦</span>
             </button>
           </div>
         </div>
