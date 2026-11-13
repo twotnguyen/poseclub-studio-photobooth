@@ -1,21 +1,46 @@
-import { Header } from './components/Header';
-import { Hero } from './components/Hero';
-import { Photobooth } from './components/Photobooth/Photobooth';
-import { StudioShowcase } from './components/StudioShowcase';
-import { Footer } from './components/Footer';
+import { useState } from 'react';
+import { Navigation, TabId } from './components/Navigation';
+import { HomeTab } from './components/tabs/HomeTab';
+import { BoothTab } from './components/tabs/BoothTab';
+import { StudioTab } from './components/tabs/StudioTab';
+import { GuideTab } from './components/tabs/GuideTab';
+import { sounds } from './components/Photobooth/SoundEffects';
 
 export default function App() {
-  return (
-    <div className="min-h-screen bg-studio-950 text-studio-100 flex flex-col font-sans selection:bg-white selection:text-black">
-      <Header />
-      <main className="flex-1">
-        <Hero />
-        
-        <Photobooth />
+  const [activeTab, setActiveTab] = useState<TabId>('home');
+  const [isMuted, setIsMuted] = useState<boolean>(false);
 
-        <StudioShowcase />
+  const toggleMute = () => {
+    sounds.muted = !isMuted;
+    setIsMuted(!isMuted);
+  };
+
+  return (
+    <div className="h-[100dvh] w-full flex flex-col overflow-hidden bg-[#FAF8F5] text-black font-sans selection:bg-black selection:text-white">
+      {/* Top Tab Bar */}
+      <Navigation
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isMuted={isMuted}
+        onToggleMute={toggleMute}
+      />
+
+      {/* Main Tab Viewport (Zero Scroll, Fitted to screen) */}
+      <main className="flex-1 w-full overflow-hidden relative">
+        {activeTab === 'home' && (
+          <HomeTab
+            onStart={() => setActiveTab('booth')}
+            onGoToStudio={() => setActiveTab('studio')}
+          />
+        )}
+        {activeTab === 'booth' && (
+          <BoothTab onBackToHome={() => setActiveTab('home')} />
+        )}
+        {activeTab === 'studio' && <StudioTab />}
+        {activeTab === 'guide' && (
+          <GuideTab onStartBooth={() => setActiveTab('booth')} />
+        )}
       </main>
-      <Footer />
     </div>
   );
 }
