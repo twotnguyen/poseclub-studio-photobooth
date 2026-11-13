@@ -6,7 +6,7 @@ import { FilterType, FrameColor, LayoutType, FrameTheme } from '../Photobooth/ty
 import { Language, TRANSLATIONS } from '../../i18n/translations';
 import { FrameMockup } from '../Photobooth/FrameMockup';
 import { ThemedFramePreview } from '../Photobooth/ThemedFramePreview';
-import { FRAME_THEMES } from '../Photobooth/FrameThemes';
+import { FRAME_THEMES, getThemeById } from '../Photobooth/FrameThemes';
 interface BoothTabProps {
   language: Language;
   onBackToHome: () => void;
@@ -21,9 +21,11 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
 
   // Configuration
   const [selectedStyle, setSelectedStyle] = useState<number>(4); // Default Style 4 (Classic 1x4 Strip)
+  const totalShots = selectedStyle === 1 ? 1 : selectedStyle === 2 ? 2 : selectedStyle === 5 ? 6 : selectedStyle === 6 ? 9 : 4;
   const [layout, setLayout] = useState<LayoutType>('strip-1x4');
   const [filter, setFilter] = useState<FilterType>('bw-contrast');
   const [theme, setTheme] = useState<FrameTheme>('classic-black');
+  const currentTheme = getThemeById(theme);
   const frameColor: FrameColor = theme === 'classic-white' ? 'white' : 'black';
   const [printCopies, setPrintCopies] = useState<number>(1);
   const [customText, setCustomText] = useState<string>('');
@@ -159,7 +161,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
               const next = [...prev];
               next[currentShotIndex] = photoData;
 
-              if (currentShotIndex < 3) {
+              if (currentShotIndex < totalShots - 1) {
                 setCurrentShotIndex(currentShotIndex + 1);
                 setTimeout(() => {
                   triggerCapture();
@@ -520,92 +522,247 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
 
       {/* ----------------- SUB-STEP 3: TAKE YOUR PHOTOS (Slide 7) ----------------- */}
       {step === 'camera' && (
-        <div className="h-full flex flex-col justify-between">
-          <div className="text-center space-y-1">
-            <h2 className="font-editorial text-2xl sm:text-4xl text-black font-medium tracking-[0.15em] uppercase">
+        <div className="h-full flex flex-col justify-between overflow-hidden">
+          <div className="text-center space-y-0.5 pt-1">
+            <h2 className="font-editorial text-2xl sm:text-3xl text-black font-medium tracking-[0.15em] uppercase">
               {t.step3Title}
             </h2>
-            <p className="text-xs text-black/50 font-mono tracking-wider">
+            <p className="text-[11px] text-black/50 font-mono tracking-wider">
               {retakeIndex !== null
                 ? `${t.step3SubtitleRetake} 0${retakeIndex + 1}`
-                : `${t.step3SubtitleNormal} 0${currentShotIndex + 1}/04`}
+                : `${t.step3SubtitleNormal} 0${Math.min(currentShotIndex + 1, totalShots)}/0${totalShots}`}
             </p>
           </div>
 
-          {/* Camera Viewport Center */}
-          <div className="max-w-2xl w-full mx-auto my-auto relative aspect-[4/3] rounded-3xl overflow-hidden border-2 border-black bg-black shadow-2xl flex items-center justify-center">
-            {/* Live Video */}
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              style={getFilterStyle()}
-              className={`w-full h-full object-cover transition-transform duration-200 ${
-                isMirror ? '-scale-x-100' : 'scale-x-100'
-              } ${cameraActive ? 'opacity-100' : 'opacity-0'}`}
-            />
+          {/* 2-COLUMN VIEWPORT: Left Live Frame Progress + Right Live Camera */}
+          <div className="flex-1 w-full max-w-5xl mx-auto my-auto grid grid-cols-1 md:grid-cols-12 gap-5 items-center px-4 overflow-hidden min-h-0">
+            
+            {/* LEFT: Live Photostrip Progress Preview (User sees photo right after shooting) */}
+            <div className="md:col-span-5 lg:col-span-4 flex flex-col items-center justify-center">
+              <div
+                className="relative rounded-2xl border-2 shadow-2xl p-2.5 flex flex-col items-center justify-between transition-all duration-300"
+                style={{
+                  backgroundColor: currentTheme.bgColor,
+                  borderColor: currentTheme.borderColor,
+                  boxShadow: '0 15px 35px -5px rgba(0,0,0,0.2)',
+                }}
+              >
+                {/* Header text bar if theme has it */}
+                {currentTheme.isTextBar && (
+                  <p
+                    className="font-mono text-[8px] font-bold tracking-wider text-center uppercase mb-1 truncate max-w-[130px]"
+                    style={{ color: currentTheme.textColor }}
+                  >
+                    {currentTheme.barText}
+                  </p>
+                )}
 
-            {/* Flash Effect */}
-            {isFlashing && (
-              <div className="absolute inset-0 bg-white z-40 animate-flash pointer-events-none" />
-            )}
+                {/* 1x2 or 1x4 Vertical Strip */}
+                {(selectedStyle === 2 || selectedStyle === 4) && (
+                  <div className="w-[110px] sm:w-[124px] space-y-1">
+                    {[...Array(totalShots)].map((_, idx) => {
+                      const hasShot = !!shots[idx];
+                      const isCurrent = idx === currentShotIndex && isSessionActive;
+                      return (
+                        <div
+                          key={idx}
+                          onClick={() => {
+                            if (hasShot && !isSessionActive) {
+                              setRetakeIndex(idx);
+                              triggerCapture();
+                            }
+                          }}
+                          className={`w-full h-[58px] sm:h-[62px] rounded-xs border relative overflow-hidden flex flex-col items-center justify-center transition-all ${
+                            isCurrent
+                              ? 'ring-2 ring-emerald-500 scale-102 shadow-md'
+                              : hasShot
+                              ? 'border-black/30 cursor-pointer hover:opacity-85'
+                              : 'border-black/20'
+                          }`}
+                          style={{
+                            backgroundColor: hasShot ? '#000000' : currentTheme.slotBgDefault,
+                            borderColor: currentTheme.slotBorderColor,
+                          }}
+                          title={hasShot ? `Tấm 0${idx + 1} (Bấm để chụp lại)` : `Tấm 0${idx + 1}`}
+                        >
+                          {hasShot ? (
+                            <img
+                              src={shots[idx]}
+                              alt={`Shot ${idx + 1}`}
+                              style={getFilterStyle()}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <>
+                              <Camera className="w-5 h-5 opacity-40 text-current" style={{ color: currentTheme.textColor }} />
+                              <span className="text-[7px] font-mono opacity-50 mt-0.5" style={{ color: currentTheme.textColor }}>
+                                0{idx + 1}
+                              </span>
+                            </>
+                          )}
+                          {isCurrent && (
+                            <div className="absolute inset-0 bg-emerald-500/20 border-2 border-emerald-500 animate-pulse pointer-events-none" />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
 
-            {/* Countdown Overlay */}
-            {countdown !== null && (
-              <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-                <div className="w-28 h-28 rounded-full border-4 border-white flex items-center justify-center animate-pulse">
-                  <span className="font-editorial text-7xl text-white font-bold">{countdown}</span>
+                {/* Polaroid Style 1 */}
+                {selectedStyle === 1 && (
+                  <div className="w-[190px] flex flex-col items-center">
+                    <div
+                      className="w-full aspect-square rounded-xs border relative overflow-hidden flex flex-col items-center justify-center"
+                      style={{
+                        backgroundColor: shots[0] ? '#000000' : currentTheme.slotBgDefault,
+                        borderColor: currentTheme.slotBorderColor,
+                      }}
+                    >
+                      {shots[0] ? (
+                        <img
+                          src={shots[0]}
+                          alt="Shot 1"
+                          style={getFilterStyle()}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <Camera className="w-10 h-10 opacity-40 text-current" style={{ color: currentTheme.textColor }} />
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Grid 2x2, 2x3, 3x3 */}
+                {(selectedStyle === 3 || selectedStyle === 5 || selectedStyle === 6) && (
+                  <div
+                    className={`grid gap-1 ${
+                      selectedStyle === 3 ? 'w-[170px] grid-cols-2' : selectedStyle === 5 ? 'w-[150px] grid-cols-2' : 'w-[190px] grid-cols-3'
+                    }`}
+                  >
+                    {[...Array(totalShots)].map((_, idx) => {
+                      const hasShot = !!shots[idx];
+                      const isCurrent = idx === currentShotIndex && isSessionActive;
+                      return (
+                        <div
+                          key={idx}
+                          className={`aspect-square rounded-xs border relative overflow-hidden flex flex-col items-center justify-center ${
+                            isCurrent ? 'ring-2 ring-emerald-500' : ''
+                          }`}
+                          style={{
+                            backgroundColor: hasShot ? '#000000' : currentTheme.slotBgDefault,
+                            borderColor: currentTheme.slotBorderColor,
+                          }}
+                        >
+                          {hasShot ? (
+                            <img
+                              src={shots[idx]}
+                              alt={`Shot ${idx + 1}`}
+                              style={getFilterStyle()}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <Camera className="w-4 h-4 opacity-40 text-current" style={{ color: currentTheme.textColor }} />
+                          )}
+                          <span className="absolute bottom-0.5 right-1 text-[6px] font-mono opacity-50" style={{ color: currentTheme.textColor }}>
+                            0{idx + 1}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Bottom Watermark */}
+                <div className="pt-2 text-center w-full">
+                  <p
+                    className="font-editorial text-[9px] font-bold tracking-widest uppercase truncate max-w-[130px] mx-auto"
+                    style={{ color: currentTheme.textColor }}
+                  >
+                    {customText.trim() ? customText.trim().toUpperCase() : 'POSECLUB STUDIO'}
+                  </p>
                 </div>
               </div>
-            )}
-
-            {/* Camera Controls inside overlay */}
-            <div className="absolute top-4 left-4 z-20 flex items-center gap-2">
-              <button
-                onClick={() => setIsMirror(!isMirror)}
-                className="p-2 rounded-full bg-black/60 text-white hover:bg-black transition-colors"
-                title={t.mirrorTip}
-              >
-                <RefreshCw className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={() => setCountdownDuration(countdownDuration === 3 ? 5 : 3)}
-                className="px-2.5 py-1 rounded-full bg-black/60 text-white text-[11px] font-mono hover:bg-black transition-colors"
-              >
-                {countdownDuration}s
-              </button>
             </div>
 
-            {/* Error Fallback */}
-            {!cameraActive && cameraError && (
-              <div className="absolute inset-0 z-20 bg-stone-900 p-6 flex flex-col items-center justify-center text-center space-y-3 text-white">
-                <Camera className="w-10 h-10 opacity-60" />
-                <p className="text-xs max-w-sm text-stone-300">{cameraError || t.cameraError}</p>
-                <div className="flex gap-2">
+            {/* RIGHT: Live Camera Viewport */}
+            <div className="md:col-span-7 lg:col-span-8 flex flex-col items-center justify-center">
+              <div className="w-full max-w-xl relative aspect-[4/3] max-h-[370px] rounded-3xl overflow-hidden border-2 border-black bg-black shadow-2xl flex items-center justify-center">
+                {/* Live Video */}
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  style={getFilterStyle()}
+                  className={`w-full h-full object-cover transition-transform duration-200 ${
+                    isMirror ? '-scale-x-100' : 'scale-x-100'
+                  } ${cameraActive ? 'opacity-100' : 'opacity-0'}`}
+                />
+
+                {/* Flash Effect */}
+                {isFlashing && (
+                  <div className="absolute inset-0 bg-white z-40 animate-flash pointer-events-none" />
+                )}
+
+                {/* Countdown Overlay */}
+                {countdown !== null && (
+                  <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+                    <div className="w-24 h-24 rounded-full border-4 border-white flex items-center justify-center animate-pulse">
+                      <span className="font-editorial text-6xl text-white font-bold">{countdown}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Camera Controls inside overlay */}
+                <div className="absolute top-3 left-3 z-20 flex items-center gap-2">
                   <button
-                    onClick={startCamera}
-                    className="px-4 py-2 bg-white text-black text-xs font-semibold rounded-full hover:bg-stone-200"
+                    onClick={() => setIsMirror(!isMirror)}
+                    className="p-2 rounded-full bg-black/60 text-white hover:bg-black transition-colors"
+                    title={t.mirrorTip}
                   >
-                    {t.retryCamera}
+                    <RefreshCw className="w-3.5 h-3.5" />
                   </button>
                   <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="px-4 py-2 border border-white/40 text-white text-xs rounded-full hover:bg-white/10"
+                    onClick={() => setCountdownDuration(countdownDuration === 3 ? 5 : 3)}
+                    className="px-2.5 py-1 rounded-full bg-black/60 text-white text-[11px] font-mono hover:bg-black transition-colors"
                   >
-                    {t.uploadBtn}
+                    {countdownDuration}s
                   </button>
                 </div>
+
+                {/* Error Fallback */}
+                {!cameraActive && cameraError && (
+                  <div className="absolute inset-0 z-20 bg-stone-900 p-6 flex flex-col items-center justify-center text-center space-y-3 text-white">
+                    <Camera className="w-10 h-10 opacity-60" />
+                    <p className="text-xs max-w-sm text-stone-300">{cameraError || t.cameraError}</p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={startCamera}
+                        className="px-4 py-2 bg-white text-black text-xs font-semibold rounded-full hover:bg-stone-200"
+                      >
+                        {t.retryCamera}
+                      </button>
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="px-4 py-2 border border-white/40 text-white text-xs rounded-full hover:bg-white/10"
+                      >
+                        {t.uploadBtn}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
+
           </div>
 
-          {/* Bottom Bar: Action Trigger */}
-          <div className="w-full max-w-2xl mx-auto flex items-center justify-between pt-2">
+          {/* Bottom Bar: Action Trigger & Progress */}
+          <div className="w-full max-w-4xl mx-auto flex items-center justify-between pt-1 pb-1">
             <button
               onClick={() => setStep('filter-select')}
               disabled={isSessionActive}
-              className="w-12 h-12 rounded-full border border-black/40 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-black disabled:opacity-40"
+              className="w-12 h-12 rounded-full border border-black/40 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-black disabled:opacity-40 cursor-pointer"
               title={t.back}
             >
               <ArrowLeft className="w-4 h-4" />
@@ -620,24 +777,37 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
               accept="image/*"
               className="hidden"
             />
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isSessionActive}
-              className="px-4 py-2.5 rounded-full border border-black/30 hover:border-black text-xs font-mono text-black transition-colors flex items-center gap-1.5"
-            >
-              <Upload className="w-3.5 h-3.5" />
-              <span>{t.uploadBtn}</span>
-            </button>
 
-            {/* Big Shutter Trigger Button */}
-            <button
-              onClick={triggerCapture}
-              disabled={isSessionActive || !cameraActive}
-              className="px-8 py-3 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-xs font-mono uppercase tracking-widest transition-all shadow-lg flex items-center gap-2 disabled:opacity-40"
-            >
-              <Camera className="w-4 h-4" />
-              <span>{isSessionActive ? t.capturing : t.captureBtn}</span>
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isSessionActive}
+                className="px-4 py-2.5 rounded-full border border-black/30 hover:border-black text-xs font-mono text-black transition-colors flex items-center gap-1.5 cursor-pointer"
+              >
+                <Upload className="w-3.5 h-3.5" />
+                <span>{t.uploadBtn}</span>
+              </button>
+
+              {/* If user took some shots, show direct preview button */}
+              {shots.filter(Boolean).length > 0 && !isSessionActive && (
+                <button
+                  onClick={() => setStep('confirm')}
+                  className="px-5 py-2.5 rounded-full border border-black/40 bg-white hover:bg-black hover:text-white text-xs font-mono tracking-wider uppercase transition-all shadow-xs cursor-pointer"
+                >
+                  Xem dải ảnh ✦
+                </button>
+              )}
+
+              {/* Big Shutter Trigger Button */}
+              <button
+                onClick={triggerCapture}
+                disabled={isSessionActive || !cameraActive}
+                className="px-8 py-3 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-xs font-mono uppercase tracking-widest transition-all shadow-lg flex items-center gap-2 disabled:opacity-40 cursor-pointer hover:scale-105 active:scale-95"
+              >
+                <Camera className="w-4 h-4" />
+                <span>{isSessionActive ? t.capturing : t.captureBtn}</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
