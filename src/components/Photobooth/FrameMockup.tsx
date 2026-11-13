@@ -6,7 +6,7 @@ interface FrameMockupProps {
 
 export const FrameMockup: React.FC<FrameMockupProps> = ({ styleId }) => {
   const photoBg = '#FDEEC8'; // Soft pastel butter yellow from Canva
-  const borderCol = '1px solid #111111';
+  const borderCol = '1.2px solid #000000';
 
   switch (styleId) {
     case 1:

@@ -326,8 +326,8 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                   }}
                   className={`relative p-3.5 rounded-[26px] bg-white transition-all flex flex-col items-center justify-between text-center group cursor-pointer ${
                     isSelected
-                      ? 'border-2 border-black shadow-lg scale-102 ring-1 ring-black/10'
-                      : 'border border-[#C5A880]/50 hover:border-black/70 hover:shadow-md'
+                      ? 'border-2 border-black shadow-xl scale-102 ring-2 ring-black/15 bg-black/[0.015]'
+                      : 'border border-black hover:border-2 hover:border-black hover:shadow-md'
                   }`}
                 >
                   {/* Style Header */}
