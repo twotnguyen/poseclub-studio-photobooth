@@ -12,7 +12,7 @@ export default function App() {
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [language, setLanguage] = useState<Language>(() => {
     const saved = localStorage.getItem('poseclub_lang');
-    return saved === 'en' || saved === 'vi' ? saved : 'vi';
+    return saved === 'en' || saved === 'vi' ? saved : 'en';
   });
 
   const handleToggleLanguage = (lang: Language) => {
