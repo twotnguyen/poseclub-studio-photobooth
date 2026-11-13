@@ -405,9 +405,9 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
             >
               {/* STYLE 1: 1 Photo Polaroid */}
               {selectedStyle === 1 && (
-                <div className="w-[180px] flex flex-col items-center">
+                <div className="w-[280px] sm:w-[310px] p-2 flex flex-col items-center">
                   <div
-                    className="w-[160px] aspect-square rounded-xs border relative flex flex-col items-center justify-center transition-all duration-300 shadow-xs"
+                    className="w-full aspect-square rounded-xs border relative flex flex-col items-center justify-center transition-all duration-300 shadow-sm"
                     style={{
                       backgroundColor:
                         filter === 'bw-contrast'
@@ -417,41 +417,41 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                           : isDark ? '#26241E' : '#FDEEC8',
                       borderColor:
                         filter === 'bw-contrast'
-                          ? isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.4)'
+                          ? isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.45)'
                           : filter === 'bw-film'
-                          ? isDark ? 'rgba(217,119,6,0.3)' : 'rgba(120,53,15,0.35)'
-                          : isDark ? 'rgba(254,243,199,0.2)' : 'rgba(146,64,14,0.3)',
+                          ? isDark ? 'rgba(217,119,6,0.35)' : 'rgba(120,53,15,0.4)'
+                          : isDark ? 'rgba(254,243,199,0.25)' : 'rgba(146,64,14,0.35)',
                     }}
                   >
-                    <Camera className={`w-8 h-8 ${filter === 'bw-contrast' ? (isDark ? 'text-white/60' : 'text-black/50') : filter === 'bw-film' ? (isDark ? 'text-amber-200/60' : 'text-amber-900/50') : (isDark ? 'text-amber-100/50' : 'text-amber-900/40')}`} />
-                    <span className="text-[9px] font-mono tracking-widest mt-1 opacity-50 uppercase">PHOTO REGION</span>
+                    <Camera className={`w-12 h-12 ${filter === 'bw-contrast' ? (isDark ? 'text-white/60' : 'text-black/50') : filter === 'bw-film' ? (isDark ? 'text-amber-200/60' : 'text-amber-900/50') : (isDark ? 'text-amber-100/50' : 'text-amber-900/40')}`} />
+                    <span className="text-xs font-mono tracking-widest mt-2 opacity-50 uppercase">PHOTO REGION</span>
                   </div>
-                  <div className="pt-2.5 pb-1 text-center">
-                    <p className="font-editorial text-xs font-bold tracking-widest uppercase truncate max-w-[160px]">
+                  <div className="pt-3.5 pb-1 text-center">
+                    <p className="font-editorial text-sm sm:text-base font-bold tracking-widest uppercase truncate max-w-[260px]">
                       {customText.trim() ? customText.trim().toUpperCase() : 'POSECLUB STUDIO'}
                     </p>
-                    <p className="text-[8px] font-mono tracking-wider opacity-60">FULLERTON, CA</p>
+                    <p className="text-[9px] font-mono tracking-wider opacity-60 mt-0.5">FULLERTON, CA</p>
                   </div>
                 </div>
               )}
 
               {/* STYLE 2: 2 Photos Strip 1x2 */}
               {selectedStyle === 2 && (
-                <div className="w-[130px] flex flex-col items-center">
-                  <div className="w-[114px] space-y-1.5">
+                <div className="w-[190px] sm:w-[220px] p-2 flex flex-col items-center">
+                  <div className="w-full space-y-2">
                     {[0, 1].map((idx) => {
                       const slotBg = filter === 'bw-contrast' ? (isDark ? '#1F1F1F' : '#E2E2E6') : filter === 'bw-film' ? (isDark ? '#26221D' : '#EAE2D2') : (isDark ? '#26241E' : '#FDEEC8');
                       const slotBorder = filter === 'bw-contrast' ? (isDark ? 'border-white/30' : 'border-black/40') : filter === 'bw-film' ? (isDark ? 'border-amber-700/30' : 'border-amber-900/30') : (isDark ? 'border-amber-100/20' : 'border-amber-800/30');
                       return (
-                        <div key={idx} className={`aspect-[4/3] rounded-xs border relative flex flex-col items-center justify-center transition-all duration-300 shadow-xs ${slotBorder}`} style={{ backgroundColor: slotBg }}>
-                          <Camera className="w-5 h-5 opacity-40 text-current" />
-                          <span className="absolute bottom-1 right-1 text-[7px] font-mono opacity-50">0{idx + 1}</span>
+                        <div key={idx} className={`w-full aspect-[4/3] rounded-xs border relative flex flex-col items-center justify-center transition-all duration-300 shadow-sm ${slotBorder}`} style={{ backgroundColor: slotBg }}>
+                          <Camera className="w-7 h-7 opacity-40 text-current" />
+                          <span className="absolute bottom-1.5 right-2 text-[9px] font-mono opacity-50">0{idx + 1}</span>
                         </div>
                       );
                     })}
                   </div>
-                  <div className="pt-2 text-center">
-                    <p className="font-editorial text-[11px] font-bold tracking-widest uppercase truncate max-w-[120px]">
+                  <div className="pt-3 text-center">
+                    <p className="font-editorial text-xs sm:text-sm font-bold tracking-widest uppercase truncate max-w-[180px]">
                       {customText.trim() ? customText.trim().toUpperCase() : 'POSECLUB STUDIO'}
                     </p>
                   </div>
@@ -460,21 +460,21 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
 
               {/* STYLE 3: 4 Photos Grid 2x2 */}
               {selectedStyle === 3 && (
-                <div className="w-[180px] flex flex-col items-center">
-                  <div className="w-[160px] grid grid-cols-2 gap-1.5">
+                <div className="w-[280px] sm:w-[320px] p-2 flex flex-col items-center">
+                  <div className="w-full grid grid-cols-2 gap-2">
                     {[0, 1, 2, 3].map((idx) => {
                       const slotBg = filter === 'bw-contrast' ? (isDark ? '#1F1F1F' : '#E2E2E6') : filter === 'bw-film' ? (isDark ? '#26221D' : '#EAE2D2') : (isDark ? '#26241E' : '#FDEEC8');
                       const slotBorder = filter === 'bw-contrast' ? (isDark ? 'border-white/30' : 'border-black/40') : filter === 'bw-film' ? (isDark ? 'border-amber-700/30' : 'border-amber-900/30') : (isDark ? 'border-amber-100/20' : 'border-amber-800/30');
                       return (
-                        <div key={idx} className={`aspect-square rounded-xs border relative flex flex-col items-center justify-center transition-all duration-300 shadow-xs ${slotBorder}`} style={{ backgroundColor: slotBg }}>
-                          <Camera className="w-4 h-4 opacity-40 text-current" />
-                          <span className="absolute bottom-1 right-1 text-[7px] font-mono opacity-50">0{idx + 1}</span>
+                        <div key={idx} className={`aspect-square rounded-xs border relative flex flex-col items-center justify-center transition-all duration-300 shadow-sm ${slotBorder}`} style={{ backgroundColor: slotBg }}>
+                          <Camera className="w-6 h-6 opacity-40 text-current" />
+                          <span className="absolute bottom-1.5 right-1.5 text-[8px] font-mono opacity-50">0{idx + 1}</span>
                         </div>
                       );
                     })}
                   </div>
-                  <div className="pt-2 text-center">
-                    <p className="font-editorial text-xs font-bold tracking-widest uppercase truncate max-w-[160px]">
+                  <div className="pt-3 text-center">
+                    <p className="font-editorial text-xs sm:text-sm font-bold tracking-widest uppercase truncate max-w-[260px]">
                       {customText.trim() ? customText.trim().toUpperCase() : 'POSECLUB STUDIO'}
                     </p>
                   </div>
@@ -483,21 +483,21 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
 
               {/* STYLE 4: 4 Photos Classic Strip 1x4 */}
               {selectedStyle === 4 && (
-                <div className="w-[110px] flex flex-col items-center">
-                  <div className="w-[96px] space-y-1">
+                <div className="w-[150px] sm:w-[170px] p-1.5 flex flex-col items-center">
+                  <div className="w-full space-y-1.5">
                     {[0, 1, 2, 3].map((idx) => {
                       const slotBg = filter === 'bw-contrast' ? (isDark ? '#1F1F1F' : '#E2E2E6') : filter === 'bw-film' ? (isDark ? '#26221D' : '#EAE2D2') : (isDark ? '#26241E' : '#FDEEC8');
                       const slotBorder = filter === 'bw-contrast' ? (isDark ? 'border-white/30' : 'border-black/40') : filter === 'bw-film' ? (isDark ? 'border-amber-700/30' : 'border-amber-900/30') : (isDark ? 'border-amber-100/20' : 'border-amber-800/30');
                       return (
-                        <div key={idx} className={`aspect-[4/3] rounded-xs border relative flex flex-col items-center justify-center transition-all duration-300 shadow-xs ${slotBorder}`} style={{ backgroundColor: slotBg }}>
-                          <Camera className="w-4 h-4 opacity-40 text-current" />
-                          <span className="absolute bottom-1 right-1 text-[7px] font-mono opacity-50">0{idx + 1}</span>
+                        <div key={idx} className={`w-full aspect-[4/3] rounded-xs border relative flex flex-col items-center justify-center transition-all duration-300 shadow-sm ${slotBorder}`} style={{ backgroundColor: slotBg }}>
+                          <Camera className="w-5 h-5 opacity-40 text-current" />
+                          <span className="absolute bottom-1 right-1.5 text-[8px] font-mono opacity-50">0{idx + 1}</span>
                         </div>
                       );
                     })}
                   </div>
-                  <div className="pt-2 text-center">
-                    <p className="font-editorial text-[9px] font-bold tracking-widest uppercase truncate max-w-[96px]">
+                  <div className="pt-2.5 text-center">
+                    <p className="font-editorial text-[11px] font-bold tracking-widest uppercase truncate max-w-[140px]">
                       {customText.trim() ? customText.trim().toUpperCase() : 'POSECLUB'}
                     </p>
                   </div>
@@ -506,21 +506,21 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
 
               {/* STYLE 5: 6 Photos Vertical 2x3 */}
               {selectedStyle === 5 && (
-                <div className="w-[145px] flex flex-col items-center">
-                  <div className="w-[130px] grid grid-cols-2 gap-1">
+                <div className="w-[230px] sm:w-[260px] p-2 flex flex-col items-center">
+                  <div className="w-full grid grid-cols-2 gap-2">
                     {[0, 1, 2, 3, 4, 5].map((idx) => {
                       const slotBg = filter === 'bw-contrast' ? (isDark ? '#1F1F1F' : '#E2E2E6') : filter === 'bw-film' ? (isDark ? '#26221D' : '#EAE2D2') : (isDark ? '#26241E' : '#FDEEC8');
                       const slotBorder = filter === 'bw-contrast' ? (isDark ? 'border-white/30' : 'border-black/40') : filter === 'bw-film' ? (isDark ? 'border-amber-700/30' : 'border-amber-900/30') : (isDark ? 'border-amber-100/20' : 'border-amber-800/30');
                       return (
-                        <div key={idx} className={`aspect-[4/3] rounded-xs border relative flex flex-col items-center justify-center transition-all duration-300 shadow-xs ${slotBorder}`} style={{ backgroundColor: slotBg }}>
-                          <Camera className="w-3.5 h-3.5 opacity-40 text-current" />
-                          <span className="absolute bottom-0.5 right-1 text-[6px] font-mono opacity-50">0{idx + 1}</span>
+                        <div key={idx} className={`aspect-[4/3] rounded-xs border relative flex flex-col items-center justify-center transition-all duration-300 shadow-sm ${slotBorder}`} style={{ backgroundColor: slotBg }}>
+                          <Camera className="w-5 h-5 opacity-40 text-current" />
+                          <span className="absolute bottom-1 right-1 text-[7px] font-mono opacity-50">0{idx + 1}</span>
                         </div>
                       );
                     })}
                   </div>
-                  <div className="pt-2 text-center">
-                    <p className="font-editorial text-[10px] font-bold tracking-widest uppercase truncate max-w-[130px]">
+                  <div className="pt-3 text-center">
+                    <p className="font-editorial text-xs sm:text-sm font-bold tracking-widest uppercase truncate max-w-[220px]">
                       {customText.trim() ? customText.trim().toUpperCase() : 'POSECLUB STUDIO'}
                     </p>
                   </div>
@@ -529,21 +529,21 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
 
               {/* STYLE 6: 9 Photos Grid 3x3 */}
               {selectedStyle === 6 && (
-                <div className="w-[185px] flex flex-col items-center">
-                  <div className="w-[170px] grid grid-cols-3 gap-1">
+                <div className="w-[310px] sm:w-[350px] p-2 flex flex-col items-center">
+                  <div className="w-full grid grid-cols-3 gap-2">
                     {[...Array(9)].map((_, idx) => {
                       const slotBg = filter === 'bw-contrast' ? (isDark ? '#1F1F1F' : '#E2E2E6') : filter === 'bw-film' ? (isDark ? '#26221D' : '#EAE2D2') : (isDark ? '#26241E' : '#FDEEC8');
                       const slotBorder = filter === 'bw-contrast' ? (isDark ? 'border-white/30' : 'border-black/40') : filter === 'bw-film' ? (isDark ? 'border-amber-700/30' : 'border-amber-900/30') : (isDark ? 'border-amber-100/20' : 'border-amber-800/30');
                       return (
-                        <div key={idx} className={`aspect-square rounded-xs border relative flex flex-col items-center justify-center transition-all duration-300 shadow-xs ${slotBorder}`} style={{ backgroundColor: slotBg }}>
-                          <Camera className="w-3.5 h-3.5 opacity-40 text-current" />
-                          <span className="absolute bottom-0.5 right-0.5 text-[6px] font-mono opacity-50">0{idx + 1}</span>
+                        <div key={idx} className={`aspect-square rounded-xs border relative flex flex-col items-center justify-center transition-all duration-300 shadow-sm ${slotBorder}`} style={{ backgroundColor: slotBg }}>
+                          <Camera className="w-5 h-5 opacity-40 text-current" />
+                          <span className="absolute bottom-1 right-1 text-[7px] font-mono opacity-50">0{idx + 1}</span>
                         </div>
                       );
                     })}
                   </div>
-                  <div className="pt-2 text-center">
-                    <p className="font-editorial text-[10px] font-bold tracking-widest uppercase truncate max-w-[170px]">
+                  <div className="pt-3 text-center">
+                    <p className="font-editorial text-xs sm:text-sm font-bold tracking-widest uppercase truncate max-w-[280px]">
                       {customText.trim() ? customText.trim().toUpperCase() : 'POSECLUB STUDIO'}
                     </p>
                   </div>
