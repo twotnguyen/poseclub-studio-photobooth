@@ -49,15 +49,15 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
   const slotBg = getSlotBg();
 
   return (
-    <div className="relative w-full max-w-xl mx-auto flex items-center justify-center gap-4 sm:gap-8 select-none">
+    <div className="relative w-full max-w-xl mx-auto flex items-center justify-center gap-2 sm:gap-8 select-none">
       
       {/* Left Carousel Arrow (<) */}
       <button
         onClick={handlePrev}
-        className="w-12 h-12 rounded-full border border-black/30 bg-white/80 hover:bg-black hover:text-white transition-all flex items-center justify-center text-black shadow-md cursor-pointer hover:scale-105 active:scale-95 z-20"
+        className="w-8 h-8 sm:w-12 sm:h-12 rounded-full border border-black/30 bg-white/80 hover:bg-black hover:text-white transition-all flex items-center justify-center text-black shadow-md cursor-pointer hover:scale-105 active:scale-95 z-20"
         title="Previous Theme"
       >
-        <ChevronLeft className="w-6 h-6" />
+        <ChevronLeft className="w-4 h-4 sm:w-6 sm:h-6" />
       </button>
 
       {/* Main Themed Frame Display */}
@@ -71,7 +71,7 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
       >
         {/* ================= STYLE 1: POLAROID ================= */}
         {selectedStyle === 1 && (
-          <div className="w-[210px] sm:w-[230px] flex flex-col items-center">
+          <div className="w-[160px] sm:w-[230px] flex flex-col items-center">
             {currentTheme.isTextBar && (
               <p
                 className="font-mono text-[10px] font-bold tracking-widest uppercase mb-1.5"
@@ -112,7 +112,7 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
 
         {/* ================= STYLE 2, 4: VERTICAL STRIP (Classic 1x4 or 1x2) ================= */}
         {(selectedStyle === 2 || selectedStyle === 4) && (
-          <div className="w-[126px] sm:w-[138px] flex flex-col items-center relative">
+          <div className="w-[102px] sm:w-[138px] flex flex-col items-center relative">
             
             {/* Stars Decor (Image #1) */}
             {currentTheme.id === 'stars' && (
@@ -203,7 +203,7 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
         {(selectedStyle === 3 || selectedStyle === 5 || selectedStyle === 6) && (
           <div
             className={`flex flex-col items-center relative ${
-              selectedStyle === 3 ? 'w-[190px] sm:w-[210px]' : selectedStyle === 5 ? 'w-[170px] sm:w-[185px]' : 'w-[210px] sm:w-[230px]'
+              selectedStyle === 3 ? 'w-[150px] sm:w-[210px]' : selectedStyle === 5 ? 'w-[135px] sm:w-[185px]' : 'w-[160px] sm:w-[230px]'
             }`}
           >
             {currentTheme.isTextBar && (
@@ -254,10 +254,10 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
       {/* Right Carousel Arrow (>) */}
       <button
         onClick={handleNext}
-        className="w-12 h-12 rounded-full border border-black/30 bg-white/80 hover:bg-black hover:text-white transition-all flex items-center justify-center text-black shadow-md cursor-pointer hover:scale-105 active:scale-95 z-20"
+        className="w-8 h-8 sm:w-12 sm:h-12 rounded-full border border-black/30 bg-white/80 hover:bg-black hover:text-white transition-all flex items-center justify-center text-black shadow-md cursor-pointer hover:scale-105 active:scale-95 z-20"
         title="Next Theme"
       >
-        <ChevronRight className="w-6 h-6" />
+        <ChevronRight className="w-4 h-4 sm:w-6 sm:h-6" />
       </button>
 
     </div>

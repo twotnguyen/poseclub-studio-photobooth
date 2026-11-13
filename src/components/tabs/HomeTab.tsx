@@ -12,18 +12,18 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
   const t = TRANSLATIONS[language].home;
 
   return (
-    <div className="h-full w-full flex flex-col items-center justify-between p-6 sm:p-12 relative overflow-hidden select-none">
+    <div className="h-full w-full flex flex-col items-center justify-between p-4 sm:p-12 relative overflow-hidden select-none">
       
       {/* Top Left Sparkles */}
-      <div className="absolute top-8 left-10 flex flex-col items-center gap-1 text-black opacity-85">
-        <Sparkles className="w-8 h-8 stroke-[1.5]" />
-        <span className="text-[10px] font-mono tracking-widest opacity-60">EST. 2024</span>
+      <div className="absolute top-4 left-4 sm:top-8 sm:left-10 flex flex-col items-center gap-1 text-black opacity-85">
+        <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 stroke-[1.5]" />
+        <span className="text-[9px] sm:text-[10px] font-mono tracking-widest opacity-60">EST. 2024</span>
       </div>
 
       {/* Top Right Camera Doodle */}
-      <div className="absolute top-8 right-12 text-black opacity-80 hover:rotate-6 transition-transform">
-        <div className="w-12 h-9 border-2 border-black rounded-lg flex items-center justify-center relative shadow-sm">
-          <div className="w-5 h-5 rounded-full border-2 border-black" />
+      <div className="absolute top-4 right-4 sm:top-8 sm:right-12 text-black opacity-80 hover:rotate-6 transition-transform">
+        <div className="w-10 h-8 sm:w-12 sm:h-9 border-2 border-black rounded-lg flex items-center justify-center relative shadow-sm">
+          <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 border-black" />
           <div className="absolute -top-1.5 left-2 w-3 h-1 bg-black rounded-sm" />
           <div className="absolute top-1 right-1.5 w-1.5 h-1.5 bg-black rounded-full" />
         </div>
@@ -39,11 +39,11 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
         </p>
 
         {/* Large Signature Script */}
-        <h1 className="font-script text-7xl sm:text-9xl text-black leading-none drop-shadow-sm py-2">
+        <h1 className="font-script text-6xl sm:text-8xl md:text-9xl text-black leading-none drop-shadow-sm py-1 sm:py-2">
           Poseclub
         </h1>
 
-        <p className="text-[11px] sm:text-xs font-mono tracking-[0.25em] text-black/75 uppercase pt-1">
+        <p className="text-[10px] sm:text-xs font-mono tracking-[0.14em] sm:tracking-[0.25em] text-black/75 uppercase pt-1 whitespace-nowrap">
           {t.slogan}
         </p>
 

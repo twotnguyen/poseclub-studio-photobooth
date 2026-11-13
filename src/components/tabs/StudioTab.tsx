@@ -19,7 +19,7 @@ export const StudioTab: React.FC<StudioTabProps> = ({ language }) => {
   };
 
   return (
-    <div className="h-full w-full flex flex-col justify-between p-5 sm:p-8 overflow-hidden select-none">
+    <div className="min-h-full h-auto lg:h-full w-full flex flex-col justify-between p-4 sm:p-8 select-none space-y-4">
       
       {/* Title Header */}
       <div className="text-center max-w-xl mx-auto space-y-1">
@@ -34,8 +34,8 @@ export const StudioTab: React.FC<StudioTabProps> = ({ language }) => {
         </p>
       </div>
 
-      {/* Main Grid Viewport (No scroll) */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch max-w-6xl w-full mx-auto my-3 overflow-hidden">
+      {/* Main Grid Viewport */}
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-stretch max-w-6xl w-full mx-auto my-1 lg:my-3">
         
         {/* Left Card: Address & Operating Hours */}
         <div className="lg:col-span-5 bg-white border border-black/15 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-sm">
@@ -125,7 +125,7 @@ export const StudioTab: React.FC<StudioTabProps> = ({ language }) => {
         {/* Right Card: Google Maps & Highlight Badges */}
         <div className="lg:col-span-7 bg-white border border-black/15 rounded-2xl overflow-hidden flex flex-col shadow-sm">
           {/* Map & Visual */}
-          <div className="flex-1 w-full relative min-h-[220px] bg-[#EFECE6] flex items-center justify-center overflow-hidden">
+          <div className="w-full relative h-[220px] sm:h-[260px] lg:h-auto lg:flex-1 bg-[#EFECE6] flex items-center justify-center overflow-hidden">
             <iframe
               title="Poseclub Fullerton Map"
               src="https://maps.google.com/maps?q=1327%20S%20Harbor%20Blvd,%20Fullerton,%20CA%2092832&t=&z=15&ie=UTF8&iwloc=&output=embed"

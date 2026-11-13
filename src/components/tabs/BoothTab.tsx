@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Camera, ArrowLeft, RefreshCw, Upload, Download, Printer, Check, Plus, Minus, RotateCcw, Ticket } from 'lucide-react';
+import { Sparkles, Camera, ArrowLeft, RefreshCw, Upload, Download, Printer, Check, Plus, Minus, RotateCcw, Ticket, SwitchCamera } from 'lucide-react';
 import { sounds } from '../Photobooth/SoundEffects';
 import { renderPhotostripToCanvas, renderIndividualPhoto, downloadCanvas, printCanvas } from '../Photobooth/CanvasExporter';
 import { FilterType, FrameColor, LayoutType, FrameTheme } from '../Photobooth/types';
@@ -40,6 +40,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
 
   const [cameraActive, setCameraActive] = useState<boolean>(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [isMirror, setIsMirror] = useState<boolean>(true);
   const [countdownDuration, setCountdownDuration] = useState<3 | 5>(3);
   const [countdown, setCountdown] = useState<number | null>(null);
@@ -66,7 +67,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
         video: {
           width: { ideal: 1920 },
           height: { ideal: 1440 },
-          facingMode: 'user',
+          facingMode: facingMode,
         },
         audio: false,
       });
@@ -81,6 +82,14 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
       setCameraError('Chưa mở được camera. Bạn có thể cấp quyền hoặc bấm "Tải ảnh từ máy".');
       setCameraActive(false);
     }
+  }, [facingMode]);
+
+  const toggleCameraFacing = React.useCallback(() => {
+    setFacingMode((prev) => {
+      const next = prev === 'user' ? 'environment' : 'user';
+      setIsMirror(next === 'user');
+      return next;
+    });
   }, []);
 
   const stopCamera = React.useCallback(() => {
@@ -292,22 +301,22 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
   const isDark = frameColor === 'black';
 
   return (
-    <div className="h-full w-full flex flex-col justify-between p-4 sm:p-7 overflow-hidden select-none">
+    <div className="min-h-full h-auto md:h-full w-full flex flex-col justify-between p-3 sm:p-7 select-none">
       
       {/* ----------------- SUB-STEP 1: SELECT A FRAME (Slide 2) ----------------- */}
       {step === 'frame-select' && (
-        <div className="h-full flex flex-col justify-between">
-          <div className="text-center space-y-1">
-            <h2 className="font-editorial text-2xl sm:text-4xl text-black font-medium tracking-[0.15em] uppercase">
+        <div className="min-h-full h-auto md:h-full flex flex-col justify-between pb-1">
+          <div className="text-center space-y-0.5 sm:space-y-1 py-1">
+            <h2 className="font-editorial text-xl sm:text-4xl text-black font-medium tracking-[0.12em] sm:tracking-[0.15em] uppercase">
               {t.step1Title}
             </h2>
-            <p className="text-xs text-black/50 font-mono tracking-wider">
+            <p className="text-[11px] sm:text-xs text-black/50 font-mono tracking-wider">
               {t.step1Subtitle}
             </p>
           </div>
 
           {/* 6 Styles Grid from Canva Slide 2 */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-5 max-w-4xl w-full mx-auto my-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-5 max-w-4xl w-full mx-auto my-auto py-1">
             {[
               { id: 1, title: 'STYLE 1', desc: '1 Photo Polaroid', count: 1, lay: 'grid-2x2' as LayoutType },
               { id: 2, title: 'STYLE 2', desc: '2 Photos Strip (1x2)', count: 2, lay: 'strip-1x4' as LayoutType },
@@ -324,7 +333,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                     setSelectedStyle(style.id);
                     setLayout(style.lay);
                   }}
-                  className={`relative p-3.5 rounded-[26px] bg-white transition-all flex flex-col items-center justify-between text-center group cursor-pointer ${
+                  className={`relative p-2 sm:p-3.5 rounded-[18px] sm:rounded-[26px] bg-white transition-all flex flex-col items-center justify-between text-center group cursor-pointer ${
                     isSelected
                       ? 'border-2 border-black shadow-xl scale-102 ring-2 ring-black/15 bg-black/[0.015]'
                       : 'border border-black hover:border-2 hover:border-black hover:shadow-md'
@@ -350,36 +359,36 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
           </div>
 
           {/* Bottom Bar: Back & Next Button Matching Canva Slide 2 */}
-          <div className="w-full max-w-4xl mx-auto flex items-center justify-between pt-1">
+          <div className="w-full max-w-4xl mx-auto flex items-center justify-between pt-1 pb-1">
             <button
               onClick={onBackToHome}
-              className="w-14 h-14 rounded-full border border-black/60 bg-white hover:bg-black hover:text-white transition-all flex flex-col items-center justify-center text-black shadow-xs cursor-pointer group"
+              className="w-11 h-11 sm:w-14 sm:h-14 rounded-full border border-black/60 bg-white hover:bg-black hover:text-white transition-all flex flex-col items-center justify-center text-black shadow-xs cursor-pointer group"
               title={t.back}
             >
-              <span className="text-[9px] font-serif uppercase tracking-widest leading-none">BACK</span>
-              <span className="text-xs leading-none mt-1 group-hover:-translate-x-0.5 transition-transform">←</span>
+              <span className="text-[8px] sm:text-[9px] font-serif uppercase tracking-widest leading-none">BACK</span>
+              <span className="text-[10px] sm:text-xs leading-none mt-0.5 sm:mt-1 group-hover:-translate-x-0.5 transition-transform">←</span>
             </button>
 
-            {/* Brand signature (Canva slide 2 style) */}
-            <div className="flex flex-col items-center">
-              <span className="text-[9px] font-mono tracking-[0.3em] text-black/50 uppercase">POSECLUB</span>
-              <span className="font-script text-2xl text-black -mt-1">studio</span>
-              <div className="w-16 h-[1px] bg-black/20 mt-0.5" />
+            {/* Brand signature (Canva slide 2 style - hidden on extra small mobile) */}
+            <div className="hidden sm:flex flex-col items-center">
+              <span className="text-[8px] sm:text-[9px] font-mono tracking-[0.3em] text-black/50 uppercase">POSECLUB</span>
+              <span className="font-script text-xl sm:text-2xl text-black -mt-1">studio</span>
+              <div className="w-12 sm:w-16 h-[1px] bg-black/20 mt-0.5" />
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <button
                 onClick={() => setShowVoucherModal(true)}
-                className="w-14 h-14 rounded-full border border-black/60 bg-white hover:bg-black hover:text-white transition-all flex flex-col items-center justify-center text-black shadow-xs cursor-pointer group"
+                className="w-11 h-11 sm:w-14 sm:h-14 rounded-full border border-black/60 bg-white hover:bg-black hover:text-white transition-all flex flex-col items-center justify-center text-black shadow-xs cursor-pointer group"
                 title={t.voucherBtn}
               >
-                <span className="text-[8px] font-serif uppercase tracking-widest leading-none">{t.voucherBtn}</span>
-                <Ticket className="w-3.5 h-3.5 mt-0.5 opacity-70 group-hover:opacity-100" />
+                <span className="text-[7px] sm:text-[8px] font-serif uppercase tracking-widest leading-none">{t.voucherBtn}</span>
+                <Ticket className="w-3 h-3 sm:w-3.5 sm:h-3.5 mt-0.5 opacity-70 group-hover:opacity-100" />
               </button>
 
               <button
                 onClick={() => setStep('filter-select')}
-                className="px-8 py-3 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-xs font-mono uppercase tracking-widest transition-all shadow-md flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95"
+                className="px-6 sm:px-8 py-2.5 sm:py-3 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-[11px] sm:text-xs font-mono uppercase tracking-widest transition-all shadow-md flex items-center gap-1.5 sm:gap-2 cursor-pointer hover:scale-105 active:scale-95"
               >
                 <span>{t.next}</span>
                 <span>✦</span>
@@ -391,12 +400,12 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
 
       {/* ----------------- SUB-STEP 2: CHOOSE FILTER & FRAME (Slide 3 & 6) ----------------- */}
       {step === 'filter-select' && (
-        <div className="h-full flex flex-col justify-between">
-          <div className="text-center space-y-1">
-            <h2 className="font-editorial text-2xl sm:text-4xl text-black font-medium tracking-[0.15em] uppercase">
+        <div className="min-h-full h-auto md:h-full flex flex-col justify-between pb-1">
+          <div className="text-center space-y-0.5 sm:space-y-1 py-1">
+            <h2 className="font-editorial text-xl sm:text-4xl text-black font-medium tracking-[0.12em] sm:tracking-[0.15em] uppercase">
               {t.step2Title}
             </h2>
-            <p className="text-xs text-black/50 font-mono tracking-wider">
+            <p className="text-[11px] sm:text-xs text-black/50 font-mono tracking-wider">
               {t.step2Subtitle}
             </p>
           </div>
@@ -413,7 +422,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
           </div>
 
           {/* BELOW: Controls Dock (Themes, Filters & Custom Text) */}
-          <div className="max-w-4xl w-full mx-auto bg-white/95 backdrop-blur-xs border border-black/15 rounded-2xl p-3 shadow-xs space-y-2.5 my-1">
+          <div className="max-w-4xl w-full mx-auto bg-white/95 backdrop-blur-xs border border-black/15 rounded-2xl p-2.5 sm:p-3 shadow-xs space-y-2 my-1">
             
             {/* Row 1: All 10 Themes Carousel Chips (from mysketchbooth) */}
             <div className="space-y-1">
@@ -432,7 +441,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                     <button
                       key={th.id}
                       onClick={() => setTheme(th.id)}
-                      className={`px-3 py-1.5 rounded-full border text-xs font-mono whitespace-nowrap flex items-center gap-1.5 transition-all cursor-pointer ${
+                      className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border text-[11px] sm:text-xs font-mono whitespace-nowrap flex items-center gap-1.5 transition-all cursor-pointer ${
                         isSelected
                           ? 'border-black bg-black text-white shadow-xs font-semibold scale-102'
                           : 'border-black/20 bg-stone-50 hover:border-black/50 text-black/75'
@@ -491,17 +500,17 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
           <div className="w-full max-w-3xl mx-auto flex items-center justify-between pt-1 pb-1">
             <button
               onClick={() => setStep('frame-select')}
-              className="w-13 h-13 rounded-full border border-black/50 bg-white hover:bg-black hover:text-white transition-all flex flex-col items-center justify-center text-black shadow-xs cursor-pointer group"
+              className="w-11 h-11 sm:w-13 sm:h-13 rounded-full border border-black/50 bg-white hover:bg-black hover:text-white transition-all flex flex-col items-center justify-center text-black shadow-xs cursor-pointer group"
               title={t.back}
             >
               <span className="text-[8px] font-serif uppercase tracking-widest leading-none">BACK</span>
               <span className="text-xs leading-none mt-0.5 group-hover:-translate-x-0.5 transition-transform">←</span>
             </button>
 
-            {/* Brand signature */}
-            <div className="flex flex-col items-center">
+            {/* Brand signature (hidden on small mobile) */}
+            <div className="hidden sm:flex flex-col items-center">
               <span className="text-[8px] font-mono tracking-[0.3em] text-black/50 uppercase">POSECLUB</span>
-              <span className="font-script text-2xl text-black -mt-1">studio</span>
+              <span className="font-script text-xl sm:text-2xl text-black -mt-1">studio</span>
               <div className="w-14 h-[1px] bg-black/20 mt-0.5" />
             </div>
 
@@ -511,7 +520,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                 setCurrentShotIndex(0);
                 setStep('camera');
               }}
-              className="px-8 py-2.5 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-xs font-mono uppercase tracking-widest transition-all shadow-md flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95"
+              className="px-6 sm:px-8 py-2.5 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-[11px] sm:text-xs font-mono uppercase tracking-widest transition-all shadow-md flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95"
             >
               <span>{t.startCapture}</span>
               <span>✦</span>
@@ -522,9 +531,9 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
 
       {/* ----------------- SUB-STEP 3: TAKE YOUR PHOTOS (Slide 7) ----------------- */}
       {step === 'camera' && (
-        <div className="h-full flex flex-col justify-between overflow-hidden">
-          <div className="text-center space-y-0.5 pt-1">
-            <h2 className="font-editorial text-2xl sm:text-3xl text-black font-medium tracking-[0.15em] uppercase">
+        <div className="min-h-full h-auto md:h-full flex flex-col justify-between pb-1">
+          <div className="text-center space-y-0.5 pt-0.5 sm:pt-1">
+            <h2 className="font-editorial text-xl sm:text-3xl text-black font-medium tracking-[0.12em] sm:tracking-[0.15em] uppercase">
               {t.step3Title}
             </h2>
             <p className="text-[11px] text-black/50 font-mono tracking-wider">
@@ -534,11 +543,60 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
             </p>
           </div>
 
-          {/* 2-COLUMN VIEWPORT: Left Live Frame Progress + Right Live Camera */}
-          <div className="flex-1 w-full max-w-5xl mx-auto my-auto grid grid-cols-1 md:grid-cols-12 gap-5 items-center px-4 overflow-hidden min-h-0">
+          {/* 2-COLUMN VIEWPORT: Responsive Mobile View (Camera first, shots row, controls) */}
+          <div className="flex-1 w-full max-w-5xl mx-auto my-auto flex flex-col md:grid md:grid-cols-12 gap-3 sm:gap-5 items-center px-2 sm:px-4 min-h-0">
             
-            {/* LEFT: Live Photostrip Progress Preview (User sees photo right after shooting) */}
-            <div className="md:col-span-5 lg:col-span-4 flex flex-col items-center justify-center">
+            {/* Mobile Compact Horizontal Shot Preview (Order 2 on mobile, Hidden on desktop) */}
+            <div className="order-2 md:hidden w-full flex items-center justify-center gap-2 py-1 overflow-x-auto">
+              {[...Array(totalShots)].map((_, idx) => {
+                const hasShot = !!shots[idx];
+                const isCurrent = idx === currentShotIndex && isSessionActive;
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => {
+                      if (hasShot && !isSessionActive) {
+                        setRetakeIndex(idx);
+                        triggerCapture();
+                      }
+                    }}
+                    className={`w-14 h-14 rounded-xl border relative overflow-hidden flex flex-col items-center justify-center transition-all ${
+                      isCurrent
+                        ? 'ring-2 ring-emerald-500 scale-105 shadow-md'
+                        : hasShot
+                        ? 'border-black/40 cursor-pointer shadow-xs'
+                        : 'border-black/20 bg-stone-100'
+                    }`}
+                    style={{
+                      backgroundColor: hasShot ? '#000000' : currentTheme.slotBgDefault,
+                      borderColor: currentTheme.slotBorderColor,
+                    }}
+                  >
+                    {hasShot ? (
+                      <img
+                        src={shots[idx]}
+                        alt={`Shot ${idx + 1}`}
+                        style={getFilterStyle()}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <>
+                        <Camera className="w-4 h-4 opacity-40 text-current" style={{ color: currentTheme.textColor }} />
+                        <span className="text-[7px] font-mono opacity-60 mt-0.5" style={{ color: currentTheme.textColor }}>
+                          0{idx + 1}
+                        </span>
+                      </>
+                    )}
+                    {isCurrent && (
+                      <div className="absolute inset-0 bg-emerald-500/20 border-2 border-emerald-500 animate-pulse pointer-events-none" />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop Live Photostrip Progress Preview (Hidden on mobile, Visible on desktop) */}
+            <div className="order-3 md:order-1 hidden md:flex md:col-span-5 lg:col-span-4 flex-col items-center justify-center">
               <div
                 className="relative rounded-2xl border-2 shadow-2xl p-2.5 flex flex-col items-center justify-between transition-all duration-300"
                 style={{
@@ -685,9 +743,9 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
               </div>
             </div>
 
-            {/* RIGHT: Live Camera Viewport */}
-            <div className="md:col-span-7 lg:col-span-8 flex flex-col items-center justify-center">
-              <div className="w-full max-w-xl relative aspect-[4/3] max-h-[370px] rounded-3xl overflow-hidden border-2 border-black bg-black shadow-2xl flex items-center justify-center">
+            {/* RIGHT: Live Camera Viewport (Order 1 on mobile, Order 2 on desktop) */}
+            <div className="order-1 md:order-2 w-full md:col-span-7 lg:col-span-8 flex flex-col items-center justify-center">
+              <div className="w-full max-w-xl relative aspect-[4/3] max-h-[300px] sm:max-h-[370px] rounded-2xl sm:rounded-3xl overflow-hidden border-2 border-black bg-black shadow-2xl flex items-center justify-center">
                 {/* Live Video */}
                 <video
                   ref={videoRef}
@@ -715,19 +773,26 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                 )}
 
                 {/* Camera Controls inside overlay */}
-                <div className="absolute top-3 left-3 z-20 flex items-center gap-2">
+                <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 z-20 flex items-center gap-1.5 sm:gap-2">
                   <button
                     onClick={() => setIsMirror(!isMirror)}
-                    className="p-2 rounded-full bg-black/60 text-white hover:bg-black transition-colors"
+                    className="p-1.5 sm:p-2 rounded-full bg-black/60 text-white hover:bg-black transition-colors cursor-pointer"
                     title={t.mirrorTip}
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => setCountdownDuration(countdownDuration === 3 ? 5 : 3)}
-                    className="px-2.5 py-1 rounded-full bg-black/60 text-white text-[11px] font-mono hover:bg-black transition-colors"
+                    className="px-2 sm:px-2.5 py-1 rounded-full bg-black/60 text-white text-[10px] sm:text-[11px] font-mono hover:bg-black transition-colors cursor-pointer"
                   >
                     {countdownDuration}s
+                  </button>
+                  <button
+                    onClick={toggleCameraFacing}
+                    className="p-1.5 sm:p-2 rounded-full bg-black/60 text-white hover:bg-black transition-colors cursor-pointer"
+                    title={facingMode === 'user' ? 'Đổi sang camera sau' : 'Đổi sang camera trước'}
+                  >
+                    <SwitchCamera className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
@@ -762,7 +827,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
             <button
               onClick={() => setStep('filter-select')}
               disabled={isSessionActive}
-              className="w-12 h-12 rounded-full border border-black/40 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-black disabled:opacity-40 cursor-pointer"
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-black/40 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-black disabled:opacity-40 cursor-pointer"
               title={t.back}
             >
               <ArrowLeft className="w-4 h-4" />
@@ -814,18 +879,18 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
 
       {/* ----------------- SUB-STEP 4: CONFIRM & PRINT (Slide 8 & 9) ----------------- */}
       {step === 'confirm' && (
-        <div className="h-full flex flex-col justify-between">
-          <div className="text-center space-y-1">
-            <h2 className="font-editorial text-2xl sm:text-4xl text-black font-medium tracking-[0.15em] uppercase">
+        <div className="min-h-full h-auto md:h-full flex flex-col justify-between pb-2">
+          <div className="text-center space-y-0.5 sm:space-y-1 py-1">
+            <h2 className="font-editorial text-xl sm:text-4xl text-black font-medium tracking-[0.12em] sm:tracking-[0.15em] uppercase">
               {t.step4Title}
             </h2>
-            <p className="text-xs text-black/50 font-mono tracking-wider">
+            <p className="text-[11px] sm:text-xs text-black/50 font-mono tracking-wider">
               {t.step4Subtitle}
             </p>
           </div>
 
           {/* Main Grid: Left Controls, Right Preview */}
-          <div className="max-w-4xl w-full mx-auto my-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-center overflow-hidden">
+          <div className="max-w-4xl w-full mx-auto my-auto grid grid-cols-1 md:grid-cols-12 gap-5 md:gap-8 items-center py-2">
             
             {/* Left Column: Prints Quantity & Retake Gallery */}
             <div className="md:col-span-6 space-y-5 bg-white border border-black/15 rounded-2xl p-5 shadow-sm">

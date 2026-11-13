@@ -13,7 +13,7 @@ export const GuideTab: React.FC<GuideTabProps> = ({ language, onStartBooth }) =>
   const steps = t.steps.map((s, i) => ({ ...s, icon: icons[i] }));
 
   return (
-    <div className="h-full w-full flex flex-col justify-between p-6 sm:p-10 overflow-hidden select-none">
+    <div className="min-h-full h-auto md:h-full w-full flex flex-col justify-between p-4 sm:p-10 select-none space-y-4">
       
       {/* Title */}
       <div className="text-center space-y-1">
@@ -29,7 +29,7 @@ export const GuideTab: React.FC<GuideTabProps> = ({ language, onStartBooth }) =>
       </div>
 
       {/* 3 Step Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl w-full mx-auto my-auto">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 max-w-5xl w-full mx-auto my-auto py-2">
         {steps.map((step, idx) => {
           const Icon = step.icon;
           return (
