@@ -1,14 +1,11 @@
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { InstagramIcon } from './icons/InstagramIcon';
 import { Volume2, VolumeX, Sparkles } from 'lucide-react';
 import { STUDIO_CONFIG } from '../config/studio';
 import { Language, TRANSLATIONS } from '../i18n/translations';
 
-export type TabId = 'home' | 'booth' | 'studio' | 'guide';
-
 interface NavigationProps {
-  activeTab: TabId;
-  setActiveTab: (tab: TabId) => void;
   isMuted: boolean;
   onToggleMute: () => void;
   language: Language;
@@ -16,27 +13,27 @@ interface NavigationProps {
 }
 
 export const Navigation: React.FC<NavigationProps> = ({
-  activeTab,
-  setActiveTab,
   isMuted,
   onToggleMute,
   language,
   onToggleLanguage,
 }) => {
   const t = TRANSLATIONS[language];
+  const location = useLocation();
 
-  const tabs: { id: TabId; label: string }[] = [
-    { id: 'home', label: t.nav.home },
-    { id: 'booth', label: t.nav.booth },
-    { id: 'studio', label: t.nav.studio },
-    { id: 'guide', label: t.nav.guide },
+  const tabs = [
+    { path: '/', label: t.nav.home },
+    { path: '/photobooth', label: t.nav.booth },
+    { path: '/studio', label: t.nav.studio },
+    { path: '/how-to-use', label: t.nav.guide },
   ];
+
   return (
     <header className="h-16 border-b border-black/10 bg-[#FAF8F5]/90 backdrop-blur-md px-6 flex items-center justify-between select-none z-50">
       {/* Brand Logo */}
-      <button
-        onClick={() => setActiveTab('home')}
-        className="flex items-center gap-2 group text-left"
+      <Link
+        to="/"
+        className="flex items-center gap-2 group text-left cursor-pointer"
       >
         <span className="text-[11px] font-mono tracking-widest text-black/60 uppercase">
           STUDIO
@@ -44,17 +41,20 @@ export const Navigation: React.FC<NavigationProps> = ({
         <span className="font-script text-3xl text-black -mb-1 group-hover:opacity-75 transition-opacity">
           Poseclub
         </span>
-      </button>
+      </Link>
 
       {/* Tabs */}
       <nav className="flex items-center space-x-1 sm:space-x-2">
         {tabs.map((tab) => {
-          const isActive = activeTab === tab.id;
+          const isActive =
+            tab.path === '/'
+              ? location.pathname === '/' || location.pathname === '/home'
+              : location.pathname.startsWith(tab.path);
           return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium tracking-wider uppercase transition-all flex items-center gap-1.5 ${
+            <Link
+              key={tab.path}
+              to={tab.path}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium tracking-wider uppercase transition-all flex items-center gap-1.5 cursor-pointer ${
                 isActive
                   ? 'bg-black text-white shadow-sm'
                   : 'text-black/70 hover:text-black hover:bg-black/5'
@@ -62,7 +62,7 @@ export const Navigation: React.FC<NavigationProps> = ({
             >
               {isActive && <Sparkles className="w-2.5 h-2.5 text-white/90" />}
               <span>{tab.label}</span>
-            </button>
+            </Link>
           );
         })}
       </nav>
