@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { Sparkles, Camera, ArrowLeft, RefreshCw, Upload, Download, Printer, Check, Plus, Minus, RotateCcw, Ticket } from 'lucide-react';
 import { sounds } from '../Photobooth/SoundEffects';
 import { renderPhotostripToCanvas, renderIndividualPhoto, downloadCanvas, printCanvas } from '../Photobooth/CanvasExporter';
-import { FilterType, FrameColor, LayoutType } from '../Photobooth/types';
+import { FilterType, FrameColor, LayoutType, FrameTheme } from '../Photobooth/types';
 import { Language, TRANSLATIONS } from '../../i18n/translations';
 import { FrameMockup } from '../Photobooth/FrameMockup';
+import { ThemedFramePreview } from '../Photobooth/ThemedFramePreview';
+import { FRAME_THEMES } from '../Photobooth/FrameThemes';
 interface BoothTabProps {
   language: Language;
   onBackToHome: () => void;
@@ -21,7 +23,8 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
   const [selectedStyle, setSelectedStyle] = useState<number>(4); // Default Style 4 (Classic 1x4 Strip)
   const [layout, setLayout] = useState<LayoutType>('strip-1x4');
   const [filter, setFilter] = useState<FilterType>('bw-contrast');
-  const [frameColor, setFrameColor] = useState<FrameColor>('black');
+  const [theme, setTheme] = useState<FrameTheme>('classic-black');
+  const frameColor: FrameColor = theme === 'classic-white' ? 'white' : 'black';
   const [printCopies, setPrintCopies] = useState<number>(1);
   const [customText, setCustomText] = useState<string>('');
   const [showVoucherModal, setShowVoucherModal] = useState<boolean>(false);
@@ -210,6 +213,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
         images: shots,
         layout,
         frameColor,
+        theme,
         filter,
         brandName: 'poseclub studio',
         customFooterText: customText.trim(),
@@ -256,6 +260,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
         images: shots,
         layout,
         frameColor,
+        theme,
         filter,
         brandName: 'poseclub studio',
         customFooterText: customText.trim(),
@@ -394,233 +399,77 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
             </p>
           </div>
 
-          {/* CENTER: Exact Selected Frame Style with Live Filter Effect */}
-          <div className="flex-1 flex items-center justify-center my-auto py-2">
-            <div
-              className={`p-3.5 rounded-2xl border-2 shadow-2xl flex flex-col justify-between transition-all duration-300 ${
-                isDark
-                  ? 'bg-[#0E0E0E] text-white border-black shadow-black/30'
-                  : 'bg-[#FAF9F6] text-black border-black/30 shadow-stone-300/60'
-              }`}
-            >
-              {/* STYLE 1: 1 Photo Polaroid */}
-              {selectedStyle === 1 && (
-                <div className="w-[280px] sm:w-[310px] p-2 flex flex-col items-center">
-                  <div
-                    className="w-full aspect-square rounded-xs border relative flex flex-col items-center justify-center transition-all duration-300 shadow-sm"
-                    style={{
-                      backgroundColor:
-                        filter === 'bw-contrast'
-                          ? isDark ? '#1F1F1F' : '#E2E2E6'
-                          : filter === 'bw-film'
-                          ? isDark ? '#26221D' : '#EAE2D2'
-                          : isDark ? '#26241E' : '#FDEEC8',
-                      borderColor:
-                        filter === 'bw-contrast'
-                          ? isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.45)'
-                          : filter === 'bw-film'
-                          ? isDark ? 'rgba(217,119,6,0.35)' : 'rgba(120,53,15,0.4)'
-                          : isDark ? 'rgba(254,243,199,0.25)' : 'rgba(146,64,14,0.35)',
-                    }}
-                  >
-                    <Camera className={`w-12 h-12 ${filter === 'bw-contrast' ? (isDark ? 'text-white/60' : 'text-black/50') : filter === 'bw-film' ? (isDark ? 'text-amber-200/60' : 'text-amber-900/50') : (isDark ? 'text-amber-100/50' : 'text-amber-900/40')}`} />
-                    <span className="text-xs font-mono tracking-widest mt-2 opacity-50 uppercase">PHOTO REGION</span>
-                  </div>
-                  <div className="pt-3.5 pb-1 text-center">
-                    <p className="font-editorial text-sm sm:text-base font-bold tracking-widest uppercase truncate max-w-[260px]">
-                      {customText.trim() ? customText.trim().toUpperCase() : 'POSECLUB STUDIO'}
-                    </p>
-                    <p className="text-[9px] font-mono tracking-wider opacity-60 mt-0.5">FULLERTON, CA</p>
-                  </div>
-                </div>
-              )}
-
-              {/* STYLE 2: 2 Photos Strip 1x2 */}
-              {selectedStyle === 2 && (
-                <div className="w-[190px] sm:w-[220px] p-2 flex flex-col items-center">
-                  <div className="w-full space-y-2">
-                    {[0, 1].map((idx) => {
-                      const slotBg = filter === 'bw-contrast' ? (isDark ? '#1F1F1F' : '#E2E2E6') : filter === 'bw-film' ? (isDark ? '#26221D' : '#EAE2D2') : (isDark ? '#26241E' : '#FDEEC8');
-                      const slotBorder = filter === 'bw-contrast' ? (isDark ? 'border-white/30' : 'border-black/40') : filter === 'bw-film' ? (isDark ? 'border-amber-700/30' : 'border-amber-900/30') : (isDark ? 'border-amber-100/20' : 'border-amber-800/30');
-                      return (
-                        <div key={idx} className={`w-full aspect-[4/3] rounded-xs border relative flex flex-col items-center justify-center transition-all duration-300 shadow-sm ${slotBorder}`} style={{ backgroundColor: slotBg }}>
-                          <Camera className="w-7 h-7 opacity-40 text-current" />
-                          <span className="absolute bottom-1.5 right-2 text-[9px] font-mono opacity-50">0{idx + 1}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <div className="pt-3 text-center">
-                    <p className="font-editorial text-xs sm:text-sm font-bold tracking-widest uppercase truncate max-w-[180px]">
-                      {customText.trim() ? customText.trim().toUpperCase() : 'POSECLUB STUDIO'}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* STYLE 3: 4 Photos Grid 2x2 */}
-              {selectedStyle === 3 && (
-                <div className="w-[280px] sm:w-[320px] p-2 flex flex-col items-center">
-                  <div className="w-full grid grid-cols-2 gap-2">
-                    {[0, 1, 2, 3].map((idx) => {
-                      const slotBg = filter === 'bw-contrast' ? (isDark ? '#1F1F1F' : '#E2E2E6') : filter === 'bw-film' ? (isDark ? '#26221D' : '#EAE2D2') : (isDark ? '#26241E' : '#FDEEC8');
-                      const slotBorder = filter === 'bw-contrast' ? (isDark ? 'border-white/30' : 'border-black/40') : filter === 'bw-film' ? (isDark ? 'border-amber-700/30' : 'border-amber-900/30') : (isDark ? 'border-amber-100/20' : 'border-amber-800/30');
-                      return (
-                        <div key={idx} className={`aspect-square rounded-xs border relative flex flex-col items-center justify-center transition-all duration-300 shadow-sm ${slotBorder}`} style={{ backgroundColor: slotBg }}>
-                          <Camera className="w-6 h-6 opacity-40 text-current" />
-                          <span className="absolute bottom-1.5 right-1.5 text-[8px] font-mono opacity-50">0{idx + 1}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <div className="pt-3 text-center">
-                    <p className="font-editorial text-xs sm:text-sm font-bold tracking-widest uppercase truncate max-w-[260px]">
-                      {customText.trim() ? customText.trim().toUpperCase() : 'POSECLUB STUDIO'}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* STYLE 4: 4 Photos Classic Strip 1x4 */}
-              {selectedStyle === 4 && (
-                <div className="w-[150px] sm:w-[170px] p-1.5 flex flex-col items-center">
-                  <div className="w-full space-y-1.5">
-                    {[0, 1, 2, 3].map((idx) => {
-                      const slotBg = filter === 'bw-contrast' ? (isDark ? '#1F1F1F' : '#E2E2E6') : filter === 'bw-film' ? (isDark ? '#26221D' : '#EAE2D2') : (isDark ? '#26241E' : '#FDEEC8');
-                      const slotBorder = filter === 'bw-contrast' ? (isDark ? 'border-white/30' : 'border-black/40') : filter === 'bw-film' ? (isDark ? 'border-amber-700/30' : 'border-amber-900/30') : (isDark ? 'border-amber-100/20' : 'border-amber-800/30');
-                      return (
-                        <div key={idx} className={`w-full aspect-[4/3] rounded-xs border relative flex flex-col items-center justify-center transition-all duration-300 shadow-sm ${slotBorder}`} style={{ backgroundColor: slotBg }}>
-                          <Camera className="w-5 h-5 opacity-40 text-current" />
-                          <span className="absolute bottom-1 right-1.5 text-[8px] font-mono opacity-50">0{idx + 1}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <div className="pt-2.5 text-center">
-                    <p className="font-editorial text-[11px] font-bold tracking-widest uppercase truncate max-w-[140px]">
-                      {customText.trim() ? customText.trim().toUpperCase() : 'POSECLUB'}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* STYLE 5: 6 Photos Vertical 2x3 */}
-              {selectedStyle === 5 && (
-                <div className="w-[230px] sm:w-[260px] p-2 flex flex-col items-center">
-                  <div className="w-full grid grid-cols-2 gap-2">
-                    {[0, 1, 2, 3, 4, 5].map((idx) => {
-                      const slotBg = filter === 'bw-contrast' ? (isDark ? '#1F1F1F' : '#E2E2E6') : filter === 'bw-film' ? (isDark ? '#26221D' : '#EAE2D2') : (isDark ? '#26241E' : '#FDEEC8');
-                      const slotBorder = filter === 'bw-contrast' ? (isDark ? 'border-white/30' : 'border-black/40') : filter === 'bw-film' ? (isDark ? 'border-amber-700/30' : 'border-amber-900/30') : (isDark ? 'border-amber-100/20' : 'border-amber-800/30');
-                      return (
-                        <div key={idx} className={`aspect-[4/3] rounded-xs border relative flex flex-col items-center justify-center transition-all duration-300 shadow-sm ${slotBorder}`} style={{ backgroundColor: slotBg }}>
-                          <Camera className="w-5 h-5 opacity-40 text-current" />
-                          <span className="absolute bottom-1 right-1 text-[7px] font-mono opacity-50">0{idx + 1}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <div className="pt-3 text-center">
-                    <p className="font-editorial text-xs sm:text-sm font-bold tracking-widest uppercase truncate max-w-[220px]">
-                      {customText.trim() ? customText.trim().toUpperCase() : 'POSECLUB STUDIO'}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* STYLE 6: 9 Photos Grid 3x3 */}
-              {selectedStyle === 6 && (
-                <div className="w-[310px] sm:w-[350px] p-2 flex flex-col items-center">
-                  <div className="w-full grid grid-cols-3 gap-2">
-                    {[...Array(9)].map((_, idx) => {
-                      const slotBg = filter === 'bw-contrast' ? (isDark ? '#1F1F1F' : '#E2E2E6') : filter === 'bw-film' ? (isDark ? '#26221D' : '#EAE2D2') : (isDark ? '#26241E' : '#FDEEC8');
-                      const slotBorder = filter === 'bw-contrast' ? (isDark ? 'border-white/30' : 'border-black/40') : filter === 'bw-film' ? (isDark ? 'border-amber-700/30' : 'border-amber-900/30') : (isDark ? 'border-amber-100/20' : 'border-amber-800/30');
-                      return (
-                        <div key={idx} className={`aspect-square rounded-xs border relative flex flex-col items-center justify-center transition-all duration-300 shadow-sm ${slotBorder}`} style={{ backgroundColor: slotBg }}>
-                          <Camera className="w-5 h-5 opacity-40 text-current" />
-                          <span className="absolute bottom-1 right-1 text-[7px] font-mono opacity-50">0{idx + 1}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <div className="pt-3 text-center">
-                    <p className="font-editorial text-xs sm:text-sm font-bold tracking-widest uppercase truncate max-w-[280px]">
-                      {customText.trim() ? customText.trim().toUpperCase() : 'POSECLUB STUDIO'}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
+          {/* CENTER: Themed Frame Preview with Left/Right Carousel (< >) */}
+          <div className="flex-1 flex items-center justify-center my-auto py-1 min-h-0">
+            <ThemedFramePreview
+              theme={theme}
+              onThemeChange={setTheme}
+              selectedStyle={selectedStyle}
+              filter={filter}
+              customText={customText}
+            />
           </div>
 
-          {/* BELOW: Controls Dock (Filters, Frame Color & Custom Text) */}
-          <div className="max-w-3xl w-full mx-auto bg-white border border-black/15 rounded-2xl p-3 shadow-xs space-y-2.5 my-1">
-            {/* Row 1: Filters */}
+          {/* BELOW: Controls Dock (Themes, Filters & Custom Text) */}
+          <div className="max-w-4xl w-full mx-auto bg-white/95 backdrop-blur-xs border border-black/15 rounded-2xl p-3 shadow-xs space-y-2.5 my-1">
+            
+            {/* Row 1: All 10 Themes Carousel Chips (from mysketchbooth) */}
             <div className="space-y-1">
               <div className="flex items-center justify-between">
                 <label className="text-[10px] font-mono uppercase tracking-widest text-black/60 font-semibold">
-                  {t.filterLabel}
+                  Theme Khung ảnh (10 Kiểu dáng từ Mysketchbooth)
                 </label>
-                <span className="text-[10px] font-mono text-black/45">
-                  {filter === 'bw-contrast' && 'High Contrast Monochrome'}
-                  {filter === 'bw-film' && 'Warm Retro Film Sepia'}
-                  {filter === 'natural' && 'Vivid Natural Colors'}
+                <span className="text-[10px] font-mono text-black/50">
+                  {FRAME_THEMES.find((th) => th.id === theme)?.nameVi}
                 </span>
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                {t.filters.map((f) => (
-                  <button
-                    key={f.id}
-                    onClick={() => setFilter(f.id as FilterType)}
-                    className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
-                      filter === f.id
-                        ? 'border-black bg-black text-white shadow-md'
-                        : 'border-black/20 bg-stone-50 hover:border-black/50 text-black'
-                    }`}
-                  >
-                    <p className="text-xs font-semibold">{f.label}</p>
-                    <p className={`text-[9px] mt-0.5 ${filter === f.id ? 'text-white/70' : 'text-black/50'}`}>
-                      {f.desc}
-                    </p>
-                  </button>
-                ))}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+                {FRAME_THEMES.map((th) => {
+                  const isSelected = theme === th.id;
+                  return (
+                    <button
+                      key={th.id}
+                      onClick={() => setTheme(th.id)}
+                      className={`px-3 py-1.5 rounded-full border text-xs font-mono whitespace-nowrap flex items-center gap-1.5 transition-all cursor-pointer ${
+                        isSelected
+                          ? 'border-black bg-black text-white shadow-xs font-semibold scale-102'
+                          : 'border-black/20 bg-stone-50 hover:border-black/50 text-black/75'
+                      }`}
+                    >
+                      <span>{th.icon}</span>
+                      <span>{language === 'vi' ? th.nameVi : th.nameEn}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Row 2: Frame Color & Custom Text */}
+            {/* Row 2: Filters & Custom Text */}
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center pt-1 border-t border-black/10">
-              {/* Frame Color */}
-              <div className="sm:col-span-5 space-y-1">
+              {/* Filters */}
+              <div className="sm:col-span-6 space-y-1">
                 <label className="text-[10px] font-mono uppercase tracking-widest text-black/60 font-semibold">
-                  {t.frameColorLabel}
+                  {t.filterLabel}
                 </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => setFrameColor('black')}
-                    className={`py-1.5 px-3 rounded-xl border flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                      frameColor === 'black'
-                        ? 'border-black bg-black text-white shadow-md'
-                        : 'border-black/20 bg-stone-50 text-black'
-                    }`}
-                  >
-                    <div className="w-3 h-3 rounded-full bg-black border border-white" />
-                    <span className="text-xs font-mono">{t.noirBlack}</span>
-                  </button>
-                  <button
-                    onClick={() => setFrameColor('white')}
-                    className={`py-1.5 px-3 rounded-xl border flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                      frameColor === 'white'
-                        ? 'border-black bg-white text-black ring-2 ring-black shadow-md'
-                        : 'border-black/20 bg-stone-50 text-black'
-                    }`}
-                  >
-                    <div className="w-3 h-3 rounded-full bg-white border border-black" />
-                    <span className="text-xs font-mono">{t.pureWhite}</span>
-                  </button>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {t.filters.map((f) => (
+                    <button
+                      key={f.id}
+                      onClick={() => setFilter(f.id as FilterType)}
+                      className={`py-1.5 px-2 rounded-xl border text-center transition-all cursor-pointer ${
+                        filter === f.id
+                          ? 'border-black bg-black text-white shadow-xs'
+                          : 'border-black/20 bg-stone-50 hover:border-black/50 text-black'
+                      }`}
+                    >
+                      <p className="text-[11px] font-semibold truncate">{f.label}</p>
+                    </button>
+                  ))}
                 </div>
               </div>
 
               {/* Custom Text */}
-              <div className="sm:col-span-7 space-y-1">
+              <div className="sm:col-span-6 space-y-1">
                 <label className="text-[10px] font-mono uppercase tracking-widest text-black/60 font-semibold">
                   {t.customTextLabel}
                 </label>

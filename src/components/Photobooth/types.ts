@@ -6,6 +6,18 @@ export type LayoutType = 'strip-1x4' | 'grid-2x2';
 
 export type FrameColor = 'black' | 'white';
 
+export type FrameTheme =
+  | 'classic-black'
+  | 'classic-white'
+  | 'stars'
+  | 'doodle'
+  | 'cutout'
+  | 'hearts'
+  | 'valentine'
+  | 'be-valentine'
+  | 'birthday'
+  | 'brand';
+
 export interface ShotItem {
   id: string;
   dataUrl: string;

@@ -1,16 +1,17 @@
-import { FilterType, FrameColor, LayoutType } from './types';
+import { FilterType, FrameColor, LayoutType, FrameTheme } from './types';
+import { getThemeById } from './FrameThemes';
 
 interface RenderOptions {
   images: string[];
   layout: LayoutType;
   frameColor: FrameColor;
+  theme?: FrameTheme;
   filter: FilterType;
   brandName: string;
   customFooterText?: string;
   location: string;
   dateStr: string;
 }
-
 export const loadImage = (src: string): Promise<HTMLImageElement> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -52,8 +53,9 @@ const drawGrain = (ctx: CanvasRenderingContext2D, width: number, height: number,
 };
 
 export const renderPhotostripToCanvas = async (options: RenderOptions): Promise<HTMLCanvasElement> => {
-  const { images, layout, frameColor, filter, brandName, customFooterText, location, dateStr } = options;
-  const mainLabel = customFooterText && customFooterText.trim().length > 0 ? customFooterText.trim() : brandName;
+  const { images, layout, frameColor, theme, filter, brandName, customFooterText, location, dateStr } = options;
+  const themeCfg = theme ? getThemeById(theme) : null;
+  const mainLabel = customFooterText && customFooterText.trim().length > 0 ? customFooterText.trim() : (themeCfg?.barText || brandName);
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Could not get canvas context');
@@ -61,14 +63,13 @@ export const renderPhotostripToCanvas = async (options: RenderOptions): Promise<
   // Load all images in parallel
   const loadedImages = await Promise.all(images.map((src) => loadImage(src)));
 
-  const isDark = frameColor === 'black';
-  const bgColor = isDark ? '#0C0C0C' : '#FAF9F6';
-  const primaryTextColor = isDark ? '#FFFFFF' : '#0C0C0C';
-  const secondaryTextColor = isDark ? '#8A8A8A' : '#737373';
-  const innerBorderColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+  const isDark = themeCfg ? themeCfg.bgColor !== '#FAF9F6' && themeCfg.bgColor !== '#FCE7ED' && themeCfg.bgColor !== '#FBCFE8' && themeCfg.bgColor !== '#FCE7F3' : frameColor === 'black';
+  const bgColor = themeCfg ? themeCfg.bgColor : (isDark ? '#0C0C0C' : '#FAF9F6');
+  const primaryTextColor = themeCfg ? themeCfg.textColor : (isDark ? '#FFFFFF' : '#0C0C0C');
+  const secondaryTextColor = isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.55)';
+  const innerBorderColor = themeCfg ? themeCfg.slotBorderColor : (isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)');
 
   if (layout === 'strip-1x4') {
-    // 2x6 inch strip @ 300 DPI = 1200 x 3600 px
     const W = 1200;
     const H = 3600;
     canvas.width = W;
