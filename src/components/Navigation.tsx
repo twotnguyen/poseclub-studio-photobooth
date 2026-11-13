@@ -2,6 +2,7 @@ import React from 'react';
 import { InstagramIcon } from './icons/InstagramIcon';
 import { Volume2, VolumeX, Sparkles } from 'lucide-react';
 import { STUDIO_CONFIG } from '../config/studio';
+import { Language, TRANSLATIONS } from '../i18n/translations';
 
 export type TabId = 'home' | 'booth' | 'studio' | 'guide';
 
@@ -10,6 +11,8 @@ interface NavigationProps {
   setActiveTab: (tab: TabId) => void;
   isMuted: boolean;
   onToggleMute: () => void;
+  language: Language;
+  onToggleLanguage: (lang: Language) => void;
 }
 
 export const Navigation: React.FC<NavigationProps> = ({
@@ -17,14 +20,17 @@ export const Navigation: React.FC<NavigationProps> = ({
   setActiveTab,
   isMuted,
   onToggleMute,
+  language,
+  onToggleLanguage,
 }) => {
-  const tabs: { id: TabId; label: string }[] = [
-    { id: 'home', label: 'Home' },
-    { id: 'booth', label: 'Photobooth' },
-    { id: 'studio', label: 'Fullerton Studio' },
-    { id: 'guide', label: 'How To Use' },
-  ];
+  const t = TRANSLATIONS[language];
 
+  const tabs: { id: TabId; label: string }[] = [
+    { id: 'home', label: t.nav.home },
+    { id: 'booth', label: t.nav.booth },
+    { id: 'studio', label: t.nav.studio },
+    { id: 'guide', label: t.nav.guide },
+  ];
   return (
     <header className="h-16 border-b border-black/10 bg-[#FAF8F5]/90 backdrop-blur-md px-6 flex items-center justify-between select-none z-50">
       {/* Brand Logo */}
@@ -62,8 +68,32 @@ export const Navigation: React.FC<NavigationProps> = ({
       </nav>
 
       {/* Right Controls */}
-      <div className="flex items-center space-x-3">
-        {/* Mute button */}
+      <div className="flex items-center space-x-2.5">
+        {/* Language Switcher Pill */}
+        <div className="flex items-center rounded-full border border-black/20 bg-white/70 p-0.5 shadow-sm text-xs font-mono">
+          <button
+            onClick={() => onToggleLanguage('vi')}
+            className={`px-2.5 py-1 rounded-full transition-all ${
+              language === 'vi'
+                ? 'bg-black text-white font-bold'
+                : 'text-black/60 hover:text-black'
+            }`}
+            title="Tiếng Việt"
+          >
+            VI
+          </button>
+          <button
+            onClick={() => onToggleLanguage('en')}
+            className={`px-2.5 py-1 rounded-full transition-all ${
+              language === 'en'
+                ? 'bg-black text-white font-bold'
+                : 'text-black/60 hover:text-black'
+            }`}
+            title="English"
+          >
+            EN
+          </button>
+        </div>
         <button
           onClick={onToggleMute}
           className="p-2 rounded-full border border-black/15 bg-white/60 hover:bg-white text-black transition-colors"

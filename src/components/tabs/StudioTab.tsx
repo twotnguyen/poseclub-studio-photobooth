@@ -2,8 +2,14 @@ import React, { useState } from 'react';
 import { MapPin, Clock, Navigation, Check, Copy, ArrowUpRight } from 'lucide-react';
 import { InstagramIcon } from '../icons/InstagramIcon';
 import { STUDIO_CONFIG } from '../../config/studio';
+import { Language, TRANSLATIONS } from '../../i18n/translations';
 
-export const StudioTab: React.FC = () => {
+interface StudioTabProps {
+  language: Language;
+}
+
+export const StudioTab: React.FC<StudioTabProps> = ({ language }) => {
+  const t = TRANSLATIONS[language].studio;
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -18,13 +24,13 @@ export const StudioTab: React.FC = () => {
       {/* Title Header */}
       <div className="text-center max-w-xl mx-auto space-y-1">
         <span className="text-[10px] font-mono tracking-widest text-black/50 uppercase">
-          PHYSICAL STUDIO SHOWROOM
+          {t.badge}
         </span>
         <h2 className="font-editorial text-3xl sm:text-4xl text-black font-normal tracking-wide">
-          Fullerton, California
+          {t.title}
         </h2>
         <p className="text-xs text-black/60 font-light">
-          Ghé thăm không gian photobooth trực tiếp của Poseclub Studio để sở hữu những dải ảnh in lấy liền sắc nét.
+          {t.subtitle}
         </p>
       </div>
 
@@ -38,7 +44,7 @@ export const StudioTab: React.FC = () => {
             <div className="border-b border-black/10 pb-4">
               <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-black/50">
                 <MapPin className="w-3.5 h-3.5" />
-                <span>Address</span>
+                <span>{t.addressLabel}</span>
               </div>
               <h3 className="font-editorial text-xl text-black mt-1 font-semibold">
                 Poseclub Studio Fullerton
@@ -57,12 +63,12 @@ export const StudioTab: React.FC = () => {
                   {copied ? (
                     <>
                       <Check className="w-3 h-3 text-emerald-600" />
-                      <span className="text-emerald-700">Đã sao chép</span>
+                      <span className="text-emerald-700">{t.copied}</span>
                     </>
                   ) : (
                     <>
                       <Copy className="w-3 h-3 opacity-60" />
-                      <span>Sao chép</span>
+                      <span>{t.copy}</span>
                     </>
                   )}
                 </button>
@@ -74,7 +80,7 @@ export const StudioTab: React.FC = () => {
                   className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black text-white hover:bg-black/85 text-xs font-medium transition-colors"
                 >
                   <Navigation className="w-3 h-3" />
-                  <span>Google Maps</span>
+                  <span>{t.openMaps}</span>
                   <ArrowUpRight className="w-3 h-3 opacity-70" />
                 </a>
               </div>
@@ -84,7 +90,7 @@ export const StudioTab: React.FC = () => {
             <div className="space-y-2">
               <div className="flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-widest text-black/50">
                 <Clock className="w-3 h-3" />
-                <span>Hours</span>
+                <span>{t.hoursLabel}</span>
               </div>
               <div className="space-y-1.5 text-xs">
                 {STUDIO_CONFIG.hours.map((h, i) => (
@@ -111,7 +117,7 @@ export const StudioTab: React.FC = () => {
               rel="noopener noreferrer"
               className="px-3 py-1 rounded-full border border-black/30 hover:border-black text-[11px] font-mono uppercase tracking-wider text-black transition-colors"
             >
-              Follow
+              {t.follow}
             </a>
           </div>
         </div>
@@ -139,24 +145,18 @@ export const StudioTab: React.FC = () => {
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black text-white text-xs font-mono tracking-wider uppercase shadow-md hover:bg-black/85 transition-colors"
               >
                 <MapPin className="w-3.5 h-3.5 text-red-400" />
-                <span>Mở bản đồ lớn</span>
+                <span>{t.largeMapBtn}</span>
               </a>
             </div>
           </div>
           {/* Bottom highlights */}
           <div className="p-4 bg-[#FAF8F5] border-t border-black/10 grid grid-cols-3 gap-3 text-center">
-            <div>
-              <p className="text-xs font-semibold text-black">High-Angle Booths</p>
-              <p className="text-[10px] text-black/60 mt-0.5">Góc chụp độc quyền</p>
-            </div>
-            <div>
-              <p className="text-xs font-semibold text-black">Vintage Props</p>
-              <p className="text-[10px] text-black/60 mt-0.5">Phụ kiện thời trang</p>
-            </div>
-            <div>
-              <p className="text-xs font-semibold text-black">Instant Prints</p>
-              <p className="text-[10px] text-black/60 mt-0.5">In lấy liền 300 DPI</p>
-            </div>
+            {t.highlights.map((h, i) => (
+              <div key={i}>
+                <p className="text-xs font-semibold text-black">{h.title}</p>
+                <p className="text-[10px] text-black/60 mt-0.5">{h.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
 

@@ -1,12 +1,16 @@
 import React from 'react';
 import { Sparkles } from 'lucide-react';
+import { Language, TRANSLATIONS } from '../../i18n/translations';
 
 interface HomeTabProps {
+  language: Language;
   onStart: () => void;
   onGoToStudio: () => void;
 }
 
-export const HomeTab: React.FC<HomeTabProps> = ({ onStart, onGoToStudio }) => {
+export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudio }) => {
+  const t = TRANSLATIONS[language].home;
+
   return (
     <div className="h-full w-full flex flex-col items-center justify-between p-6 sm:p-12 relative overflow-hidden select-none">
       
@@ -31,7 +35,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ onStart, onGoToStudio }) => {
       {/* Main Center Content (Exact Canva Slide 1 Layout) */}
       <div className="text-center space-y-4 max-w-3xl mx-auto my-auto">
         <p className="text-xs sm:text-sm font-mono tracking-[0.35em] text-black/70 uppercase">
-          S T U D I O
+          {t.studio}
         </p>
 
         {/* Large Signature Script */}
@@ -40,7 +44,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ onStart, onGoToStudio }) => {
         </h1>
 
         <p className="text-[11px] sm:text-xs font-mono tracking-[0.25em] text-black/75 uppercase pt-1">
-          Y O U R &nbsp; F A V O R I T E &nbsp; P H O T O B O O T H
+          {t.slogan}
         </p>
 
         {/* Action Button: ✦ START */}
@@ -50,8 +54,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ onStart, onGoToStudio }) => {
             className="group relative inline-flex items-center justify-center px-10 py-3.5 rounded-full border-2 border-black bg-white/70 hover:bg-black hover:text-white text-black transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105 active:scale-95"
           >
             <span className="text-xs font-mono uppercase tracking-[0.25em] font-semibold flex items-center gap-2">
-              <span className="text-sm">✦</span>
-              <span>START</span>
+              <span>{t.startBtn}</span>
             </span>
           </button>
         </div>
@@ -62,7 +65,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ onStart, onGoToStudio }) => {
             onClick={onGoToStudio}
             className="text-[11px] font-mono text-black/60 hover:text-black tracking-wider uppercase underline underline-offset-4 decoration-black/30 hover:decoration-black transition-colors"
           >
-            Fullerton, California &bull; 1327 S Harbor Blvd
+            {t.location}
           </button>
         </div>
       </div>
@@ -79,7 +82,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ onStart, onGoToStudio }) => {
           <div className="w-12 h-[1px] bg-black/20" />
         </div>
         <p className="text-[9px] font-mono tracking-widest text-black/40 uppercase">
-          Free Online Photobooth &middot; Archival Quality
+          {t.archive}
         </p>
       </div>
 

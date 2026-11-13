@@ -1,34 +1,16 @@
 import React from 'react';
 import { Camera, Layout, Download, Sparkles, ArrowRight } from 'lucide-react';
+import { Language, TRANSLATIONS } from '../../i18n/translations';
 
 interface GuideTabProps {
+  language: Language;
   onStartBooth: () => void;
 }
 
-export const GuideTab: React.FC<GuideTabProps> = ({ onStartBooth }) => {
-  const steps = [
-    {
-      num: '01',
-      title: 'Select Frame Style',
-      subtitle: 'Chọn kiểu khung ảnh',
-      desc: 'Chọn phong cách dải ảnh 1x4 dọc cổ điển, khung lưới 2x2 hoặc định dạng polaroid yêu thích của bạn.',
-      icon: Layout,
-    },
-    {
-      num: '02',
-      title: 'Pose & Take Photos',
-      subtitle: 'Tạo dáng và chụp ảnh',
-      desc: 'Đứng trước camera với chế độ lật gương như soi gương thật. Bộ đếm ngược 3s - 5s sẽ ghi lại khoảnh khắc tự nhiên nhất.',
-      icon: Camera,
-    },
-    {
-      num: '03',
-      title: 'Print & Download',
-      subtitle: 'Tải về & In dải ảnh',
-      desc: 'Tùy biến bộ lọc đen trắng điện ảnh, đổi màu viền, sau đó tải dải ảnh độ nét cao 300 DPI hoặc in trực tiếp.',
-      icon: Download,
-    },
-  ];
+export const GuideTab: React.FC<GuideTabProps> = ({ language, onStartBooth }) => {
+  const t = TRANSLATIONS[language].guide;
+  const icons = [Layout, Camera, Download];
+  const steps = t.steps.map((s, i) => ({ ...s, icon: icons[i] }));
 
   return (
     <div className="h-full w-full flex flex-col justify-between p-6 sm:p-10 overflow-hidden select-none">
@@ -36,13 +18,13 @@ export const GuideTab: React.FC<GuideTabProps> = ({ onStartBooth }) => {
       {/* Title */}
       <div className="text-center space-y-1">
         <p className="text-[10px] font-mono tracking-[0.3em] text-black/50 uppercase">
-          EASY & FREE ONLINE EXPERIENCE
+          {t.badge}
         </p>
         <h2 className="text-2xl sm:text-4xl text-black font-light">
-          HOW TO USE <span className="font-script text-4xl sm:text-6xl text-black ml-1">Poseclub</span>
+          {t.title} <span className="font-script text-4xl sm:text-6xl text-black ml-1">Poseclub</span>
         </h2>
         <p className="text-xs text-black/60 font-light">
-          Trải nghiệm buồng chụp ảnh phong cách Hàn Quốc / Vintage hoàn toàn miễn phí ngay trên trình duyệt.
+          {t.subtitle}
         </p>
       </div>
 
@@ -80,7 +62,7 @@ export const GuideTab: React.FC<GuideTabProps> = ({ onStartBooth }) => {
               </div>
 
               <div className="pt-4 border-t border-black/5 flex items-center gap-1 text-[11px] font-mono text-black/50 group-hover:text-black">
-                <span>Bước {step.num}</span>
+                <span>{t.stepPrefix} {step.num}</span>
                 <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
@@ -95,7 +77,7 @@ export const GuideTab: React.FC<GuideTabProps> = ({ onStartBooth }) => {
           className="inline-flex items-center gap-2 px-8 py-3 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-xs font-mono tracking-widest uppercase transition-all shadow-md hover:scale-105"
         >
           <Sparkles className="w-3.5 h-3.5" />
-          <span>Bắt đầu chụp ngay</span>
+          <span>{t.ctaBtn}</span>
         </button>
       </div>
 

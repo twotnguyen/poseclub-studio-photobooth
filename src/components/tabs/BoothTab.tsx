@@ -3,14 +3,17 @@ import { Sparkles, Camera, ArrowLeft, RefreshCw, Upload, Download, Printer, Chec
 import { sounds } from '../Photobooth/SoundEffects';
 import { renderPhotostripToCanvas, downloadCanvas, printCanvas } from '../Photobooth/CanvasExporter';
 import { FilterType, FrameColor, LayoutType } from '../Photobooth/types';
+import { Language, TRANSLATIONS } from '../../i18n/translations';
 
 interface BoothTabProps {
+  language: Language;
   onBackToHome: () => void;
 }
 
 export type BoothWorkflowStep = 'frame-select' | 'filter-select' | 'camera' | 'confirm';
 
-export const BoothTab: React.FC<BoothTabProps> = ({ onBackToHome }) => {
+export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) => {
+  const t = TRANSLATIONS[language].booth;
   // Workflow step
   const [step, setStep] = useState<BoothWorkflowStep>('frame-select');
 
@@ -260,10 +263,10 @@ export const BoothTab: React.FC<BoothTabProps> = ({ onBackToHome }) => {
         <div className="h-full flex flex-col justify-between">
           <div className="text-center space-y-1">
             <h2 className="font-editorial text-2xl sm:text-4xl text-black font-medium tracking-[0.15em] uppercase">
-              STEP 1: PLEASE SELECT A FRAME
+              {t.step1Title}
             </h2>
             <p className="text-xs text-black/50 font-mono tracking-wider">
-              Chọn bố cục khung chụp bạn yêu thích
+              {t.step1Subtitle}
             </p>
           </div>
 
@@ -333,7 +336,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ onBackToHome }) => {
                   </div>
 
                   <p className="text-[10px] font-mono text-black/60 uppercase">
-                    {style.desc}
+                    {t.styles.find(s => s.id === style.id)?.desc || style.desc}
                   </p>
                 </button>
               );
@@ -345,7 +348,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ onBackToHome }) => {
             <button
               onClick={onBackToHome}
               className="w-12 h-12 rounded-full border border-black/40 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-black font-mono text-xs uppercase"
-              title="Quay lại"
+              title={t.back}
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
@@ -360,7 +363,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ onBackToHome }) => {
               onClick={() => setStep('filter-select')}
               className="px-8 py-3 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-xs font-mono uppercase tracking-widest transition-all shadow-md flex items-center gap-2"
             >
-              <span>Tiếp tục</span>
+              <span>{t.next}</span>
               <span>✦</span>
             </button>
           </div>
@@ -372,10 +375,10 @@ export const BoothTab: React.FC<BoothTabProps> = ({ onBackToHome }) => {
         <div className="h-full flex flex-col justify-between">
           <div className="text-center space-y-1">
             <h2 className="font-editorial text-2xl sm:text-4xl text-black font-medium tracking-[0.15em] uppercase">
-              SELECT A FRAME DESIGN & FILTER
+              {t.step2Title}
             </h2>
             <p className="text-xs text-black/50 font-mono tracking-wider">
-              Chọn màu viền khung và hiệu ứng bộ lọc
+              {t.step2Subtitle}
             </p>
           </div>
 
@@ -387,7 +390,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ onBackToHome }) => {
               {/* Filter Buttons */}
               <div className="space-y-2">
                 <label className="text-xs font-mono uppercase tracking-widest text-black/60">
-                  Bộ lọc màu sắc (Filters)
+                  {t.filterLabel}
                 </label>
                 <div className="space-y-2">
                   {[
@@ -405,9 +408,9 @@ export const BoothTab: React.FC<BoothTabProps> = ({ onBackToHome }) => {
                       }`}
                     >
                       <div>
-                        <p className="text-xs font-semibold">{f.label}</p>
+                        <p className="text-xs font-semibold">{t.filters.find(fl => fl.id === f.id)?.label || f.label}</p>
                         <p className={`text-[10px] ${filter === f.id ? 'text-white/70' : 'text-black/50'}`}>
-                          {f.desc}
+                          {t.filters.find(fl => fl.id === f.id)?.desc || f.desc}
                         </p>
                       </div>
                       {filter === f.id && <Sparkles className="w-3.5 h-3.5" />}
@@ -419,7 +422,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ onBackToHome }) => {
               {/* Frame Color */}
               <div className="space-y-2">
                 <label className="text-xs font-mono uppercase tracking-widest text-black/60">
-                  Màu viền khung (Frame Color)
+                  {t.frameColorLabel}
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <button
@@ -431,7 +434,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ onBackToHome }) => {
                     }`}
                   >
                     <div className="w-3.5 h-3.5 rounded-full bg-black border border-white" />
-                    <span className="text-xs font-mono">Noir Black</span>
+                    <span className="text-xs font-mono">{t.noirBlack}</span>
                   </button>
                   <button
                     onClick={() => setFrameColor('white')}
@@ -442,7 +445,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ onBackToHome }) => {
                     }`}
                   >
                     <div className="w-3.5 h-3.5 rounded-full bg-white border border-black" />
-                    <span className="text-xs font-mono">Pure White</span>
+                    <span className="text-xs font-mono">{t.pureWhite}</span>
                   </button>
                 </div>
               </div>
@@ -491,11 +494,10 @@ export const BoothTab: React.FC<BoothTabProps> = ({ onBackToHome }) => {
             <button
               onClick={() => setStep('frame-select')}
               className="w-12 h-12 rounded-full border border-black/40 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-black"
-              title="Quay lại"
+              title={t.back}
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
-
             <button
               onClick={() => {
                 setShots([]);
@@ -504,7 +506,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ onBackToHome }) => {
               }}
               className="px-8 py-3 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-xs font-mono uppercase tracking-widest transition-all shadow-md flex items-center gap-2"
             >
-              <span>✦ BẮT ĐẦU CHỤP ✦</span>
+              <span>{t.startCapture}</span>
             </button>
           </div>
         </div>
@@ -515,12 +517,12 @@ export const BoothTab: React.FC<BoothTabProps> = ({ onBackToHome }) => {
         <div className="h-full flex flex-col justify-between">
           <div className="text-center space-y-1">
             <h2 className="font-editorial text-2xl sm:text-4xl text-black font-medium tracking-[0.15em] uppercase">
-              TAKE YOUR PHOTOS
+              {t.step3Title}
             </h2>
             <p className="text-xs text-black/50 font-mono tracking-wider">
               {retakeIndex !== null
-                ? `Chụp lại riêng tấm số 0${retakeIndex + 1}`
-                : `Chụp ảnh shot 0${currentShotIndex + 1}/04`}
+                ? `${t.step3SubtitleRetake} 0${retakeIndex + 1}`
+                : `${t.step3SubtitleNormal} 0${currentShotIndex + 1}/04`}
             </p>
           </div>
 
@@ -557,7 +559,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ onBackToHome }) => {
               <button
                 onClick={() => setIsMirror(!isMirror)}
                 className="p-2 rounded-full bg-black/60 text-white hover:bg-black transition-colors"
-                title="Lật gương"
+                title={t.mirrorTip}
               >
                 <RefreshCw className="w-3.5 h-3.5" />
               </button>
@@ -573,19 +575,19 @@ export const BoothTab: React.FC<BoothTabProps> = ({ onBackToHome }) => {
             {!cameraActive && cameraError && (
               <div className="absolute inset-0 z-20 bg-stone-900 p-6 flex flex-col items-center justify-center text-center space-y-3 text-white">
                 <Camera className="w-10 h-10 opacity-60" />
-                <p className="text-xs max-w-sm text-stone-300">{cameraError}</p>
+                <p className="text-xs max-w-sm text-stone-300">{cameraError || t.cameraError}</p>
                 <div className="flex gap-2">
                   <button
                     onClick={startCamera}
                     className="px-4 py-2 bg-white text-black text-xs font-semibold rounded-full hover:bg-stone-200"
                   >
-                    Thử lại camera
+                    {t.retryCamera}
                   </button>
                   <button
                     onClick={() => fileInputRef.current?.click()}
                     className="px-4 py-2 border border-white/40 text-white text-xs rounded-full hover:bg-white/10"
                   >
-                    Tải ảnh từ máy
+                    {t.uploadBtn}
                   </button>
                 </div>
               </div>
@@ -598,7 +600,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ onBackToHome }) => {
               onClick={() => setStep('filter-select')}
               disabled={isSessionActive}
               className="w-12 h-12 rounded-full border border-black/40 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-black disabled:opacity-40"
-              title="Quay lại"
+              title={t.back}
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
@@ -618,7 +620,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ onBackToHome }) => {
               className="px-4 py-2.5 rounded-full border border-black/30 hover:border-black text-xs font-mono text-black transition-colors flex items-center gap-1.5"
             >
               <Upload className="w-3.5 h-3.5" />
-              <span>Tải ảnh</span>
+              <span>{t.uploadBtn}</span>
             </button>
 
             {/* Big Shutter Trigger Button */}
@@ -628,7 +630,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ onBackToHome }) => {
               className="px-8 py-3 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-xs font-mono uppercase tracking-widest transition-all shadow-lg flex items-center gap-2 disabled:opacity-40"
             >
               <Camera className="w-4 h-4" />
-              <span>{isSessionActive ? 'Đang chụp...' : '✦ BẤM CHỤP ✦'}</span>
+              <span>{isSessionActive ? t.capturing : t.captureBtn}</span>
             </button>
           </div>
         </div>
@@ -639,10 +641,10 @@ export const BoothTab: React.FC<BoothTabProps> = ({ onBackToHome }) => {
         <div className="h-full flex flex-col justify-between">
           <div className="text-center space-y-1">
             <h2 className="font-editorial text-2xl sm:text-4xl text-black font-medium tracking-[0.15em] uppercase">
-              CONFIRM PHOTOS
+              {t.step4Title}
             </h2>
             <p className="text-xs text-black/50 font-mono tracking-wider">
-              Dải ảnh của bạn đã hoàn tất &bull; Hãy in hoặc tải về
+              {t.step4Subtitle}
             </p>
           </div>
 
@@ -654,7 +656,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ onBackToHome }) => {
               {/* Select Number of Prints */}
               <div className="space-y-2 border-b border-black/10 pb-4">
                 <label className="text-xs font-mono uppercase tracking-widest text-black/60">
-                  Số lượng dải in (Quantity)
+                  {t.quantityLabel}
                 </label>
                 <div className="flex items-center gap-4">
                   <button
@@ -672,14 +674,14 @@ export const BoothTab: React.FC<BoothTabProps> = ({ onBackToHome }) => {
                   >
                     <Plus className="w-3.5 h-3.5" />
                   </button>
-                  <span className="text-xs font-mono text-black/50 ml-2">dải ảnh</span>
+                  <span className="text-xs font-mono text-black/50 ml-2">{t.stripUnit}</span>
                 </div>
               </div>
 
               {/* Single Shot Retake Thumbnails */}
               <div className="space-y-2">
                 <label className="text-xs font-mono uppercase tracking-widest text-black/60">
-                  Chụp lại riêng từng tấm
+                  {t.singleRetakeLabel}
                 </label>
                 <div className="grid grid-cols-4 gap-2">
                   {shots.map((shot, idx) => (
@@ -701,7 +703,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ onBackToHome }) => {
                         className="absolute inset-0 bg-black/75 text-white opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-0.5"
                       >
                         <RotateCcw className="w-3 h-3" />
-                        <span className="text-[8px] font-mono uppercase">Đổi ảnh</span>
+                        <span className="text-[8px] font-mono uppercase">{t.changePhoto}</span>
                       </button>
                       <span className="absolute top-0.5 left-1 text-[8px] font-mono text-white/80 bg-black/50 px-1 rounded">
                         0{idx + 1}
@@ -721,12 +723,12 @@ export const BoothTab: React.FC<BoothTabProps> = ({ onBackToHome }) => {
                   {downloadSuccess ? (
                     <>
                       <Check className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>Đã tải dải ảnh thành công!</span>
+                      <span>{t.downloadSuccess}</span>
                     </>
                   ) : (
                     <>
                       <Download className="w-3.5 h-3.5" />
-                      <span>✦ Tải ảnh High-Res (PNG 300 DPI) ✦</span>
+                      <span>{t.downloadBtn}</span>
                     </>
                   )}
                 </button>
@@ -736,7 +738,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ onBackToHome }) => {
                   className="w-full py-2.5 rounded-full border border-black/30 hover:border-black text-black hover:bg-black/5 text-xs font-mono uppercase tracking-widest transition-all flex items-center justify-center gap-2"
                 >
                   <Printer className="w-3.5 h-3.5" />
-                  <span>✦ PRINT NGAY ✦</span>
+                  <span>{t.printBtn}</span>
                 </button>
               </div>
             </div>
@@ -809,14 +811,14 @@ export const BoothTab: React.FC<BoothTabProps> = ({ onBackToHome }) => {
               className="text-xs font-mono text-black/60 hover:text-black tracking-wider uppercase flex items-center gap-1.5 transition-colors"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>Chụp dải ảnh mới</span>
+              <span>{t.newStripBtn}</span>
             </button>
 
             <button
               onClick={onBackToHome}
               className="px-6 py-2 rounded-full border border-black/30 hover:border-black text-xs font-mono tracking-wider uppercase transition-colors"
             >
-              Về trang chủ
+              {t.returnHomeBtn}
             </button>
           </div>
         </div>
