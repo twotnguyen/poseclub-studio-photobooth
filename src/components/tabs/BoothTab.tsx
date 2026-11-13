@@ -406,16 +406,25 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
               {/* STYLE 1: 1 Photo Polaroid */}
               {selectedStyle === 1 && (
                 <div className="w-[180px] flex flex-col items-center">
-                  <div className="w-[160px] aspect-square rounded-xs overflow-hidden border border-black/30 relative shadow-xs">
-                    <img
-                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80"
-                      alt="Preview 1"
-                      style={getFilterStyle()}
-                      className="w-full h-full object-cover transition-all duration-300"
-                    />
-                    {filter === 'bw-film' && (
-                      <div className="absolute inset-0 bg-amber-900/10 mix-blend-color pointer-events-none" />
-                    )}
+                  <div
+                    className="w-[160px] aspect-square rounded-xs border relative flex flex-col items-center justify-center transition-all duration-300 shadow-xs"
+                    style={{
+                      backgroundColor:
+                        filter === 'bw-contrast'
+                          ? isDark ? '#1F1F1F' : '#E2E2E6'
+                          : filter === 'bw-film'
+                          ? isDark ? '#26221D' : '#EAE2D2'
+                          : isDark ? '#26241E' : '#FDEEC8',
+                      borderColor:
+                        filter === 'bw-contrast'
+                          ? isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.4)'
+                          : filter === 'bw-film'
+                          ? isDark ? 'rgba(217,119,6,0.3)' : 'rgba(120,53,15,0.35)'
+                          : isDark ? 'rgba(254,243,199,0.2)' : 'rgba(146,64,14,0.3)',
+                    }}
+                  >
+                    <Camera className={`w-8 h-8 ${filter === 'bw-contrast' ? (isDark ? 'text-white/60' : 'text-black/50') : filter === 'bw-film' ? (isDark ? 'text-amber-200/60' : 'text-amber-900/50') : (isDark ? 'text-amber-100/50' : 'text-amber-900/40')}`} />
+                    <span className="text-[9px] font-mono tracking-widest mt-1 opacity-50 uppercase">PHOTO REGION</span>
                   </div>
                   <div className="pt-2.5 pb-1 text-center">
                     <p className="font-editorial text-xs font-bold tracking-widest uppercase truncate max-w-[160px]">
@@ -429,20 +438,17 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
               {/* STYLE 2: 2 Photos Strip 1x2 */}
               {selectedStyle === 2 && (
                 <div className="w-[130px] flex flex-col items-center">
-                  <div className="w-[114px] space-y-1">
-                    {[
-                      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-                      'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80',
-                    ].map((src, idx) => (
-                      <div key={idx} className="aspect-[4/3] rounded-xs overflow-hidden border border-black/30 relative shadow-xs">
-                        <img
-                          src={src}
-                          alt={`Preview ${idx + 1}`}
-                          style={getFilterStyle()}
-                          className="w-full h-full object-cover transition-all duration-300"
-                        />
-                      </div>
-                    ))}
+                  <div className="w-[114px] space-y-1.5">
+                    {[0, 1].map((idx) => {
+                      const slotBg = filter === 'bw-contrast' ? (isDark ? '#1F1F1F' : '#E2E2E6') : filter === 'bw-film' ? (isDark ? '#26221D' : '#EAE2D2') : (isDark ? '#26241E' : '#FDEEC8');
+                      const slotBorder = filter === 'bw-contrast' ? (isDark ? 'border-white/30' : 'border-black/40') : filter === 'bw-film' ? (isDark ? 'border-amber-700/30' : 'border-amber-900/30') : (isDark ? 'border-amber-100/20' : 'border-amber-800/30');
+                      return (
+                        <div key={idx} className={`aspect-[4/3] rounded-xs border relative flex flex-col items-center justify-center transition-all duration-300 shadow-xs ${slotBorder}`} style={{ backgroundColor: slotBg }}>
+                          <Camera className="w-5 h-5 opacity-40 text-current" />
+                          <span className="absolute bottom-1 right-1 text-[7px] font-mono opacity-50">0{idx + 1}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                   <div className="pt-2 text-center">
                     <p className="font-editorial text-[11px] font-bold tracking-widest uppercase truncate max-w-[120px]">
@@ -455,22 +461,17 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
               {/* STYLE 3: 4 Photos Grid 2x2 */}
               {selectedStyle === 3 && (
                 <div className="w-[180px] flex flex-col items-center">
-                  <div className="w-[160px] grid grid-cols-2 gap-1">
-                    {[
-                      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-                      'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80',
-                      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80',
-                      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-                    ].map((src, idx) => (
-                      <div key={idx} className="aspect-square rounded-xs overflow-hidden border border-black/30 relative shadow-xs">
-                        <img
-                          src={src}
-                          alt={`Preview ${idx + 1}`}
-                          style={getFilterStyle()}
-                          className="w-full h-full object-cover transition-all duration-300"
-                        />
-                      </div>
-                    ))}
+                  <div className="w-[160px] grid grid-cols-2 gap-1.5">
+                    {[0, 1, 2, 3].map((idx) => {
+                      const slotBg = filter === 'bw-contrast' ? (isDark ? '#1F1F1F' : '#E2E2E6') : filter === 'bw-film' ? (isDark ? '#26221D' : '#EAE2D2') : (isDark ? '#26241E' : '#FDEEC8');
+                      const slotBorder = filter === 'bw-contrast' ? (isDark ? 'border-white/30' : 'border-black/40') : filter === 'bw-film' ? (isDark ? 'border-amber-700/30' : 'border-amber-900/30') : (isDark ? 'border-amber-100/20' : 'border-amber-800/30');
+                      return (
+                        <div key={idx} className={`aspect-square rounded-xs border relative flex flex-col items-center justify-center transition-all duration-300 shadow-xs ${slotBorder}`} style={{ backgroundColor: slotBg }}>
+                          <Camera className="w-4 h-4 opacity-40 text-current" />
+                          <span className="absolute bottom-1 right-1 text-[7px] font-mono opacity-50">0{idx + 1}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                   <div className="pt-2 text-center">
                     <p className="font-editorial text-xs font-bold tracking-widest uppercase truncate max-w-[160px]">
@@ -484,21 +485,16 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
               {selectedStyle === 4 && (
                 <div className="w-[110px] flex flex-col items-center">
                   <div className="w-[96px] space-y-1">
-                    {[
-                      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-                      'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80',
-                      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80',
-                      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-                    ].map((src, idx) => (
-                      <div key={idx} className="aspect-[4/3] rounded-xs overflow-hidden border border-black/30 relative shadow-xs">
-                        <img
-                          src={src}
-                          alt={`Preview ${idx + 1}`}
-                          style={getFilterStyle()}
-                          className="w-full h-full object-cover transition-all duration-300"
-                        />
-                      </div>
-                    ))}
+                    {[0, 1, 2, 3].map((idx) => {
+                      const slotBg = filter === 'bw-contrast' ? (isDark ? '#1F1F1F' : '#E2E2E6') : filter === 'bw-film' ? (isDark ? '#26221D' : '#EAE2D2') : (isDark ? '#26241E' : '#FDEEC8');
+                      const slotBorder = filter === 'bw-contrast' ? (isDark ? 'border-white/30' : 'border-black/40') : filter === 'bw-film' ? (isDark ? 'border-amber-700/30' : 'border-amber-900/30') : (isDark ? 'border-amber-100/20' : 'border-amber-800/30');
+                      return (
+                        <div key={idx} className={`aspect-[4/3] rounded-xs border relative flex flex-col items-center justify-center transition-all duration-300 shadow-xs ${slotBorder}`} style={{ backgroundColor: slotBg }}>
+                          <Camera className="w-4 h-4 opacity-40 text-current" />
+                          <span className="absolute bottom-1 right-1 text-[7px] font-mono opacity-50">0{idx + 1}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                   <div className="pt-2 text-center">
                     <p className="font-editorial text-[9px] font-bold tracking-widest uppercase truncate max-w-[96px]">
@@ -512,23 +508,16 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
               {selectedStyle === 5 && (
                 <div className="w-[145px] flex flex-col items-center">
                   <div className="w-[130px] grid grid-cols-2 gap-1">
-                    {[
-                      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-                      'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80',
-                      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80',
-                      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-                      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-                      'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80',
-                    ].map((src, i) => (
-                      <div key={i} className="aspect-[4/3] rounded-xs overflow-hidden border border-black/30 relative shadow-xs">
-                        <img
-                          src={src}
-                          alt={`Preview ${i + 1}`}
-                          style={getFilterStyle()}
-                          className="w-full h-full object-cover transition-all duration-300"
-                        />
-                      </div>
-                    ))}
+                    {[0, 1, 2, 3, 4, 5].map((idx) => {
+                      const slotBg = filter === 'bw-contrast' ? (isDark ? '#1F1F1F' : '#E2E2E6') : filter === 'bw-film' ? (isDark ? '#26221D' : '#EAE2D2') : (isDark ? '#26241E' : '#FDEEC8');
+                      const slotBorder = filter === 'bw-contrast' ? (isDark ? 'border-white/30' : 'border-black/40') : filter === 'bw-film' ? (isDark ? 'border-amber-700/30' : 'border-amber-900/30') : (isDark ? 'border-amber-100/20' : 'border-amber-800/30');
+                      return (
+                        <div key={idx} className={`aspect-[4/3] rounded-xs border relative flex flex-col items-center justify-center transition-all duration-300 shadow-xs ${slotBorder}`} style={{ backgroundColor: slotBg }}>
+                          <Camera className="w-3.5 h-3.5 opacity-40 text-current" />
+                          <span className="absolute bottom-0.5 right-1 text-[6px] font-mono opacity-50">0{idx + 1}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                   <div className="pt-2 text-center">
                     <p className="font-editorial text-[10px] font-bold tracking-widest uppercase truncate max-w-[130px]">
@@ -541,27 +530,17 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
               {/* STYLE 6: 9 Photos Grid 3x3 */}
               {selectedStyle === 6 && (
                 <div className="w-[185px] flex flex-col items-center">
-                  <div className="w-[170px] grid grid-cols-3 gap-0.5">
-                    {[
-                      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-                      'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80',
-                      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80',
-                      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-                      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-                      'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80',
-                      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80',
-                      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-                      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-                    ].map((src, i) => (
-                      <div key={i} className="aspect-square rounded-xs overflow-hidden border border-black/30 relative shadow-xs">
-                        <img
-                          src={src}
-                          alt={`Preview ${i + 1}`}
-                          style={getFilterStyle()}
-                          className="w-full h-full object-cover transition-all duration-300"
-                        />
-                      </div>
-                    ))}
+                  <div className="w-[170px] grid grid-cols-3 gap-1">
+                    {[...Array(9)].map((_, idx) => {
+                      const slotBg = filter === 'bw-contrast' ? (isDark ? '#1F1F1F' : '#E2E2E6') : filter === 'bw-film' ? (isDark ? '#26221D' : '#EAE2D2') : (isDark ? '#26241E' : '#FDEEC8');
+                      const slotBorder = filter === 'bw-contrast' ? (isDark ? 'border-white/30' : 'border-black/40') : filter === 'bw-film' ? (isDark ? 'border-amber-700/30' : 'border-amber-900/30') : (isDark ? 'border-amber-100/20' : 'border-amber-800/30');
+                      return (
+                        <div key={idx} className={`aspect-square rounded-xs border relative flex flex-col items-center justify-center transition-all duration-300 shadow-xs ${slotBorder}`} style={{ backgroundColor: slotBg }}>
+                          <Camera className="w-3.5 h-3.5 opacity-40 text-current" />
+                          <span className="absolute bottom-0.5 right-0.5 text-[6px] font-mono opacity-50">0{idx + 1}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                   <div className="pt-2 text-center">
                     <p className="font-editorial text-[10px] font-bold tracking-widest uppercase truncate max-w-[170px]">
