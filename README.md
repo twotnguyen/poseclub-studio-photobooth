@@ -37,6 +37,11 @@ Mỗi chức năng hoạt động trên một đường dẫn URL độc lập, 
 * Dịch trọn vẹn 100% nội dung tất cả các tab và thông báo.
 * Ghi nhớ ngôn ngữ ưu tiên của người dùng qua `localStorage`.
 
+### Studio gallery & frame catalog
+* Trang chủ có 6 ảnh studio: thumbnail đen trắng, bấm để xem ảnh màu; dùng phím trái/phải để chuyển ảnh và `Esc` để đóng.
+* Catalog tải 60 khung PNG và ZIP: `/exported-frames/index.html`.
+* Tạo lại catalog bằng `python scripts/export_all_frames.py` (cần Pillow; font Windows được dùng khi có).
+
 ### 📸 4. Quy trình Buồng chụp Photobooth 4 bước chuyên sâu
 * **Bước 1 — Chọn kiểu bố cục (Select Frame Layout)**: 
   * 6 kiểu khung với mockup dải ảnh lồng đôi chuẩn thiết kế Canva: Style 1 (Polaroid), Style 2 (Dải 1x2), Style 3 (Lưới 2x2), Style 4 (Dải 1x4 kinh điển), Style 5 (Dải dọc 2x3), Style 6 (Lưới 3x3).
