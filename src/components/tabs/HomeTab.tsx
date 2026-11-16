@@ -90,7 +90,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
         </div>
       </div>
 
-      {/* Studio Glimpse: Refined Monochrome Polaroid Gallery */}
+      {/* Studio Glimpse: Polaroid Gallery */}
       <div className="w-full max-w-4xl mx-auto flex flex-col items-center my-auto py-2 z-10">
         <div className="flex items-center gap-2 mb-2">
           <span className="text-[10px] font-mono tracking-[0.25em] text-black/50 uppercase">
@@ -102,7 +102,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
           </span>
         </div>
 
-        {/* 6 Polaroid Thumbnails (Strictly Black & White) */}
+        {/* 6 Polaroid Thumbnails */}
         <div className="flex items-center justify-center gap-2.5 sm:gap-3.5 md:gap-4 px-2 overflow-x-auto max-w-full py-1">
           {GALLERY_ITEMS.map((item, index) => {
             const meta = t.gallery.find((g) => g.id === item.id) || { title: '', subtitle: '' };
@@ -119,7 +119,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
                   <img
                     src={item.src}
                     alt={meta.title}
-                    className="w-full h-full object-cover filter grayscale contrast-125 brightness-95 group-hover:contrast-105 transition-all duration-300"
+                    className="w-full h-full object-cover filter contrast-125 brightness-95 group-hover:contrast-105 transition-all duration-300"
                     loading="lazy"
                   />
                   <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
