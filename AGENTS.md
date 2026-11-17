@@ -34,6 +34,12 @@ This document defines core architectural principles, behavioral rules, design gu
 
 ---
 
+### 🖼️ Frame workflow skill
+* Before adding, replacing or debugging custom frame PNGs, read `.claude/skills/photobooth-frames/SKILL.md`.
+* It documents the checkerboard-to-alpha conversion, the draw order (photo first, frame on top), and every file that must stay in sync.
+
+---
+
 ## 📁 3. Project Directory Map
 
 ```
@@ -72,6 +78,8 @@ src/
   * Dark Accent: `#0C0C0C` / `#111111` (Deep Noir)
   * Hairline Borders: `border-black/10`, `border-black/20`, `border-[#C5A880]/50` (Champagne Gold)
   * Pastel Photo Slots: `#FDEEC8` (Soft Butter Yellow)
+  * Green Photo Slot (chroma key): `#00B140` — solid green slot in `exported-frames/style-1-polaroid-green` frames; becomes transparent via `.claude/skills/photobooth-frames/scripts/green_to_alpha.py` → `exported-frames/style-1-polaroid-green-alpha`. Frame 4 uses `(0,191,99)`; auto-detected by the same script.
+  * Alternative chroma key: `#05FF00` — bright green marker (`RGB 5, 255, 0`).
 * **Typography Scale**:
   * Script / Calligraphy: `font-script` (`"Alex Brush"`, `"Pinyon Script"`, cursive) — used for brand name `Poseclub` and signature marks.
   * Luxury Serif: `font-serif` (`"Playfair Display"`) & `font-editorial` (`"Cormorant Garamond"`) — used for headlines and titles.
