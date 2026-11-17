@@ -12,10 +12,14 @@ export const StudioTab: React.FC<StudioTabProps> = ({ language }) => {
   const t = TRANSLATIONS[language].studio;
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(STUDIO_CONFIG.address.full);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(STUDIO_CONFIG.address.full);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
   };
 
   return (
@@ -128,7 +132,7 @@ export const StudioTab: React.FC<StudioTabProps> = ({ language }) => {
           <div className="w-full relative h-[220px] sm:h-[260px] lg:h-auto lg:flex-1 bg-[#EFECE6] flex items-center justify-center overflow-hidden">
             <iframe
               title="Poseclub Fullerton Map"
-              src="https://maps.google.com/maps?q=1327%20S%20Harbor%20Blvd,%20Fullerton,%20CA%2092832&t=&z=15&ie=UTF8&iwloc=&output=embed"
+              src={STUDIO_CONFIG.mapsEmbedUrl}
               width="100%"
               height="100%"
               style={{ border: 0, filter: 'grayscale(0.85) contrast(1.05)' }}

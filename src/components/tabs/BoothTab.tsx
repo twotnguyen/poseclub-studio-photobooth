@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { Sparkles, Camera, ArrowLeft, RefreshCw, Upload, Download, Printer, Check, Plus, Minus, RotateCcw, Ticket, SwitchCamera } from 'lucide-react';
 import { sounds } from '../Photobooth/SoundEffects';
 import { renderPhotostripToCanvas, renderIndividualPhoto, downloadCanvas, printCanvas } from '../Photobooth/CanvasExporter';
-import { FilterType, FrameColor, LayoutType, FrameTheme } from '../Photobooth/types';
+import type { FilterType, FrameTheme } from '../Photobooth/types';
+import { getLayoutForStyle, getLayoutSpec } from '../Photobooth/layouts';
+import { getFilterCss } from '../Photobooth/color';
 import { Language, TRANSLATIONS } from '../../i18n/translations';
 import { FrameMockup } from '../Photobooth/FrameMockup';
 import { ThemedFramePreview } from '../Photobooth/ThemedFramePreview';
@@ -21,12 +23,11 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
 
   // Configuration
   const [selectedStyle, setSelectedStyle] = useState<number>(4); // Default Style 4 (Classic 1x4 Strip)
-  const totalShots = selectedStyle === 1 ? 1 : selectedStyle === 2 ? 2 : selectedStyle === 5 ? 6 : selectedStyle === 6 ? 9 : 4;
-  const [layout, setLayout] = useState<LayoutType>('strip-1x4');
+  const layout = getLayoutForStyle(selectedStyle);
+  const totalShots = getLayoutSpec(layout).slots;
   const [filter, setFilter] = useState<FilterType>('bw-contrast');
   const [theme, setTheme] = useState<FrameTheme>('classic-black');
   const currentTheme = getThemeById(theme);
-  const frameColor: FrameColor = theme === 'classic-white' ? 'white' : 'black';
   const [printCopies, setPrintCopies] = useState<number>(1);
   const [customText, setCustomText] = useState<string>('');
   const [showVoucherModal, setShowVoucherModal] = useState<boolean>(false);
@@ -37,6 +38,10 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
   const videoRef = React.useRef<HTMLVideoElement | null>(null);
   const streamRef = React.useRef<MediaStream | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const shotIndexRef = React.useRef(0);
+  const retakeRef = React.useRef<number | null>(null);
+  const captureFnRef = React.useRef<() => void>(() => {});
+  const sessionRef = React.useRef(false);
 
   const [cameraActive, setCameraActive] = useState<boolean>(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -55,6 +60,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
   // Export states
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [downloadSuccess, setDownloadSuccess] = useState<boolean>(false);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   // Camera stream handler
   const startCamera = React.useCallback(async () => {
@@ -79,10 +85,10 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
       setCameraActive(true);
     } catch (err: unknown) {
       console.error('Camera access error:', err);
-      setCameraError('Chưa mở được camera. Bạn có thể cấp quyền hoặc bấm "Tải ảnh từ máy".');
+      setCameraError(TRANSLATIONS[language].booth.cameraError);
       setCameraActive(false);
     }
-  }, [facingMode]);
+  }, [facingMode, language]);
 
   const toggleCameraFacing = React.useCallback(() => {
     setFacingMode((prev) => {
@@ -131,8 +137,41 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
     return canvas.toDataURL('image/jpeg', 0.95);
   }, [isMirror]);
 
-  // Capture countdown loop
+  // Store a shot, then advance the strip or return to confirm.
+  const finishShot = React.useCallback((photoData: string) => {
+    const retakeIdx = retakeRef.current;
+    const target = retakeIdx ?? shotIndexRef.current;
+    setShots((prev) => {
+      const next = [...prev];
+      next[target] = photoData;
+      return next;
+    });
+
+    if (retakeIdx !== null) {
+      retakeRef.current = null;
+      setRetakeIndex(null);
+      sessionRef.current = false;
+      setIsSessionActive(false);
+      setStep('confirm');
+      return;
+    }
+
+    if (shotIndexRef.current < totalShots - 1) {
+      shotIndexRef.current += 1;
+      setCurrentShotIndex(shotIndexRef.current);
+      setTimeout(() => captureFnRef.current(), 1000);
+    } else {
+      sessionRef.current = false;
+      setIsSessionActive(false);
+      setTimeout(() => setStep('confirm'), 600);
+    }
+  }, [totalShots]);
+
+  // The recurring timer must reach the newest callback; a captured closure
+  // would keep reading shot index 0 and overwrite the same photo forever.
   const triggerCapture = React.useCallback(() => {
+    if (sessionRef.current) return;
+    sessionRef.current = true;
     setIsSessionActive(true);
     let secondsLeft = countdownDuration;
     setCountdown(secondsLeft);
@@ -143,58 +182,47 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
       if (secondsLeft > 0) {
         setCountdown(secondsLeft);
         sounds.playCountdownTick();
+        return;
+      }
+      clearInterval(interval);
+      setCountdown(null);
+      setIsFlashing(true);
+      sounds.playShutterSound();
+      setTimeout(() => setIsFlashing(false), 220);
+
+      const photoData = snapFrame();
+      if (photoData) {
+        finishShot(photoData);
       } else {
-        clearInterval(interval);
-        setCountdown(null);
-
-        // Flash and sound
-        setIsFlashing(true);
-        sounds.playShutterSound();
-        setTimeout(() => setIsFlashing(false), 220);
-
-        const photoData = snapFrame();
-        if (photoData) {
-          if (retakeIndex !== null) {
-            // Single shot retake
-            setShots((prev) => {
-              const next = [...prev];
-              next[retakeIndex] = photoData;
-              return next;
-            });
-            setRetakeIndex(null);
-            setIsSessionActive(false);
-            setStep('confirm');
-          } else {
-            // Sequential shots
-            setShots((prev) => {
-              const next = [...prev];
-              next[currentShotIndex] = photoData;
-
-              if (currentShotIndex < totalShots - 1) {
-                setCurrentShotIndex(currentShotIndex + 1);
-                setTimeout(() => {
-                  triggerCapture();
-                }, 1000);
-              } else {
-                setIsSessionActive(false);
-                setTimeout(() => {
-                  setStep('confirm');
-                }, 600);
-              }
-              return next;
-            });
-          }
-        }
+        sessionRef.current = false;
+        setIsSessionActive(false);
       }
     }, 1000);
-  }, [countdownDuration, snapFrame, retakeIndex, currentShotIndex]);
+  }, [countdownDuration, snapFrame, finishShot]);
+
+  captureFnRef.current = triggerCapture;
+
+  const startRetake = (idx: number) => {
+    retakeRef.current = idx;
+    setRetakeIndex(idx);
+    captureFnRef.current();
+  };
+
+  const startNewStrip = () => {
+    shotIndexRef.current = 0;
+    retakeRef.current = null;
+    sessionRef.current = false;
+    setCurrentShotIndex(0);
+    setRetakeIndex(null);
+    setShots([]);
+  };
 
   // Upload handler
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    const fileList = Array.from(files).slice(0, 4);
+    const fileList = Array.from(files).slice(0, totalShots);
     const loadedUrls: string[] = [];
 
     fileList.forEach((file) => {
@@ -204,7 +232,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
           loadedUrls.push(event.target.result as string);
           if (loadedUrls.length === fileList.length) {
             const finalShots = [...loadedUrls];
-            while (finalShots.length < 4) {
+            while (finalShots.length < totalShots) {
               finalShots.push(finalShots[0]);
             }
             setShots(finalShots);
@@ -219,11 +247,11 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
   // Export handlers
   const handleDownload = async () => {
     setIsExporting(true);
+    setExportError(null);
     try {
       const canvas = await renderPhotostripToCanvas({
         images: shots,
         layout,
-        frameColor,
         theme,
         filter,
         brandName: 'poseclub studio',
@@ -237,6 +265,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
       setTimeout(() => setDownloadSuccess(false), 2500);
     } catch (err) {
       console.error(err);
+      setExportError(t.exportError);
     } finally {
       setIsExporting(false);
     }
@@ -244,6 +273,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
 
   const handleDownloadSingles = async () => {
     setIsExporting(true);
+    setExportError(null);
     try {
       for (let i = 0; i < shots.length; i++) {
         const singleCanvas = await renderIndividualPhoto(
@@ -260,17 +290,18 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
       setTimeout(() => setSinglesDownloaded(false), 2500);
     } catch (err) {
       console.error(err);
+      setExportError(t.exportError);
     } finally {
       setIsExporting(false);
     }
   };
 
   const handlePrint = async () => {
+    setExportError(null);
     try {
       const canvas = await renderPhotostripToCanvas({
         images: shots,
         layout,
-        frameColor,
         theme,
         filter,
         brandName: 'poseclub studio',
@@ -278,27 +309,14 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
         location: 'Fullerton, CA',
         dateStr: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
       });
-      printCanvas(canvas);
+      printCanvas(canvas, printCopies);
     } catch (err) {
       console.error(err);
+      setExportError(t.exportError);
     }
   };
 
-  // CSS filter helper
-  const getFilterStyle = (): React.CSSProperties => {
-    switch (filter) {
-      case 'bw-contrast':
-        return { filter: 'grayscale(100%) contrast(140%) brightness(0.96)' };
-      case 'bw-film':
-        return { filter: 'grayscale(100%) contrast(115%) brightness(1.04) sepia(8%)' };
-      case 'natural':
-        return { filter: 'contrast(106%) brightness(1.02) saturate(108%)' };
-      default:
-        return {};
-    }
-  };
-
-  const isDark = frameColor === 'black';
+  const getFilterStyle = (): React.CSSProperties => ({ filter: getFilterCss(filter) });
 
   return (
     <div className="min-h-full h-auto md:h-full w-full flex flex-col justify-between p-3 sm:p-7 select-none">
@@ -318,21 +336,18 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
           {/* 6 Styles Grid from Canva Slide 2 */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-5 max-w-4xl w-full mx-auto my-auto py-1">
             {[
-              { id: 1, title: 'STYLE 1', desc: '1 Photo Polaroid', count: 1, lay: 'grid-2x2' as LayoutType },
-              { id: 2, title: 'STYLE 2', desc: '2 Photos Strip (1x2)', count: 2, lay: 'strip-1x4' as LayoutType },
-              { id: 3, title: 'STYLE 3', desc: '4 Photos Grid (2x2)', count: 4, lay: 'grid-2x2' as LayoutType },
-              { id: 4, title: 'STYLE 4', desc: '4 Photos Classic (1x4)', count: 4, lay: 'strip-1x4' as LayoutType },
-              { id: 5, title: 'STYLE 5', desc: '6 Photos Vertical (2x3)', count: 6, lay: 'strip-1x4' as LayoutType },
-              { id: 6, title: 'STYLE 6', desc: '9 Photos Grid (3x3)', count: 9, lay: 'grid-2x2' as LayoutType },
+              { id: 1, title: 'STYLE 1', desc: '1 Photo Polaroid' },
+              { id: 2, title: 'STYLE 2', desc: '2 Photos Strip (1x2)' },
+              { id: 3, title: 'STYLE 3', desc: '4 Photos Grid (2x2)' },
+              { id: 4, title: 'STYLE 4', desc: '4 Photos Classic (1x4)' },
+              { id: 5, title: 'STYLE 5', desc: '6 Photos Vertical (2x3)' },
+              { id: 6, title: 'STYLE 6', desc: '9 Photos Grid (3x3)' },
             ].map((style) => {
               const isSelected = selectedStyle === style.id;
               return (
                 <button
                   key={style.id}
-                  onClick={() => {
-                    setSelectedStyle(style.id);
-                    setLayout(style.lay);
-                  }}
+                  onClick={() => setSelectedStyle(style.id)}
                   className={`relative p-2 sm:p-3.5 rounded-[18px] sm:rounded-[26px] bg-white transition-all flex flex-col items-center justify-between text-center group cursor-pointer ${
                     isSelected
                       ? 'border-2 border-black shadow-xl scale-102 ring-2 ring-black/15 bg-black/[0.015]'
@@ -428,7 +443,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
             <div className="space-y-1">
               <div className="flex items-center justify-between">
                 <label className="text-[10px] font-mono uppercase tracking-widest text-black/60 font-semibold">
-                  Theme Khung ảnh (10 Kiểu dáng từ Mysketchbooth)
+                  {t.themeLabel}
                 </label>
                 <span className="text-[10px] font-mono text-black/50">
                   {FRAME_THEMES.find((th) => th.id === theme)?.nameVi}
@@ -516,8 +531,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
 
             <button
               onClick={() => {
-                setShots([]);
-                setCurrentShotIndex(0);
+                startNewStrip();
                 setStep('camera');
               }}
               className="px-6 sm:px-8 py-2.5 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-[11px] sm:text-xs font-mono uppercase tracking-widest transition-all shadow-md flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95"
@@ -555,10 +569,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                   <div
                     key={idx}
                     onClick={() => {
-                      if (hasShot && !isSessionActive) {
-                        setRetakeIndex(idx);
-                        triggerCapture();
-                      }
+                      if (hasShot && !isSessionActive) startRetake(idx);
                     }}
                     className={`w-14 h-14 rounded-xl border relative overflow-hidden flex flex-col items-center justify-center transition-all ${
                       isCurrent
@@ -625,10 +636,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                         <div
                           key={idx}
                           onClick={() => {
-                            if (hasShot && !isSessionActive) {
-                              setRetakeIndex(idx);
-                              triggerCapture();
-                            }
+                            if (hasShot && !isSessionActive) startRetake(idx);
                           }}
                           className={`w-full h-[58px] sm:h-[62px] rounded-xs border relative overflow-hidden flex flex-col items-center justify-center transition-all ${
                             isCurrent
@@ -641,7 +649,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                             backgroundColor: hasShot ? '#000000' : currentTheme.slotBgDefault,
                             borderColor: currentTheme.slotBorderColor,
                           }}
-                          title={hasShot ? `Tấm 0${idx + 1} (Bấm để chụp lại)` : `Tấm 0${idx + 1}`}
+                          title={hasShot ? `0${idx + 1} — ${t.retakeHint}` : `0${idx + 1}`}
                         >
                           {hasShot ? (
                             <img
@@ -790,7 +798,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                   <button
                     onClick={toggleCameraFacing}
                     className="p-1.5 sm:p-2 rounded-full bg-black/60 text-white hover:bg-black transition-colors cursor-pointer"
-                    title={facingMode === 'user' ? 'Đổi sang camera sau' : 'Đổi sang camera trước'}
+                    title={facingMode === 'user' ? t.cameraBack : t.cameraFront}
                   >
                     <SwitchCamera className="w-3.5 h-3.5" />
                   </button>
@@ -859,7 +867,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                   onClick={() => setStep('confirm')}
                   className="px-5 py-2.5 rounded-full border border-black/40 bg-white hover:bg-black hover:text-white text-xs font-mono tracking-wider uppercase transition-all shadow-xs cursor-pointer"
                 >
-                  Xem dải ảnh ✦
+                  {t.viewStrip}
                 </button>
               )}
 
@@ -938,6 +946,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                       />
                       <button
                         onClick={() => {
+                          retakeRef.current = idx;
                           setRetakeIndex(idx);
                           setStep('camera');
                         }}
@@ -953,6 +962,8 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                   ))}
                 </div>
               </div>
+
+              {exportError && <p className="text-xs text-red-600 font-mono">{exportError}</p>}
 
               {/* Action Buttons */}
               <div className="space-y-2 pt-2">
@@ -1005,11 +1016,12 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
             {/* Right Column: Live Result Strip */}
             <div className="md:col-span-6 flex justify-center">
               <div
-                className={`w-56 p-4 rounded-xl border-2 shadow-2xl flex flex-col justify-between ${
-                  isDark
-                    ? 'bg-[#0E0E0E] text-white border-black'
-                    : 'bg-[#FAF9F6] text-black border-black/30'
-                }`}
+                className="w-56 p-4 rounded-xl border-2 shadow-2xl flex flex-col justify-between"
+                style={{
+                  backgroundColor: currentTheme.bgColor,
+                  color: currentTheme.textColor,
+                  borderColor: currentTheme.borderColor,
+                }}
               >
                 {layout === 'strip-1x4' ? (
                   <div className="space-y-2">
@@ -1064,7 +1076,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
           <div className="w-full max-w-4xl mx-auto flex items-center justify-between pt-2">
             <button
               onClick={() => {
-                setShots([]);
+                startNewStrip();
                 setStep('frame-select');
               }}
               className="text-xs font-mono text-black/60 hover:text-black tracking-wider uppercase flex items-center gap-1.5 transition-colors"
@@ -1135,7 +1147,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                 0
               </button>
               <button
-                onClick={() => setVoucherMessage(t.voucherApplied)}
+                onClick={() => { if (voucherInput.length > 0) setVoucherMessage(t.voucherApplied); }}
                 className="w-16 h-12 rounded-xl border-2 border-black bg-black text-white hover:bg-black/85 font-mono text-xs font-bold cursor-pointer"
               >
                 APPLY

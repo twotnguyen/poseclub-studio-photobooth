@@ -19,6 +19,7 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
   customText,
 }) => {
   const currentTheme = getThemeById(theme);
+  const barText = customText.trim() ? customText.trim().toUpperCase() : currentTheme.barText;
 
   const handlePrev = () => {
     const currentIndex = FRAME_THEMES.findIndex((t) => t.id === theme);
@@ -77,7 +78,7 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
                 className="font-mono text-[9px] md:text-xs font-bold tracking-widest uppercase mb-1.5"
                 style={{ color: currentTheme.textColor }}
               >
-                {currentTheme.barText}
+                {barText}
               </p>
             )}
 
@@ -162,7 +163,7 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
                       className="font-mono text-[7px] md:text-[9px] font-bold tracking-wider text-center uppercase truncate"
                       style={{ color: currentTheme.textColor }}
                     >
-                      {currentTheme.barText}
+                      {barText}
                     </p>
                   )}
 
@@ -221,7 +222,7 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
                 className="font-mono text-[8px] md:text-[10px] font-bold tracking-wider text-center uppercase mb-1"
                 style={{ color: currentTheme.textColor }}
               >
-                {currentTheme.barText}
+                {barText}
               </p>
             )}
 
