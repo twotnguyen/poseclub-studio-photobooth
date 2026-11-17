@@ -8,14 +8,4 @@ export type LayoutType =
   | 'grid-2x3'
   | 'grid-3x3';
 
-export type FrameTheme =
-  | 'classic-black'
-  | 'classic-white'
-  | 'stars'
-  | 'doodle'
-  | 'cutout'
-  | 'hearts'
-  | 'valentine'
-  | 'be-valentine'
-  | 'birthday'
-  | 'brand';
+export type FrameTheme = `custom-${number}`;
