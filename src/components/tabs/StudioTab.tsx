@@ -135,10 +135,10 @@ export const StudioTab: React.FC<StudioTabProps> = ({ language }) => {
               src={STUDIO_CONFIG.mapsEmbedUrl}
               width="100%"
               height="100%"
-              style={{ border: 0, filter: 'grayscale(0.85) contrast(1.05)' }}
+              style={{ border: 0 }}
               allowFullScreen={false}
               loading="lazy"
-              className="w-full h-full relative z-10 opacity-90 hover:opacity-100 transition-opacity"
+              className="w-full h-full relative z-10"
             />
             {/* Ambient Pin & Direct Action */}
             <div className="absolute bottom-3 right-3 z-20">

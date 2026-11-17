@@ -53,8 +53,8 @@ export const STUDIO_CONFIG: StudioConfig = {
   },
   hours: [
     { days: "Monday – Thursday", time: "11:00 AM – 10:00 PM" },
-    { days: "Friday – Saturday", time: "10:00 AM – 11:30 PM" },
-    { days: "Sunday", time: "10:00 AM – 10:00 PM" },
+    { days: "Friday – Saturday", time: "11:00 AM – 11:00 PM" },
+    { days: "Sunday", time: "11:00 AM – 11:00 PM" },
   ],
   boothHighlights: [
     {

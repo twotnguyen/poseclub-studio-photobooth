@@ -39,7 +39,7 @@ Mỗi chức năng hoạt động trên một đường dẫn URL độc lập, 
 
 ### Studio gallery & frame catalog
 * Trang chủ có 6 ảnh studio: thumbnail đen trắng, bấm để xem ảnh màu; dùng phím trái/phải để chuyển ảnh và `Esc` để đóng.
-* Catalog tải 60 khung PNG và ZIP: `/exported-frames/index.html`.
+* Catalog tải 23 khung PNG và ZIP: `/exported-frames/index.html` (23 khung Style 1 custom).
 * Tạo lại catalog bằng `python scripts/export_all_frames.py` (cần Pillow; font Windows được dùng khi có).
 
 ### 📸 4. Quy trình Buồng chụp Photobooth 4 bước chuyên sâu
@@ -87,8 +87,8 @@ Mỗi chức năng hoạt động trên một đường dẫn URL độc lập, 
 * **Instagram**: [@poseclub.photobooth](https://www.instagram.com/poseclub.photobooth)
 * **Giờ mở cửa**:
   * Thứ 2 – Thứ 5: 11:00 AM – 10:00 PM
-  * Thứ 6 – Thứ 7: 10:00 AM – 11:30 PM
-  * Chủ nhật: 10:00 AM – 10:00 PM
+  * Thứ 6 – Thứ 7: 11:00 AM – 11:00 PM
+  * Chủ nhật: 11:00 AM – 11:00 PM
 
 ---
 
