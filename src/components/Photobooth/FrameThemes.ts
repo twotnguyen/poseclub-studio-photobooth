@@ -2,6 +2,7 @@ import { FrameTheme } from './types';
 
 export interface ThemeConfig {
   id: FrameTheme;
+  style: number;
   nameVi: string;
   nameEn: string;
   bgColor: string;
@@ -13,133 +14,117 @@ export interface ThemeConfig {
   tagline?: string;
   isTextBar?: boolean;
   barText?: string;
+  imagePath?: string;
+  imageWidth?: number;
+  imageHeight?: number;
+  /** Photo slot rectangles in frame-pixel coordinates, reading order. */
+  slots?: { x: number; y: number; w: number; h: number }[];
 }
 
-export const FRAME_THEMES: ThemeConfig[] = [
-  {
-    id: 'classic-black',
-    nameVi: 'Classic Black',
-    nameEn: 'Classic Black',
-    bgColor: '#0C0C0C',
-    textColor: '#FFFFFF',
-    borderColor: '#1E1E1E',
-    slotBorderColor: '#2A2A2A',
-    slotBgDefault: '#1C1C1E',
-    icon: '⬛',
-  },
-  {
-    id: 'classic-white',
-    nameVi: 'Classic White',
-    nameEn: 'Classic White',
-    bgColor: '#FAF9F6',
-    textColor: '#0C0C0C',
-    borderColor: '#E5E5E5',
-    slotBorderColor: '#D4D4D8',
-    slotBgDefault: '#F4F4F5',
-    icon: '⬜',
-  },
-  {
-    id: 'stars',
-    nameVi: 'Gold Stars',
-    nameEn: 'Gold Stars',
-    bgColor: '#18171A',
-    textColor: '#E5C158',
-    borderColor: '#E5C158',
-    slotBorderColor: '#E5C158',
-    slotBgDefault: '#26242B',
-    icon: '✦',
-    tagline: 'Gilded Starlight',
-  },
-  {
-    id: 'doodle',
-    nameVi: 'Doodle Hearts',
-    nameEn: 'Doodle Hearts',
-    bgColor: '#2D282A',
-    textColor: '#E11D48',
-    borderColor: '#E11D48',
-    slotBorderColor: '#E11D48',
-    slotBgDefault: '#3D3437',
-    icon: '♥',
-    tagline: 'Hand-drawn Crimson Hearts',
-  },
-  {
-    id: 'cutout',
-    nameVi: 'Cutout Hearts',
-    nameEn: 'Cutout Hearts',
-    bgColor: '#FCE7ED',
-    textColor: '#9F1239',
-    borderColor: '#BE123C',
-    slotBorderColor: '#E11D48',
-    slotBgDefault: '#4A4045',
-    icon: '♡',
-    tagline: 'Heart Cutouts & Bows',
-  },
-  {
-    id: 'hearts',
-    nameVi: 'Hearts & Ribbons',
-    nameEn: 'Hearts & Ribbons',
-    bgColor: '#383335',
-    textColor: '#FDA4AF',
-    borderColor: '#FB7185',
-    slotBorderColor: '#FDA4AF',
-    slotBgDefault: '#453E41',
-    icon: '🎀',
-    tagline: 'Floating Ribbon & Hearts',
-  },
-  {
-    id: 'valentine',
-    nameVi: 'Happy Valentine',
-    nameEn: 'Happy Valentine',
-    bgColor: '#FBCFE8',
-    textColor: '#831843',
-    borderColor: '#F472B6',
-    slotBorderColor: '#9D174D',
-    slotBgDefault: '#504449',
-    icon: '💌',
-    isTextBar: true,
-    barText: "HAPPY VALENTINE'S DAY",
-  },
-  {
-    id: 'be-valentine',
-    nameVi: 'Be My Valentine',
-    nameEn: 'Be My Valentine',
-    bgColor: '#FCE7F3',
-    textColor: '#9D174D',
-    borderColor: '#F472B6',
-    slotBorderColor: '#BE185D',
-    slotBgDefault: '#4E4449',
-    icon: '💖',
-    isTextBar: true,
-    barText: 'be my valentine? ♥',
-  },
-  {
-    id: 'birthday',
-    nameVi: 'Happy Birthday',
-    nameEn: 'Happy Birthday',
-    bgColor: '#E5DFD5',
-    textColor: '#44403C',
-    borderColor: '#A8A29E',
-    slotBorderColor: '#78716C',
-    slotBgDefault: '#57534E',
-    icon: '🎂',
-    isTextBar: true,
-    barText: 'HAPPY BIRTHDAY',
-  },
-  {
-    id: 'brand',
-    nameVi: 'Poseclub Signature',
-    nameEn: 'Poseclub Signature',
-    bgColor: '#D6D3D1',
-    textColor: '#1C1917',
-    borderColor: '#78716C',
-    slotBorderColor: '#44403C',
-    slotBgDefault: '#44403C',
-    icon: '🏛️',
-    isTextBar: true,
-    barText: 'POSECLUB STUDIO',
-  },
+// Style 1: photo-slot bounds [left, top, right, bottom] measured from each Canva PNG.
+const STYLE1_BOXES: [number, number, number, number][] = [[42, 90, 1197, 1437], [69, 117, 1170, 1410], [69, 117, 1170, 1410], [42, 90, 1197, 1437], [42, 90, 1197, 1437], [42, 90, 1197, 1437], [42, 90, 1197, 1437], [42, 93, 1197, 1437], [42, 90, 1197, 1437], [42, 90, 1197, 1437], [42, 90, 1197, 1437], [42, 90, 1197, 1437], [42, 90, 1197, 1437], [42, 90, 1197, 1437], [42, 90, 1197, 1437], [42, 90, 1197, 1437], [42, 90, 1197, 1437], [42, 90, 1197, 1437], [90, 141, 1149, 1389], [132, 180, 1107, 1347], [42, 90, 1197, 1437], [42, 90, 1197, 1437], [42, 93, 1197, 1437]];
+
+// Styles 2-6: multi-slot PNG frames. Slots were auto-detected from the
+// transparent regions of each RGBA overlay (.claude/skills/photobooth-frames).
+const STYLE_FRAMES: { style: number; id: number; dir: string; file: string; w: number; h: number; boxes: number[][] }[] = [
+  { style: 2, id: 24, dir: 'style-2-strip-1x2', file: '7.png', w: 1240, h: 1844, boxes: [[70, 70, 1169, 770], [70, 800, 1169, 1500]] },
+  { style: 2, id: 25, dir: 'style-2-strip-1x2', file: '8.png', w: 1240, h: 1844, boxes: [[106, 106, 1135, 734], [106, 836, 1135, 1464]] },
+  { style: 2, id: 26, dir: 'style-2-strip-1x2', file: '9.png', w: 1240, h: 1844, boxes: [[106, 106, 1135, 734], [106, 836, 1135, 1464]] },
+  { style: 2, id: 27, dir: 'style-2-strip-1x2', file: '10.png', w: 1240, h: 1844, boxes: [[106, 106, 1135, 734], [106, 836, 1134, 1464]] },
+  { style: 2, id: 28, dir: 'style-2-strip-1x2', file: '11.png', w: 1240, h: 1844, boxes: [[70, 70, 1169, 770], [70, 800, 1169, 1500]] },
+  { style: 2, id: 29, dir: 'style-2-strip-1x2', file: '12.png', w: 1240, h: 1844, boxes: [[70, 70, 1169, 770], [70, 800, 1169, 1500]] },
+  { style: 2, id: 30, dir: 'style-2-strip-1x2', file: '13.png', w: 1240, h: 1844, boxes: [[70, 70, 1169, 770], [70, 800, 1169, 1500]] },
+  { style: 2, id: 31, dir: 'style-2-strip-1x2', file: '14.png', w: 1240, h: 1844, boxes: [[70, 70, 1169, 770], [47, 800, 1169, 1500]] },
+  { style: 2, id: 32, dir: 'style-2-strip-1x2', file: '15.png', w: 1240, h: 1844, boxes: [[70, 70, 1169, 770], [70, 800, 1169, 1500]] },
+  { style: 3, id: 33, dir: 'style-3-grid-2x2', file: '16.png', w: 1240, h: 1844, boxes: [[30, 150, 612, 761], [630, 150, 1211, 760], [30, 839, 612, 1450], [630, 839, 1211, 1449]] },
+  { style: 3, id: 34, dir: 'style-3-grid-2x2', file: '17.png', w: 1240, h: 1844, boxes: [[30, 150, 612, 762], [630, 150, 1211, 761], [30, 839, 612, 1451], [630, 839, 1211, 1450]] },
+  { style: 3, id: 35, dir: 'style-3-grid-2x2', file: '18.png', w: 1240, h: 1844, boxes: [[30, 150, 612, 761], [630, 150, 1211, 760], [30, 839, 612, 1450], [630, 839, 1211, 1450]] },
+  { style: 3, id: 36, dir: 'style-3-grid-2x2', file: '19.png', w: 1240, h: 1844, boxes: [[30, 150, 612, 761], [630, 150, 1211, 761], [30, 839, 612, 1450], [630, 839, 1211, 1450]] },
+  { style: 3, id: 37, dir: 'style-3-grid-2x2', file: '20.png', w: 1240, h: 1844, boxes: [[30, 150, 612, 761], [630, 150, 1211, 760], [30, 839, 612, 1450], [630, 839, 1211, 1450]] },
+  { style: 3, id: 38, dir: 'style-3-grid-2x2', file: '21.png', w: 1240, h: 1844, boxes: [[30, 150, 612, 761], [630, 150, 1211, 760], [30, 839, 612, 1450], [630, 839, 1211, 1450]] },
+  { style: 3, id: 39, dir: 'style-3-grid-2x2', file: '22.png', w: 1240, h: 1844, boxes: [[30, 150, 612, 761], [630, 150, 1211, 760], [30, 839, 612, 1450], [630, 839, 1211, 1450]] },
+  { style: 3, id: 40, dir: 'style-3-grid-2x2', file: '23.png', w: 1240, h: 1844, boxes: [[30, 150, 612, 762], [630, 150, 1211, 761], [30, 839, 612, 1451], [630, 839, 1211, 1450]] },
+  { style: 3, id: 41, dir: 'style-3-grid-2x2', file: '24.png', w: 1240, h: 1844, boxes: [[30, 150, 612, 761], [630, 150, 1211, 760], [30, 839, 612, 1450], [630, 839, 1211, 1450]] },
+  { style: 3, id: 42, dir: 'style-3-grid-2x2', file: '25.png', w: 1240, h: 1844, boxes: [[159, 172, 476, 707], [630, 150, 1211, 760], [30, 839, 612, 1450], [630, 839, 1211, 1449]] },
+  { style: 4, id: 43, dir: 'style-4-classic-2x4', file: '26.png', w: 1240, h: 1844, boxes: [[50, 90, 580, 440], [660, 90, 1190, 440], [50, 475, 580, 825], [660, 475, 1190, 825], [50, 860, 580, 1210], [660, 860, 1190, 1210], [50, 1245, 580, 1595], [660, 1245, 1190, 1595]] },
+  { style: 4, id: 44, dir: 'style-4-classic-2x4', file: '27.png', w: 1240, h: 1844, boxes: [[74, 114, 557, 416], [684, 114, 1166, 416], [74, 499, 557, 801], [684, 499, 1166, 801], [74, 884, 557, 1186], [684, 884, 1166, 1186], [74, 1269, 557, 1571], [684, 1269, 1166, 1571]] },
+  { style: 4, id: 45, dir: 'style-4-classic-2x4', file: '28.png', w: 1240, h: 1844, boxes: [[70, 110, 560, 422], [680, 110, 1170, 422], [70, 495, 560, 807], [680, 495, 1170, 807], [70, 880, 560, 1192], [680, 880, 1170, 1192], [70, 1265, 560, 1577], [680, 1265, 1170, 1577]] },
+  { style: 4, id: 46, dir: 'style-4-classic-2x4', file: '29.png', w: 1240, h: 1844, boxes: [[70, 110, 560, 422], [680, 110, 1170, 422], [70, 495, 560, 807], [680, 495, 1170, 807], [70, 880, 560, 1192], [680, 880, 1170, 1192], [70, 1265, 560, 1577], [680, 1265, 1170, 1577]] },
+  { style: 4, id: 47, dir: 'style-4-classic-2x4', file: '30.png', w: 1240, h: 1844, boxes: [[70, 110, 560, 422], [680, 110, 1170, 422], [70, 495, 560, 807], [680, 495, 1170, 807], [70, 880, 560, 1192], [680, 880, 1170, 1192], [70, 1265, 560, 1577], [680, 1265, 1170, 1577]] },
+  { style: 4, id: 48, dir: 'style-4-classic-2x4', file: '31.png', w: 1240, h: 1844, boxes: [[70, 112, 560, 424], [680, 112, 1170, 424], [70, 497, 560, 809], [680, 497, 1170, 809], [70, 882, 560, 1194], [680, 882, 1170, 1194], [70, 1267, 560, 1579], [680, 1267, 1170, 1579]] },
+  { style: 4, id: 49, dir: 'style-4-classic-2x4', file: '32.png', w: 1240, h: 1844, boxes: [[70, 105, 560, 416], [680, 105, 1170, 416], [70, 490, 560, 801], [680, 490, 1170, 801], [70, 875, 560, 1186], [680, 875, 1170, 1186], [70, 1260, 560, 1571], [680, 1260, 1170, 1571]] },
+  { style: 4, id: 50, dir: 'style-4-classic-2x4', file: '33.png', w: 1240, h: 1844, boxes: [[70, 110, 560, 422], [680, 110, 1170, 422], [70, 495, 560, 807], [680, 495, 1170, 807], [70, 880, 560, 1192], [680, 880, 1170, 1192], [70, 1265, 560, 1577], [680, 1265, 1170, 1577]] },
+  { style: 4, id: 51, dir: 'style-4-classic-2x4', file: '34.png', w: 1240, h: 1844, boxes: [[70, 110, 560, 422], [680, 110, 1170, 422], [70, 495, 560, 807], [680, 495, 1170, 807], [70, 880, 560, 1192], [680, 880, 1170, 1192], [70, 1265, 560, 1577], [680, 1265, 1170, 1577]] },
+  { style: 4, id: 52, dir: 'style-4-classic-2x4', file: '35.png', w: 1240, h: 1844, boxes: [[70, 110, 560, 422], [680, 110, 1170, 422], [70, 495, 560, 807], [680, 495, 1170, 807], [70, 880, 560, 1192], [680, 880, 1170, 1192], [70, 1265, 560, 1577], [680, 1265, 1170, 1577]] },
+  { style: 5, id: 53, dir: 'style-5-grid-2x3', file: '41.png', w: 1844, h: 1240, boxes: [[85, 135, 619, 535], [655, 135, 1189, 535], [1225, 135, 1759, 535], [85, 705, 619, 1105], [655, 705, 1189, 1105], [1225, 705, 1759, 1105]] },
+  { style: 5, id: 54, dir: 'style-5-grid-2x3', file: '42.png', w: 1844, h: 1240, boxes: [[85, 135, 619, 535], [655, 135, 1189, 535], [1225, 135, 1759, 535], [85, 705, 619, 1105], [655, 705, 1189, 1105], [1225, 705, 1759, 1105]] },
+  { style: 5, id: 55, dir: 'style-5-grid-2x3', file: '43.png', w: 1844, h: 1240, boxes: [[85, 135, 620, 535], [655, 135, 1190, 535], [1225, 135, 1789, 535], [85, 705, 620, 1105], [655, 705, 1190, 1105], [1225, 705, 1760, 1105]] },
+  { style: 5, id: 56, dir: 'style-5-grid-2x3', file: '44.png', w: 1844, h: 1240, boxes: [[85, 135, 619, 535], [655, 135, 1189, 535], [1225, 135, 1759, 535], [85, 705, 619, 1105], [655, 705, 1189, 1105], [1225, 705, 1759, 1105]] },
+  { style: 5, id: 57, dir: 'style-5-grid-2x3', file: '45.png', w: 1844, h: 1240, boxes: [[85, 134, 619, 534], [655, 134, 1189, 534], [1225, 134, 1759, 534], [85, 704, 619, 1104], [655, 704, 1189, 1104], [1225, 704, 1759, 1104]] },
+  { style: 5, id: 58, dir: 'style-5-grid-2x3', file: '46.png', w: 1844, h: 1240, boxes: [[85, 134, 619, 534], [655, 134, 1189, 534], [1225, 134, 1759, 534], [85, 704, 619, 1104], [655, 704, 1189, 1104], [1225, 704, 1759, 1104]] },
+  { style: 5, id: 59, dir: 'style-5-grid-2x3', file: '47.png', w: 1844, h: 1240, boxes: [[85, 134, 619, 534], [655, 134, 1189, 534], [1225, 134, 1759, 534], [85, 704, 619, 1104], [655, 704, 1189, 1104], [1225, 704, 1759, 1104]] },
+  { style: 5, id: 60, dir: 'style-5-grid-2x3', file: '48.png', w: 1844, h: 1240, boxes: [[85, 134, 620, 534], [655, 134, 1190, 534], [1225, 134, 1760, 534], [85, 704, 620, 1104], [655, 704, 1190, 1104], [1225, 704, 1760, 1104]] },
+  { style: 5, id: 61, dir: 'style-5-grid-2x3', file: '49.png', w: 1844, h: 1240, boxes: [[85, 134, 619, 534], [655, 134, 1189, 534], [1225, 134, 1759, 534], [85, 704, 619, 1104], [655, 704, 1189, 1104], [1225, 704, 1759, 1104]] },
+  { style: 5, id: 62, dir: 'style-5-grid-2x3', file: '50.png', w: 1844, h: 1240, boxes: [[85, 134, 620, 534], [655, 134, 1190, 534], [1225, 134, 1760, 534], [85, 704, 620, 1104], [655, 704, 1190, 1104], [1225, 704, 1760, 1104]] },
+  { style: 5, id: 63, dir: 'style-5-grid-2x3', file: '51.png', w: 1844, h: 1240, boxes: [[85, 134, 619, 534], [655, 134, 1189, 534], [1225, 134, 1759, 534], [85, 704, 619, 1104], [655, 704, 1189, 1104], [1225, 704, 1759, 1104]] },
+  { style: 5, id: 64, dir: 'style-5-grid-2x3', file: '52.png', w: 1844, h: 1240, boxes: [[85, 134, 619, 534], [655, 134, 1189, 534], [1225, 134, 1759, 534], [85, 704, 619, 1104], [655, 704, 1189, 1104], [1225, 704, 1759, 1104]] },
+  { style: 5, id: 65, dir: 'style-5-grid-2x3', file: '53.png', w: 1844, h: 1240, boxes: [[85, 134, 619, 534], [655, 134, 1189, 534], [1225, 134, 1759, 534], [85, 704, 619, 1104], [655, 704, 1189, 1104], [1225, 704, 1759, 1104]] },
+  { style: 5, id: 66, dir: 'style-5-grid-2x3', file: '54.png', w: 1844, h: 1240, boxes: [[85, 135, 619, 534], [655, 135, 1189, 534], [1225, 135, 1759, 534], [85, 705, 619, 1104], [655, 705, 1189, 1104], [1225, 705, 1759, 1104]] },
+  { style: 5, id: 67, dir: 'style-5-grid-2x3', file: '55.png', w: 1844, h: 1240, boxes: [[85, 135, 619, 534], [655, 135, 1189, 534], [1225, 135, 1759, 534], [85, 705, 619, 1104], [655, 705, 1189, 1104], [1225, 705, 1759, 1104]] },
+  { style: 6, id: 68, dir: 'style-6-collage-3x3', file: '36.png', w: 1240, h: 1844, boxes: [[49, 152, 388, 508], [451, 152, 789, 508], [852, 152, 1190, 508], [49, 661, 388, 1016], [451, 661, 789, 1016], [852, 661, 1191, 1016], [49, 1169, 388, 1524], [451, 1169, 789, 1524], [852, 1169, 1191, 1524]] },
+  { style: 6, id: 69, dir: 'style-6-collage-3x3', file: '37.png', w: 1240, h: 1844, boxes: [[49, 152, 388, 508], [451, 152, 789, 508], [852, 152, 1196, 508], [49, 661, 388, 1016], [451, 661, 789, 1016], [852, 661, 1191, 1016], [49, 1169, 388, 1524], [451, 1169, 789, 1524], [852, 1169, 1191, 1524]] },
+  { style: 6, id: 70, dir: 'style-6-collage-3x3', file: '38.png', w: 1240, h: 1844, boxes: [[49, 152, 387, 508], [451, 152, 789, 508], [852, 152, 1190, 508], [50, 661, 388, 1016], [451, 661, 789, 1016], [853, 661, 1191, 1016], [49, 1169, 387, 1524], [451, 1169, 789, 1524], [852, 1169, 1190, 1524]] },
+  { style: 6, id: 71, dir: 'style-6-collage-3x3', file: '39.png', w: 1240, h: 1844, boxes: [[49, 152, 387, 507], [451, 152, 789, 507], [852, 152, 1190, 507], [50, 661, 388, 1016], [451, 661, 789, 1016], [852, 661, 1190, 1016], [49, 1169, 387, 1524], [451, 1169, 789, 1524], [852, 1169, 1190, 1524]] },
+  { style: 6, id: 72, dir: 'style-6-collage-3x3', file: '40.png', w: 1240, h: 1844, boxes: [[49, 152, 387, 508], [451, 152, 789, 508], [852, 152, 1190, 508], [50, 661, 388, 1016], [451, 661, 789, 1016], [853, 661, 1190, 1016], [50, 1169, 387, 1524], [451, 1169, 789, 1524], [852, 1169, 1190, 1524]] },
 ];
 
+const baseTheme = {
+  nameVi: '',
+  nameEn: '',
+  bgColor: '#FFFFFF',
+  textColor: '#0C0C0C',
+  borderColor: '#0C0C0C',
+  slotBorderColor: '#D4D4D8',
+  slotBgDefault: '#F4F4F5',
+  icon: '✦',
+};
+
+export const CUSTOM_FRAMES: ThemeConfig[] = [
+  ...STYLE1_BOXES.map(([x1, y1, x2, y2], i) => {
+    const num = i + 1;
+    return {
+      ...baseTheme,
+      id: `custom-${num}` as FrameTheme,
+      style: 1,
+      nameVi: `Custom ${String(num).padStart(2, '0')}`,
+      nameEn: `Custom ${String(num).padStart(2, '0')}`,
+      imagePath: `/exported-frames/style-1-polaroid-alpha/${num}.png`,
+      imageWidth: 1240,
+      imageHeight: 1844,
+      slots: [{ x: x1, y: y1, w: x2 - x1, h: y2 - y1 }],
+    };
+  }),
+  ...STYLE_FRAMES.map(({ style, id, dir, file, w, h, boxes }) => {
+    const num = String(id).padStart(2, '0');
+    return {
+      ...baseTheme,
+      id: `custom-${id}` as FrameTheme,
+      style,
+      nameVi: `Custom ${num}`,
+      nameEn: `Custom ${num}`,
+      imagePath: `/exported-frames/${dir}/${file}`,
+      imageWidth: w,
+      imageHeight: h,
+      slots: boxes.map(([x1, y1, x2, y2]) => ({ x: x1, y: y1, w: x2 - x1, h: y2 - y1 })),
+    };
+  }),
+];
+
+export const ALL_THEMES: ThemeConfig[] = CUSTOM_FRAMES;
+
+export const getThemesForStyle = (style: number): ThemeConfig[] =>
+  CUSTOM_FRAMES.filter((t) => t.style === style);
+
 export const getThemeById = (id: FrameTheme): ThemeConfig => {
-  return FRAME_THEMES.find((t) => t.id === id) || FRAME_THEMES[0];
+  return ALL_THEMES.find((t) => t.id === id) || CUSTOM_FRAMES[0];
 };

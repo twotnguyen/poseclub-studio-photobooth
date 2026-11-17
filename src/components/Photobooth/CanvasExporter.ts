@@ -43,6 +43,39 @@ const drawGrain = (ctx: CanvasRenderingContext2D, width: number, height: number,
 export const renderPhotostripToCanvas = async (options: RenderOptions): Promise<HTMLCanvasElement> => {
   const { images, layout, theme, filter, brandName, customFooterText, location, dateStr } = options;
   const themeCfg = getThemeById(theme);
+
+  // Custom Canva PNG frames have transparent photo slots. Paint each shot
+  // into its measured slot, then lay the frame art over it so stickers stay
+  // on top of the photos.
+  if (themeCfg.imagePath && themeCfg.slots && themeCfg.slots.length > 0 && images.length > 0) {
+    const frame = await loadImage(themeCfg.imagePath);
+    const canvas = document.createElement('canvas');
+    canvas.width = frame.naturalWidth;
+    canvas.height = frame.naturalHeight;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Could not get canvas context');
+
+    for (let i = 0; i < themeCfg.slots.length && i < images.length; i++) {
+      const photo = await loadImage(images[i]);
+      const { x, y, w, h } = themeCfg.slots[i];
+      const targetAspect = w / h;
+      const imgAspect = photo.width / photo.height;
+      let sx = 0, sy = 0, sw = photo.width, sh = photo.height;
+      if (imgAspect > targetAspect) {
+        sw = photo.height * targetAspect;
+        sx = (photo.width - sw) / 2;
+      } else {
+        sh = photo.width / targetAspect;
+        sy = (photo.height - sh) / 2;
+      }
+      applyCanvasFilter(ctx, filter);
+      ctx.drawImage(photo, sx, sy, sw, sh, x, y, w, h);
+      ctx.filter = 'none';
+    }
+    ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
+    return canvas;
+  }
+
   const mainLabel = customFooterText?.trim() || themeCfg.barText || brandName;
   const geo = getLayoutGeometry(layout);
   const { width: W, height: H, footerY, footerHeight, cells } = geo;

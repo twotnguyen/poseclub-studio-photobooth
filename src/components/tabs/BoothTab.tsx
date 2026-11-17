@@ -8,7 +8,7 @@ import { getFilterCss } from '../Photobooth/color';
 import { Language, TRANSLATIONS } from '../../i18n/translations';
 import { FrameMockup } from '../Photobooth/FrameMockup';
 import { ThemedFramePreview } from '../Photobooth/ThemedFramePreview';
-import { FRAME_THEMES, getThemeById } from '../Photobooth/FrameThemes';
+import { ALL_THEMES, CUSTOM_FRAMES, getThemesForStyle } from '../Photobooth/FrameThemes';
 interface BoothTabProps {
   language: Language;
   onBackToHome: () => void;
@@ -22,12 +22,19 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
   const [step, setStep] = useState<BoothWorkflowStep>('frame-select');
 
   // Configuration
-  const [selectedStyle, setSelectedStyle] = useState<number>(4); // Default Style 4 (Classic 1x4 Strip)
+  const [selectedStyle, setSelectedStyle] = useState<number>(4); // Default Style 4 (Classic 2x4 Grid)
   const layout = getLayoutForStyle(selectedStyle);
-  const totalShots = getLayoutSpec(layout).slots;
+  const styleThemes = CUSTOM_FRAMES.filter((t) => t.style === selectedStyle);
   const [filter, setFilter] = useState<FilterType>('bw-contrast');
-  const [theme, setTheme] = useState<FrameTheme>('classic-black');
-  const currentTheme = getThemeById(theme);
+  const [theme, setTheme] = useState<FrameTheme>(() => getThemesForStyle(4)[0].id);
+  const currentTheme = styleThemes.find((t) => t.id === theme) ?? styleThemes[0];
+  const isCustomImage = !!currentTheme.imagePath;
+  // A custom PNG frame defines its own photo slots; the CSS fallback uses the layout spec.
+  const totalShots = isCustomImage && currentTheme.slots ? currentTheme.slots.length : getLayoutSpec(layout).slots;
+  const cameraRatio = isCustomImage && currentTheme.slots?.length
+    ? `${currentTheme.slots[0].w} / ${currentTheme.slots[0].h}`
+    : '4 / 3';
+  const availableThemes = styleThemes;
   const [printCopies, setPrintCopies] = useState<number>(1);
   const [customText, setCustomText] = useState<string>('');
   const [showVoucherModal, setShowVoucherModal] = useState<boolean>(false);
@@ -217,6 +224,39 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
     setShots([]);
   };
 
+  // Live preview of the chosen frame PNG with shots placed in their photo slots.
+  const renderCustomFrame = (widthClass: string) => {
+    const slots = currentTheme.slots ?? [];
+    const fw = currentTheme.imageWidth ?? 1240;
+    const fh = currentTheme.imageHeight ?? 1844;
+    const hasAnyShot = shots.some(Boolean);
+    return (
+      <div className={`relative ${widthClass}`}>
+        {slots.map((box, i) => shots[i] && (
+          <img
+            key={i}
+            src={shots[i]}
+            alt={`Shot ${i + 1}`}
+            onClick={() => { if (!isSessionActive) startRetake(i); }}
+            className="absolute object-cover cursor-pointer"
+            style={{
+              left: `${(box.x / fw) * 100}%`,
+              top: `${(box.y / fh) * 100}%`,
+              width: `${(box.w / fw) * 100}%`,
+              height: `${(box.h / fh) * 100}%`,
+              ...getFilterStyle(),
+            }}
+          />
+        ))}
+        <img
+          src={currentTheme.imagePath}
+          alt={currentTheme.nameEn}
+          className={`block w-full h-auto ${hasAnyShot ? 'pointer-events-none' : ''}`}
+        />
+      </div>
+    );
+  };
+
   // Upload handler
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -252,7 +292,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
       const canvas = await renderPhotostripToCanvas({
         images: shots,
         layout,
-        theme,
+        theme: currentTheme.id,
         filter,
         brandName: 'poseclub studio',
         customFooterText: customText.trim(),
@@ -302,7 +342,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
       const canvas = await renderPhotostripToCanvas({
         images: shots,
         layout,
-        theme,
+        theme: currentTheme.id,
         filter,
         brandName: 'poseclub studio',
         customFooterText: customText.trim(),
@@ -339,15 +379,15 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
               { id: 1, title: 'STYLE 1', desc: '1 Photo Polaroid' },
               { id: 2, title: 'STYLE 2', desc: '2 Photos Strip (1x2)' },
               { id: 3, title: 'STYLE 3', desc: '4 Photos Grid (2x2)' },
-              { id: 4, title: 'STYLE 4', desc: '4 Photos Classic (1x4)' },
-              { id: 5, title: 'STYLE 5', desc: '6 Photos Vertical (2x3)' },
+              { id: 4, title: 'STYLE 4', desc: '8 Photos Grid (2x4)' },
+              { id: 5, title: 'STYLE 5', desc: '6 Photos Landscape (2x3)' },
               { id: 6, title: 'STYLE 6', desc: '9 Photos Grid (3x3)' },
             ].map((style) => {
               const isSelected = selectedStyle === style.id;
               return (
                 <button
                   key={style.id}
-                  onClick={() => setSelectedStyle(style.id)}
+                  onClick={() => { setSelectedStyle(style.id); setTheme(getThemesForStyle(style.id)[0].id); }}
                   className={`relative p-2 sm:p-3.5 rounded-[18px] sm:rounded-[26px] bg-white transition-all flex flex-col items-center justify-between text-center group cursor-pointer ${
                     isSelected
                       ? 'border-2 border-black shadow-xl scale-102 ring-2 ring-black/15 bg-black/[0.015]'
@@ -446,11 +486,11 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                   {t.themeLabel}
                 </label>
                 <span className="text-[10px] font-mono text-black/50">
-                  {FRAME_THEMES.find((th) => th.id === theme)?.nameVi}
+                  {ALL_THEMES.find((th) => th.id === theme)?.nameVi}
                 </span>
               </div>
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
-                {FRAME_THEMES.map((th) => {
+                {availableThemes.map((th) => {
                   const isSelected = theme === th.id;
                   return (
                     <button
@@ -562,7 +602,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
             
             {/* Mobile Compact Horizontal Shot Preview (Order 2 on mobile, Hidden on desktop) */}
             <div className="order-2 md:hidden w-full flex items-center justify-center gap-2 py-1 overflow-x-auto">
-              {[...Array(totalShots)].map((_, idx) => {
+              {isCustomImage ? renderCustomFrame('w-[120px]') : [...Array(totalShots)].map((_, idx) => {
                 const hasShot = !!shots[idx];
                 const isCurrent = idx === currentShotIndex && isSessionActive;
                 return (
@@ -608,6 +648,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
 
             {/* Desktop Live Photostrip Progress Preview (Hidden on mobile, Visible on desktop) */}
             <div className="order-3 md:order-1 hidden md:flex md:col-span-5 lg:col-span-4 flex-col items-center justify-center">
+              {isCustomImage ? renderCustomFrame('w-[190px] lg:w-[210px]') : (
               <div
                 className="relative rounded-2xl border-2 shadow-2xl p-2.5 flex flex-col items-center justify-between transition-all duration-300"
                 style={{
@@ -749,11 +790,15 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                   </p>
                 </div>
               </div>
+              )}
             </div>
 
             {/* RIGHT: Live Camera Viewport (Order 1 on mobile, Order 2 on desktop) */}
             <div className="order-1 md:order-2 w-full md:col-span-7 lg:col-span-8 flex flex-col items-center justify-center">
-              <div className="w-full max-w-xl relative aspect-[4/3] max-h-[300px] sm:max-h-[370px] rounded-2xl sm:rounded-3xl overflow-hidden border-2 border-black bg-black shadow-2xl flex items-center justify-center">
+              <div
+                className="relative rounded-2xl sm:rounded-3xl overflow-hidden border-2 border-black bg-black shadow-2xl flex items-center justify-center"
+                style={{ aspectRatio: cameraRatio, height: 'min(46vh, 370px)' }}
+              >
                 {/* Live Video */}
                 <video
                   ref={videoRef}
@@ -998,7 +1043,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                   ) : (
                     <>
                       <Sparkles className="w-3.5 h-3.5" />
-                      <span>{t.downloadSinglesBtn}</span>
+                      <span>{t.downloadSinglesBtn.replace('{count}', String(shots.length))}</span>
                     </>
                   )}
                 </button>
@@ -1015,6 +1060,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
 
             {/* Right Column: Live Result Strip */}
             <div className="md:col-span-6 flex justify-center">
+              {isCustomImage ? renderCustomFrame('w-56') : (
               <div
                 className="w-56 p-4 rounded-xl border-2 shadow-2xl flex flex-col justify-between"
                 style={{
@@ -1068,6 +1114,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                   </p>
                 </div>
               </div>
+              )}
             </div>
 
           </div>

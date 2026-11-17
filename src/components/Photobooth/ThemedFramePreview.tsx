@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChevronLeft, ChevronRight, Camera } from 'lucide-react';
 import { FrameTheme, FilterType } from './types';
-import { getThemeById, FRAME_THEMES } from './FrameThemes';
+import { getThemeById, CUSTOM_FRAMES } from './FrameThemes';
 
 interface ThemedFramePreviewProps {
   theme: FrameTheme;
@@ -18,19 +18,15 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
   filter,
   customText,
 }) => {
-  const currentTheme = getThemeById(theme);
+  const themes = CUSTOM_FRAMES.filter((t) => t.style === selectedStyle);
+  const effectiveTheme = themes.find((t) => t.id === theme) ?? themes[0];
+  const currentTheme = getThemeById(effectiveTheme?.id ?? theme);
   const barText = customText.trim() ? customText.trim().toUpperCase() : currentTheme.barText;
 
-  const handlePrev = () => {
-    const currentIndex = FRAME_THEMES.findIndex((t) => t.id === theme);
-    const prevIndex = (currentIndex - 1 + FRAME_THEMES.length) % FRAME_THEMES.length;
-    onThemeChange(FRAME_THEMES[prevIndex].id);
-  };
-
-  const handleNext = () => {
-    const currentIndex = FRAME_THEMES.findIndex((t) => t.id === theme);
-    const nextIndex = (currentIndex + 1) % FRAME_THEMES.length;
-    onThemeChange(FRAME_THEMES[nextIndex].id);
+  const stepTheme = (delta: number) => {
+    const currentIndex = themes.findIndex((t) => t.id === theme);
+    const nextIndex = (currentIndex + delta + themes.length) % themes.length;
+    onThemeChange(themes[nextIndex].id);
   };
 
   // Background color for photo placeholder slots
@@ -48,13 +44,14 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
   };
 
   const slotBg = getSlotBg();
+  const isCustomImage = !!currentTheme.imagePath;
 
   return (
     <div className="relative w-full max-w-4xl mx-auto flex items-center justify-center gap-2 sm:gap-6 md:gap-12 select-none">
       
       {/* Left Carousel Arrow (<) */}
       <button
-        onClick={handlePrev}
+        onClick={() => stepTheme(-1)}
         className="w-8 h-8 sm:w-11 sm:h-11 md:w-14 md:h-14 rounded-full border border-black/30 bg-white/90 hover:bg-black hover:text-white transition-all flex items-center justify-center text-black shadow-md cursor-pointer hover:scale-105 active:scale-95 z-20"
         title="Previous Theme"
       >
@@ -63,15 +60,25 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
 
       {/* Main Themed Frame Display */}
       <div
-        className="relative rounded-2xl md:rounded-3xl border-2 shadow-2xl transition-all duration-300 p-2 sm:p-2.5 md:p-3 flex flex-col items-center justify-between"
-        style={{
+        className={`relative transition-all duration-300 flex flex-col items-center justify-between ${
+          isCustomImage ? '' : 'rounded-2xl md:rounded-3xl border-2 shadow-2xl p-2 sm:p-2.5 md:p-3'
+        }`}
+        style={isCustomImage ? undefined : {
           backgroundColor: currentTheme.bgColor,
           borderColor: currentTheme.borderColor,
           boxShadow: '0 20px 45px -10px rgba(0,0,0,0.25)',
         }}
       >
+        {isCustomImage && (
+          <img
+            src={currentTheme.imagePath}
+            alt={currentTheme.nameEn}
+            className="max-h-[52vh] w-auto max-w-full object-contain"
+          />
+        )}
+
         {/* ================= STYLE 1: POLAROID ================= */}
-        {selectedStyle === 1 && (
+        {selectedStyle === 1 && !currentTheme.imagePath && (
           <div className="w-[160px] sm:w-[190px] md:w-[260px] lg:w-[290px] flex flex-col items-center">
             {currentTheme.isTextBar && (
               <p
@@ -83,9 +90,7 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
             )}
 
             <div
-              className={`w-full aspect-square border relative flex flex-col items-center justify-center transition-all duration-300 ${
-                currentTheme.id === 'cutout' ? 'rounded-full' : 'rounded-xs'
-              }`}
+              className="w-full aspect-square border relative flex flex-col items-center justify-center transition-all duration-300 rounded-xs"
               style={{
                 backgroundColor: slotBg,
                 borderColor: currentTheme.slotBorderColor,
@@ -120,39 +125,6 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
                 : 'w-[110px] sm:w-[125px] md:w-[140px] lg:w-[150px]'
             }`}
           >
-            
-            {/* Stars Decor (Image #1) */}
-            {currentTheme.id === 'stars' && (
-              <>
-                <div className="absolute top-1 left-1.5 text-amber-300 text-[10px] md:text-xs pointer-events-none">✦ ✦</div>
-                <div className="absolute top-1 right-1.5 text-amber-300 text-[9px] md:text-xs pointer-events-none">✦</div>
-                <div className="absolute bottom-12 left-1 text-amber-300 text-[10px] md:text-xs pointer-events-none">✦</div>
-                <div className="absolute bottom-11 right-1.5 text-amber-300 text-[11px] md:text-sm pointer-events-none">✦ ✦</div>
-              </>
-            )}
-
-            {/* Doodle Hearts Decor (Image #2) */}
-            {currentTheme.id === 'doodle' && (
-              <>
-                <div className="w-full text-center text-rose-500 text-[11px] md:text-sm tracking-widest -mt-1 mb-1 font-bold">
-                  ♥♥♥
-                </div>
-                <div className="absolute top-1/3 -right-1 text-rose-500 text-[11px] md:text-sm pointer-events-none">✦</div>
-                <div className="absolute bottom-11 left-1 text-rose-500 text-[11px] md:text-sm pointer-events-none">✦</div>
-              </>
-            )}
-
-            {/* Hearts & Ribbons Decor (Image #6) */}
-            {currentTheme.id === 'hearts' && (
-              <>
-                <div className="absolute top-1 left-1 text-rose-400 text-[9px] md:text-xs pointer-events-none">♥</div>
-                <div className="absolute top-1 right-2 text-rose-400 text-[8px] md:text-xs pointer-events-none">♥</div>
-                <div className="absolute top-1/2 -left-1 text-rose-400 text-[9px] md:text-xs pointer-events-none">🎀</div>
-                <div className="absolute top-1/2 -right-1 text-rose-400 text-[9px] md:text-xs pointer-events-none">♥</div>
-                <div className="absolute bottom-11 left-1.5 text-rose-400 text-[9px] md:text-xs pointer-events-none">♥</div>
-              </>
-            )}
-
             {/* Photo Slots List */}
             <div className="w-full space-y-1 sm:space-y-1.5">
               {[...Array(selectedStyle === 2 ? 2 : 4)].map((_, idx) => (
@@ -169,23 +141,13 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
 
                   {/* Slot Frame */}
                   <div
-                    className={`w-full aspect-[4/3] border relative flex flex-col items-center justify-center transition-all duration-300 ${
-                      currentTheme.id === 'cutout'
-                        ? 'rounded-xl md:rounded-2xl border-rose-500 border-2'
-                        : currentTheme.id === 'doodle' && idx === 2
-                        ? 'border-2 border-rose-500'
-                        : 'rounded-xs'
-                    }`}
+                    className="w-full aspect-[4/3] border relative flex flex-col items-center justify-center transition-all duration-300 rounded-xs"
                     style={{
                       backgroundColor: slotBg,
                       borderColor: currentTheme.slotBorderColor,
                     }}
                   >
-                    {currentTheme.id === 'cutout' ? (
-                      <span className="text-rose-400 text-base md:text-2xl">♥</span>
-                    ) : (
-                      <Camera className="w-4 h-4 md:w-6 md:h-6 opacity-40 text-current" style={{ color: currentTheme.textColor }} />
-                    )}
+                    <Camera className="w-4 h-4 md:w-6 md:h-6 opacity-40 text-current" style={{ color: currentTheme.textColor }} />
                     <span className="absolute bottom-1 right-1.5 text-[7px] md:text-[9px] font-mono opacity-50" style={{ color: currentTheme.textColor }}>
                       0{idx + 1}
                     </span>
@@ -234,9 +196,7 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
               {[...Array(selectedStyle === 3 ? 4 : selectedStyle === 5 ? 6 : 9)].map((_, idx) => (
                 <div
                   key={idx}
-                  className={`aspect-square border relative flex flex-col items-center justify-center transition-all duration-300 ${
-                    currentTheme.id === 'cutout' ? 'rounded-xl md:rounded-2xl' : 'rounded-xs'
-                  }`}
+                  className="aspect-square border relative flex flex-col items-center justify-center transition-all duration-300 rounded-xs"
                   style={{
                     backgroundColor: slotBg,
                     borderColor: currentTheme.slotBorderColor,
@@ -264,7 +224,7 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
 
       {/* Right Carousel Arrow (>) */}
       <button
-        onClick={handleNext}
+        onClick={() => stepTheme(1)}
         className="w-8 h-8 sm:w-11 sm:h-11 md:w-14 md:h-14 rounded-full border border-black/30 bg-white/90 hover:bg-black hover:text-white transition-all flex items-center justify-center text-black shadow-md cursor-pointer hover:scale-105 active:scale-95 z-20"
         title="Next Theme"
       >
