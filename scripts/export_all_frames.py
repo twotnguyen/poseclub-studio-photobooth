@@ -241,8 +241,9 @@ def render_frame(style, theme):
     return img
 
 def main():
-    base_out = "exported-frames"
-    public_out = "public/exported-frames"
+    # Scratch output only: never overwrite the shipped public/exported-frames catalog.
+    base_out = "scratch/export_all_frames/exported-frames"
+    public_out = "scratch/export_all_frames/catalog"
     os.makedirs(base_out, exist_ok=True)
     os.makedirs(public_out, exist_ok=True)
 
@@ -299,7 +300,7 @@ def generate_html_catalog(styles, themes):
                 <div class="card-info">
                     <h4>{theme['name']}</h4>
                     <p>{style['name']}</p>
-                    <span class="dim">{style['w']} &times; {style['h']} px &bull; 300 DPI</span>
+                    <span class="dim">{style['w']} &times; {style['h']} px &bull; high resolution</span>
                     <a href="{img_rel}" download="{style['slug']}-{theme['id']}.png" class="dl-btn">&#x2913; Tải ảnh PNG</a>
                 </div>
             </div>
@@ -459,7 +460,7 @@ def generate_html_catalog(styles, themes):
 <body>
     <div class="header">
         <h1>Bộ Khung Ảnh Poseclub Studio</h1>
-        <p>Tất cả 60 khung &aacute;nh xuất chuẩn độ ph&acirc;n giải cao 300 DPI &bull; 6 Styles &times; 10 Themes &bull; &Ocirc; ảnh trong suốt (Alpha Cutout)</p>
+        <p>Tất cả 60 khung &aacute;nh độ ph&acirc;n giải cao, sẵn sàng in &bull; 6 Styles &times; 10 Themes &bull; &Ocirc; ảnh trong suốt (Alpha Cutout)</p>
         <a href="poseclub-all-60-frames.zip" download class="zip-bar">&#x2913; Tải Trọn Bộ 60 Khung (.ZIP)</a>
     </div>
 

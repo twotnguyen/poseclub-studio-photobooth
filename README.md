@@ -3,7 +3,7 @@
 > **Unfiltered elegance in timeless black & white.**  
 > Trải nghiệm buồng chụp photobooth cổ điển trực tuyến miễn phí và showroom studio thực tế tại Fullerton, California.
 
-[![GitHub License](https://img.shields.io/badge/license-MIT-black.svg)](LICENSE)
+
 [![React](https://img.shields.io/badge/React-18.3-black?logo=react)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-black?logo=typescript)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-6.0-black?logo=vite)](https://vitejs.dev/)
@@ -14,7 +14,7 @@
 ## 🌟 Tổng quan dự án (Overview)
 
 **poseclub studio** là nền tảng web ứng dụng hai mục đích:
-1. **Buồng chụp ảnh Photobooth trực tuyến (Free Online Photobooth)**: Cho phép người dùng chụp ảnh webcam hoặc ghép ảnh cá nhân vào các dải photobooth chuẩn phong cách Hàn Quốc & Vintage, tùy biến bộ lọc đen trắng, thêm theme đồ họa và xuất file in ấn 300 DPI sắc nét hoàn toàn miễn phí.
+1. **Buồng chụp ảnh Photobooth trực tuyến (Free Online Photobooth)**: Cho phép người dùng chụp ảnh webcam hoặc ghép ảnh cá nhân vào các dải photobooth chuẩn phong cách Hàn Quốc & Vintage, tùy biến bộ lọc đen trắng, thêm theme đồ họa và xuất file in ấn độ phân giải cao, sẵn sàng in hoàn toàn miễn phí.
 2. **Giới thiệu Studio thực tế (Fullerton Studio Showroom)**: Cung cấp địa chỉ, bản đồ chỉ đường Google Maps, bảng giờ mở cửa và kết nối Instagram để khách hàng ghé thăm phòng chụp trực tiếp tại Fullerton, California, Hoa Kỳ.
 
 ---
@@ -22,7 +22,7 @@
 ## ✨ Điểm nổi bật & Tính năng (Key Features)
 
 ### 🖥️ 1. Giao diện Đơn màn hình không cuộn (Zero-Scroll Architecture)
-* Ứng dụng được thiết kế cố định vừa khít màn hình hiển thị (`h-[100dvh] overflow-hidden`), không phát sinh thanh cuộn dọc.
+* Desktop (`md` trở lên) cố định vừa khít màn hình (`h-[100dvh] overflow-hidden`), không phát sinh thanh cuộn dọc; trên mobile nội dung dài hơn được cuộn bên trong vùng `main`.
 * Bố cục tối giản sang trọng theo phong cách thời trang cao cấp (Monochrome Editorial), kết hợp nền kem ấm (`#FAF8F5`), viền đen tuyền (`#0C0C0C`) và font chữ thư pháp cổ điển `Poseclub`.
 
 ### 🧭 2. Hệ thống Định tuyến Tab riêng biệt (Distinct URL Routing)
@@ -34,48 +34,38 @@ Mỗi chức năng hoạt động trên một đường dẫn URL độc lập, 
 
 ### 🌐 3. Hỗ trợ Song ngữ tức thời (Instant Bilingual VI / EN)
 * Nút chuyển đổi nhanh `[ VI | EN ]` tại thanh điều hướng trên cùng.
-* Dịch trọn vẹn 100% nội dung tất cả các tab và thông báo.
+* Dịch đầy đủ nội dung tab, điều khiển và thông báo ở VI/EN; catalog khung PNG dùng tiếng Việt.
 * Ghi nhớ ngôn ngữ ưu tiên của người dùng qua `localStorage`.
 
 ### Studio gallery & frame catalog
 * Trang chủ có 6 ảnh studio: thumbnail đen trắng, bấm để xem ảnh màu; dùng phím trái/phải để chuyển ảnh và `Esc` để đóng.
-* Catalog tải 23 khung PNG và ZIP: `/exported-frames/index.html` (23 khung Style 1 custom).
-* Tạo lại catalog bằng `python scripts/export_all_frames.py` (cần Pillow; font Windows được dùng khi có).
+* Catalog tải 23 khung PNG và ZIP: `/exported-frames/index.html` (23 khung Style 1 custom). App dùng tổng cộng 72 khung PNG qua 6 style.
+* Catalog/ZIP đang phát hành là snapshot 23 khung Style 1 custom. `scripts/export_all_frames.py` chỉ tạo khung mẫu vào `scratch/export_all_frames/` để tham khảo, **không** ghi đè catalog đang dùng.
 
 ### 📸 4. Quy trình Buồng chụp Photobooth 4 bước chuyên sâu
 * **Bước 1 — Chọn kiểu bố cục (Select Frame Layout)**: 
-  * 6 kiểu khung với mockup dải ảnh lồng đôi chuẩn thiết kế Canva: Style 1 (Polaroid), Style 2 (Dải 1x2), Style 3 (Lưới 2x2), Style 4 (Dải 1x4 kinh điển), Style 5 (Dải dọc 2x3), Style 6 (Lưới 3x3).
-  * Nút tròn `VOUCHER 🎫` mở bàn phím số áp dụng mã ưu đãi (theo Canva Slide 4).
+* 6 kiểu khung PNG (72 thiết kế): Style 1 — Polaroid 1 ảnh; Style 2 — dải 1×2; Style 3 — lưới 2×2; Style 4 — lưới 2×4 (8 ảnh); Style 5 — khung ngang 3×2 (6 ảnh); Style 6 — lưới 3×3 (9 ảnh).
+* Mỗi thiết kế là overlay PNG trong suốt: ảnh của khách được vẽ vào các ô đã đo, sau đó khung được vẽ lên trên để giữ sticker/tim/logo.
 * **Bước 2 — Chọn thiết kế theme & bộ lọc (Design & Filter)**:
   * Khung ảnh đặt ngay **chính giữa màn hình**, tự động thay đổi theo Style đã chọn ở Bước 1.
-  * Bộ nút mũi tên điều hướng **`<` và `>`** cùng dải thanh chọn nhanh 10 Theme lấy cảm hứng từ `mysketchbooth`:
-    1. *Classic Black* (Đen tuyền)
-    2. *Classic White* (Trắng kem)
-    3. *Gold Stars ✦* (Sao vàng lấp lánh góc ảnh)
-    4. *Doodle Hearts ♥* (Trái tim đỏ & sao vẽ tay)
-    5. *Cutout Hearts ♡* (Khung hồng dâu ô ảnh trái tim)
-    6. *Hearts & Ribbons 🎀* (Nơ ruy băng thời trang)
-    7. *Happy Valentine 💌* (Thanh chữ Valentine lãng mạn)
-    8. *Be My Valentine 💖* (Dòng chữ tỏ tình ngọt ngào)
-    9. *Happy Birthday 🎂* (Khung chúc mừng sinh nhật)
-    10. *Poseclub Signature 🏛️* (Thanh chữ thương hiệu sang trọng)
+  * Chọn khung bằng mũi tên **`<` / `>`** và dải chip: 23 khung Style 1 + 49 khung cho Style 2–6 (`/exported-frames/style-*/`).
   * 3 Bộ lọc màu sắc: *B&W Contrast* (đen trắng điện ảnh tương phản cao), *B&W Film Grain* (hạt film hoài niệm), *Clean Natural* (màu trong sáng tự nhiên).
-  * Ô nhập chữ in tùy biến ở chân dải ảnh (Custom Strip Text).
+  * Ô nhập chữ in tùy biến (Custom Strip Text): chữ căn giữa trong khoảng trống bên dưới các ô ảnh, hiển thị ngay trên preview và được khắc vào ảnh export; màu chữ tự đổi theo nền khung.
 * **Bước 3 — Chụp ảnh trực tiếp (Live Camera & Real-time Progress)**:
   * **Khung dải ảnh bên trái**: Mỗi khi chụp xong một shot, ảnh vừa chụp xuất hiện ngay lập tức vào ô tương ứng trên khung để người chụp xem lại theo thời gian thực.
   * Hỗ trợ bấm chụp lại riêng từng tấm (Single-Shot Retake) trực tiếp trên dải ảnh bên trái.
   * Khung camera live stream với chế độ lật gương (Mirror Mode), đếm ngược 3s/5s, chớp flash trắng và tiếng màn trập cơ học Web Audio API.
-  * Hỗ trợ tải ảnh có sẵn từ máy tính / điện thoại (Upload fallback).
-* **Bước 4 — Xác nhận, In & Xuất ảnh 300 DPI (Confirm & Export)**:
+  * Hỗ trợ tải ảnh có sẵn từ máy tính / điện thoại (Upload fallback) — phải chọn đúng số ảnh của khung, thứ tự ảnh được giữ nguyên.
+* **Bước 4 — Xác nhận, In & Xuất ảnh độ phân giải cao (Confirm & Export)**:
   * Tùy chọn số lượng bản in `- 1 +`.
-  * **✦ Tải dải ảnh High-Res (PNG 300 DPI) ✦**: Render bằng Canvas độ phân giải cao (1200x3600px cho dải 1x4), in không vỡ hạt.
-  * **✦ Tải 4 ảnh đơn lẻ ✦**: Tải toàn bộ các tấm ảnh thành từng card polaroid riêng biệt.
-  * **✦ PRINT NGAY ✦**: Hộp thoại in trực tiếp tối ưu khổ giấy in ảnh chuẩn `@media print`.
+  * **✦ Tải dải ảnh High-Res (PNG) ✦**: Render bằng Canvas — xuất theo kích thước gốc của khung PNG đang chọn (ví dụ 1240×1844 px); khi không dùng khung PNG thì dùng bố cục dự phòng 1200×3600 / 1800×2400 px. File PNG không nhét metadata DPI; hãy chọn khổ giấy trong hộp thoại in.
+  * **✦ Tải từng ảnh đơn lẻ ✦**: Tải mỗi tấm ảnh thành một card polaroid riêng biệt.
+  * **✦ PRINT NGAY ✦**: Mở hộp thoại in riêng với `@page { margin: 0 }`; khổ giấy do người dùng chọn trong trình duyệt.
 
 ### 🔒 5. Bảo mật & Chi phí vận hành 0đ (100% Client-Side)
 * Toàn bộ thao tác xử lý camera, lọc màu, ghép khung và xuất ảnh chạy 100% trên trình duyệt người dùng qua HTML5 Canvas API.
 * Không lưu trữ ảnh người dùng lên máy chủ, đảm bảo quyền riêng tư tuyệt đối.
-* Không cần backend, chi phí server $0 trọn đời khi triển khai lên Vercel, Cloudflare Pages hoặc GitHub Pages.
+* Không cần backend, chi phí server $0 khi triển khai lên Vercel (đã có `vercel.json` rewrite cho SPA). Với host tĩnh khác cần tự cấu hình fallback về `index.html`.
 
 ---
 
@@ -106,7 +96,7 @@ Mỗi chức năng hoạt động trên một đường dẫn URL độc lập, 
 ## 🚀 Hướng dẫn Cài đặt & Chạy cục bộ (Local Development)
 
 ### Yêu cầu môi trường
-* Node.js >= 18.0.0 (hoặc Bun >= 1.0)
+* Node.js >= 22.18 (cần thiết để `node --test` chạy file `.ts`) hoặc Bun >= 1.2
 
 ### Các bước cài đặt
 ```bash
@@ -131,7 +121,7 @@ bun run dev
 bun run build
 # hoặc: npm run build
 ```
-Thư mục `dist/` sẵn sàng triển khai lên Vercel, Netlify, Cloudflare Pages hoặc hosting tĩnh bất kỳ.
+Thư mục `dist/` sẵn sàng triển khai lên Vercel. Với Netlify/Cloudflare Pages/GitHub Pages phải thêm SPA rewrite/fallback tương ứng.
 
 ---
 

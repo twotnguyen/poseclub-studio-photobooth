@@ -1,5 +1,5 @@
 {
- "style-1-polaroid/1.png": {
+ "style-1-polaroid-alpha/1.png": {
   "size": [
    1240,
    1844
@@ -7,16 +7,50 @@
   "slots": [
    {
     "box": [
-     40,
-     94,
-     1200,
-     1444
+     37,
+     85,
+     1202,
+     1442
     ],
     "fill": 1.0
    }
   ]
  },
- "style-1-polaroid/2.png": {
+ "style-1-polaroid-alpha/2.png": {
+  "size": [
+   1240,
+   1844
+  ],
+  "slots": [
+   {
+    "box": [
+     64,
+     112,
+     1175,
+     1415
+    ],
+    "fill": 1.0
+   }
+  ]
+ },
+ "style-1-polaroid-alpha/3.png": {
+  "size": [
+   1240,
+   1844
+  ],
+  "slots": [
+   {
+    "box": [
+     64,
+     112,
+     1175,
+     1415
+    ],
+    "fill": 1.0
+   }
+  ]
+ },
+ "style-1-polaroid-alpha/4.png": {
   "size": [
    1240,
    1844
@@ -25,15 +59,32 @@
    {
     "box": [
      40,
-     94,
+     90,
      1200,
-     1444
+     1440
+    ],
+    "fill": 1.0
+   }
+  ]
+ },
+ "style-1-polaroid-alpha/5.png": {
+  "size": [
+   1240,
+   1844
+  ],
+  "slots": [
+   {
+    "box": [
+     37,
+     85,
+     1202,
+     1442
     ],
     "fill": 0.99
    }
   ]
  },
- "style-1-polaroid/3.png": {
+ "style-1-polaroid-alpha/6.png": {
   "size": [
    1240,
    1844
@@ -41,16 +92,50 @@
   "slots": [
    {
     "box": [
-     68,
-     112,
-     1178,
-     1412
+     37,
+     85,
+     1200,
+     1442
     ],
     "fill": 1.0
    }
   ]
  },
- "style-1-polaroid/4.png": {
+ "style-1-polaroid-alpha/7.png": {
+  "size": [
+   1240,
+   1844
+  ],
+  "slots": [
+   {
+    "box": [
+     37,
+     85,
+     1200,
+     1442
+    ],
+    "fill": 1.0
+   }
+  ]
+ },
+ "style-1-polaroid-alpha/8.png": {
+  "size": [
+   1240,
+   1844
+  ],
+  "slots": [
+   {
+    "box": [
+     42,
+     92,
+     1200,
+     1440
+    ],
+    "fill": 1.0
+   }
+  ]
+ },
+ "style-1-polaroid-alpha/9.png": {
   "size": [
    1240,
    1844
@@ -59,15 +144,15 @@
    {
     "box": [
      40,
-     94,
+     90,
      1200,
-     1444
+     1440
     ],
     "fill": 1.0
    }
   ]
  },
- "style-1-polaroid/5.png": {
+ "style-1-polaroid-alpha/10.png": {
   "size": [
    1240,
    1844
@@ -76,15 +161,151 @@
    {
     "box": [
      40,
-     94,
+     90,
      1200,
-     1444
+     1440
     ],
     "fill": 1.0
    }
   ]
  },
- "style-1-polaroid/6.png": {
+ "style-1-polaroid-alpha/11.png": {
+  "size": [
+   1240,
+   1844
+  ],
+  "slots": [
+   {
+    "box": [
+     40,
+     90,
+     1200,
+     1440
+    ],
+    "fill": 1.0
+   }
+  ]
+ },
+ "style-1-polaroid-alpha/12.png": {
+  "size": [
+   1240,
+   1844
+  ],
+  "slots": [
+   {
+    "box": [
+     40,
+     90,
+     1200,
+     1440
+    ],
+    "fill": 1.0
+   }
+  ]
+ },
+ "style-1-polaroid-alpha/13.png": {
+  "size": [
+   1240,
+   1844
+  ],
+  "slots": [
+   {
+    "box": [
+     40,
+     90,
+     1200,
+     1440
+    ],
+    "fill": 1.0
+   }
+  ]
+ },
+ "style-1-polaroid-alpha/14.png": {
+  "size": [
+   1240,
+   1844
+  ],
+  "slots": [
+   {
+    "box": [
+     37,
+     85,
+     1202,
+     1442
+    ],
+    "fill": 1.0
+   }
+  ]
+ },
+ "style-1-polaroid-alpha/15.png": {
+  "size": [
+   1240,
+   1844
+  ],
+  "slots": [
+   {
+    "box": [
+     37,
+     85,
+     1202,
+     1442
+    ],
+    "fill": 0.99
+   }
+  ]
+ },
+ "style-1-polaroid-alpha/16.png": {
+  "size": [
+   1240,
+   1844
+  ],
+  "slots": [
+   {
+    "box": [
+     37,
+     85,
+     1202,
+     1442
+    ],
+    "fill": 1.0
+   }
+  ]
+ },
+ "style-1-polaroid-alpha/17.png": {
+  "size": [
+   1240,
+   1844
+  ],
+  "slots": [
+   {
+    "box": [
+     37,
+     85,
+     1202,
+     1442
+    ],
+    "fill": 0.99
+   }
+  ]
+ },
+ "style-1-polaroid-alpha/18.png": {
+  "size": [
+   1240,
+   1844
+  ],
+  "slots": [
+   {
+    "box": [
+     37,
+     85,
+     1202,
+     1442
+    ],
+    "fill": 1.0
+   }
+  ]
+ },
+ "style-1-polaroid-alpha/19.png": {
   "size": [
    1240,
    1844
@@ -94,10 +315,78 @@
     "box": [
      90,
      140,
-     1152,
-     1391
+     1150,
+     1390
     ],
     "fill": 0.96
+   }
+  ]
+ },
+ "style-1-polaroid-alpha/20.png": {
+  "size": [
+   1240,
+   1844
+  ],
+  "slots": [
+   {
+    "box": [
+     130,
+     180,
+     1110,
+     1350
+    ],
+    "fill": 1.0
+   }
+  ]
+ },
+ "style-1-polaroid-alpha/21.png": {
+  "size": [
+   1240,
+   1844
+  ],
+  "slots": [
+   {
+    "box": [
+     40,
+     90,
+     1200,
+     1440
+    ],
+    "fill": 1.0
+   }
+  ]
+ },
+ "style-1-polaroid-alpha/22.png": {
+  "size": [
+   1240,
+   1844
+  ],
+  "slots": [
+   {
+    "box": [
+     40,
+     90,
+     1200,
+     1440
+    ],
+    "fill": 1.0
+   }
+  ]
+ },
+ "style-1-polaroid-alpha/23.png": {
+  "size": [
+   1240,
+   1844
+  ],
+  "slots": [
+   {
+    "box": [
+     42,
+     92,
+     1200,
+     1440
+    ],
+    "fill": 1.0
    }
   ]
  },
@@ -1575,7 +1864,7 @@
    }
   ]
  },
- "style-5-grid-2x3/1.png": {
+ "style-5-grid-2x3/41.png": {
   "size": [
    1844,
    1240
@@ -1637,7 +1926,7 @@
    }
   ]
  },
- "style-5-grid-2x3/2.png": {
+ "style-5-grid-2x3/42.png": {
   "size": [
    1844,
    1240
@@ -1699,7 +1988,7 @@
    }
   ]
  },
- "style-5-grid-2x3/3.png": {
+ "style-5-grid-2x3/43.png": {
   "size": [
    1844,
    1240
@@ -1761,7 +2050,7 @@
    }
   ]
  },
- "style-5-grid-2x3/4.png": {
+ "style-5-grid-2x3/44.png": {
   "size": [
    1844,
    1240
@@ -1823,7 +2112,7 @@
    }
   ]
  },
- "style-5-grid-2x3/5.png": {
+ "style-5-grid-2x3/45.png": {
   "size": [
    1844,
    1240
@@ -1885,7 +2174,7 @@
    }
   ]
  },
- "style-5-grid-2x3/6.png": {
+ "style-5-grid-2x3/46.png": {
   "size": [
    1844,
    1240
@@ -1947,7 +2236,7 @@
    }
   ]
  },
- "style-5-grid-2x3/7.png": {
+ "style-5-grid-2x3/47.png": {
   "size": [
    1844,
    1240
@@ -2009,7 +2298,7 @@
    }
   ]
  },
- "style-5-grid-2x3/8.png": {
+ "style-5-grid-2x3/48.png": {
   "size": [
    1844,
    1240
@@ -2071,7 +2360,7 @@
    }
   ]
  },
- "style-5-grid-2x3/9.png": {
+ "style-5-grid-2x3/49.png": {
   "size": [
    1844,
    1240
@@ -2133,7 +2422,7 @@
    }
   ]
  },
- "style-5-grid-2x3/10.png": {
+ "style-5-grid-2x3/50.png": {
   "size": [
    1844,
    1240
@@ -2195,7 +2484,7 @@
    }
   ]
  },
- "style-5-grid-2x3/11.png": {
+ "style-5-grid-2x3/51.png": {
   "size": [
    1844,
    1240
@@ -2257,7 +2546,7 @@
    }
   ]
  },
- "style-5-grid-2x3/12.png": {
+ "style-5-grid-2x3/52.png": {
   "size": [
    1844,
    1240
@@ -2319,7 +2608,7 @@
    }
   ]
  },
- "style-5-grid-2x3/13.png": {
+ "style-5-grid-2x3/53.png": {
   "size": [
    1844,
    1240
@@ -2381,7 +2670,7 @@
    }
   ]
  },
- "style-5-grid-2x3/14.png": {
+ "style-5-grid-2x3/54.png": {
   "size": [
    1844,
    1240
@@ -2443,7 +2732,7 @@
    }
   ]
  },
- "style-5-grid-2x3/15.png": {
+ "style-5-grid-2x3/55.png": {
   "size": [
    1844,
    1240

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import { Navigation } from './components/Navigation';
 import { Language } from './i18n/translations';
@@ -19,6 +19,11 @@ export default function App() {
     setLanguage(lang);
     localStorage.setItem('poseclub_lang', lang);
   };
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+  }, [language]);
+
   const toggleMute = () => {
     sounds.muted = !isMuted;
     setIsMuted(!isMuted);

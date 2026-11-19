@@ -21,6 +21,14 @@ def slot_green_mask(a):
     r, g, b = a[..., 0].astype(int), a[..., 1].astype(int), a[..., 2].astype(int)
     return (g >= 150) & (g - r >= 60) & (g - b >= 50) & (r <= 100)
 
+def pale_edge_mask(a):
+    """Anti-aliased #00B140 over white, excluding olive/teal decorations."""
+    r, g, b = (a[..., i].astype(float) for i in range(3))
+    expected_g = 177 + 78 * r / 255
+    expected_b = 64 + 191 * r / 255
+    return ((r >= 100) & (g >= 150) & ((g - r) >= 8) & ((g - b) >= 8)
+            & (abs(g - expected_g) <= 25) & (abs(b - expected_b) <= 30))
+
 
 def find_slot_box(a, green):
     """Locate the solid slot rectangle from rows/cols dense in the exact key."""
@@ -41,7 +49,7 @@ def convert(src_file, out_file, pad=2):
 
     region = np.zeros(green.shape, dtype=bool)
     region[max(0, y1 - pad):y2 + 1 + pad, max(0, x1 - pad):x2 + 1 + pad] = True
-    clear = green & region
+    clear = (green | pale_edge_mask(a)) & region
     a[clear] = (0, 0, 0, 0)
 
     Image.fromarray(a).save(out_file, optimize=True)

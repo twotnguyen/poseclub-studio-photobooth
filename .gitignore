@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Scratch output from scripts/export_all_frames.py
+scratch/
+
+# Python bytecode from frame tool tests
+__pycache__/
+*.pyc

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { InstagramIcon } from './icons/InstagramIcon';
 import { Volume2, VolumeX, Sparkles, Menu, X, ArrowUpRight } from 'lucide-react';
@@ -21,6 +21,32 @@ export const Navigation: React.FC<NavigationProps> = ({
   const t = TRANSLATIONS[language];
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const drawerRef = useRef<HTMLDivElement>(null);
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+    menuButtonRef.current?.focus();
+  };
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    drawerRef.current?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closeMobileMenu();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [mobileMenuOpen]);
+
+  const canonicalPath =
+    location.pathname === '/home'
+      ? '/'
+      : location.pathname === '/booth'
+        ? '/photobooth'
+        : location.pathname === '/guide'
+          ? '/how-to-use'
+          : location.pathname;
 
   const tabs = [
     { path: '/', label: t.nav.home },
@@ -51,8 +77,8 @@ export const Navigation: React.FC<NavigationProps> = ({
           {tabs.map((tab) => {
             const isActive =
               tab.path === '/'
-                ? location.pathname === '/' || location.pathname === '/home'
-                : location.pathname.startsWith(tab.path);
+                ? canonicalPath === '/'
+                : canonicalPath === tab.path || canonicalPath.startsWith(`${tab.path}/`);
             return (
               <Link
                 key={tab.path}
@@ -81,7 +107,8 @@ export const Navigation: React.FC<NavigationProps> = ({
                   ? 'bg-black text-white font-bold'
                   : 'text-black/60 hover:text-black'
               }`}
-              title="Tiếng Việt"
+              aria-label={t.nav.languageVi}
+              title={t.nav.languageVi}
             >
               VI
             </button>
@@ -92,7 +119,8 @@ export const Navigation: React.FC<NavigationProps> = ({
                   ? 'bg-black text-white font-bold'
                   : 'text-black/60 hover:text-black'
               }`}
-              title="English"
+              aria-label={t.nav.languageEn}
+              title={t.nav.languageEn}
             >
               EN
             </button>
@@ -102,7 +130,9 @@ export const Navigation: React.FC<NavigationProps> = ({
           <button
             onClick={onToggleMute}
             className="w-8 h-8 rounded-full border border-black/20 bg-white/70 hover:bg-black hover:text-white transition-colors flex items-center justify-center text-black/70 shadow-sm cursor-pointer"
-            title={isMuted ? 'Bật âm thanh' : 'Tắt âm thanh'}
+            aria-label={isMuted ? t.nav.unmute : t.nav.mute}
+            title={isMuted ? t.nav.unmute : t.nav.mute}
+            aria-pressed={isMuted}
           >
             {isMuted ? <VolumeX className="w-3.5 h-3.5 text-red-500" /> : <Volume2 className="w-3.5 h-3.5" />}
           </button>
@@ -112,6 +142,7 @@ export const Navigation: React.FC<NavigationProps> = ({
             href={STUDIO_CONFIG.instagram.url}
             target="_blank"
             rel="noopener noreferrer"
+            aria-label={`${t.nav.instagram} ${STUDIO_CONFIG.instagram.handle}`}
             className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-black/20 bg-white/60 hover:bg-white text-xs font-mono text-black transition-colors"
           >
             <InstagramIcon className="w-3.5 h-3.5" />
@@ -120,9 +151,12 @@ export const Navigation: React.FC<NavigationProps> = ({
 
           {/* Mobile Menu Hamburger Button (visible on mobile only) */}
           <button
+            ref={menuButtonRef}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="md:hidden w-8 h-8 rounded-full border border-black/20 bg-white/70 hover:bg-black hover:text-white transition-colors flex items-center justify-center text-black shadow-sm cursor-pointer ml-1"
-            aria-label="Toggle navigation menu"
+            aria-label={mobileMenuOpen ? t.nav.closeMenu : t.nav.openMenu}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-navigation-drawer"
           >
             {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
           </button>
@@ -132,18 +166,26 @@ export const Navigation: React.FC<NavigationProps> = ({
       {/* Mobile Navigation Drawer Modal */}
       {mobileMenuOpen && (
         <div className="md:hidden fixed inset-0 z-40 bg-black/40 backdrop-blur-sm flex flex-col justify-start pt-16">
-          <div className="bg-[#FAF8F5] border-b border-black/15 shadow-2xl p-6 space-y-4 animate-in fade-in slide-in-from-top-4 duration-200">
+          <div
+            id="mobile-navigation-drawer"
+            ref={drawerRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label={t.nav.menuLabel}
+            tabIndex={-1}
+            className="bg-[#FAF8F5] border-b border-black/15 shadow-2xl p-6 space-y-4 outline-none"
+          >
             <nav className="flex flex-col space-y-2">
               {tabs.map((tab) => {
                 const isActive =
                   tab.path === '/'
-                    ? location.pathname === '/' || location.pathname === '/home'
-                    : location.pathname.startsWith(tab.path);
+                    ? canonicalPath === '/'
+                    : canonicalPath === tab.path || canonicalPath.startsWith(`${tab.path}/`);
                 return (
                   <Link
                     key={tab.path}
                     to={tab.path}
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={closeMobileMenu}
                     className={`px-4 py-3 rounded-xl text-sm font-medium tracking-wider uppercase transition-all flex items-center justify-between cursor-pointer ${
                       isActive
                         ? 'bg-black text-white font-semibold shadow-sm'
@@ -165,7 +207,8 @@ export const Navigation: React.FC<NavigationProps> = ({
                 href={STUDIO_CONFIG.instagram.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={closeMobileMenu}
+                aria-label={`${t.nav.instagram} ${STUDIO_CONFIG.instagram.handle}`}
                 className="inline-flex items-center gap-2 text-xs font-mono text-black hover:opacity-80 transition-opacity"
               >
                 <InstagramIcon className="w-4 h-4" />
@@ -178,9 +221,12 @@ export const Navigation: React.FC<NavigationProps> = ({
           </div>
 
           {/* Clickable backdrop area to close menu */}
-          <div
-            className="flex-1 w-full"
-            onClick={() => setMobileMenuOpen(false)}
+          <button
+            type="button"
+            tabIndex={-1}
+            aria-label={t.nav.closeMenu}
+            onClick={closeMobileMenu}
+            className="flex-1 w-full cursor-default"
           />
         </div>
       )}

@@ -4,15 +4,22 @@ Slots are enclosed transparent regions inside the frame art. The outer
 transparent background touches the image border; slots do not (after
 morphologically closing dashed-border gaps).
 """
+import argparse
 import json
-import sys
 from pathlib import Path
 
 import numpy as np
 from PIL import Image
 from scipy import ndimage
 
-ROOT = Path(r'D:\Documents\CODE\poseclub-studio-photobooth\frame')
+APP_DIRS = (
+    'style-1-polaroid-alpha',
+    'style-2-strip-1x2',
+    'style-3-grid-2x2',
+    'style-4-classic-2x4',
+    'style-5-grid-2x3',
+    'style-6-collage-3x3',
+)
 MIN_SLOT_FRAC = 0.02  # slot must be >= 2% of image area
 
 def detect(path: Path):
@@ -39,18 +46,19 @@ def detect(path: Path):
     return {'size': [w, h], 'slots': slots}
 
 def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--root', type=Path, default=Path('public/exported-frames'))
+    ap.add_argument('--out', type=Path, default=Path(__file__).resolve().parents[1] / 'slots.json')
+    args = ap.parse_args()
     out = {}
-    for d in sorted(ROOT.iterdir()):
-        if not d.is_dir():
-            continue
-        for p in sorted(d.glob('*.png'), key=lambda x: int(x.stem)):
-            if p.parent.name in ('alpha', 'original'):
-                continue
+    for name in APP_DIRS:
+        for p in sorted((args.root / name).glob('*.png'), key=lambda x: int(x.stem)):
             r = detect(p)
-            out[f'{d.name}/{p.name}'] = r
+            out[f'{name}/{p.name}'] = r
             boxes = ', '.join(f"[{b['box'][0]},{b['box'][1]},{b['box'][2]},{b['box'][3]}] f{b['fill']}" for b in r['slots'])
-            print(f"{d.name}/{p.name} {r['size']} n={len(r['slots'])}: {boxes}")
-    json.dump(out, open(Path(__file__).with_name('slots.json'), 'w'), indent=1)
+            print(f"{name}/{p.name} {r['size']} n={len(r['slots'])}: {boxes}")
+    args.out.write_text(json.dumps(out, indent=1), encoding='utf-8')
+    print(f'Wrote {len(out)} frames to {args.out}')
 
 if __name__ == '__main__':
     main()

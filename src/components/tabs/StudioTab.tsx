@@ -23,7 +23,7 @@ export const StudioTab: React.FC<StudioTabProps> = ({ language }) => {
   };
 
   return (
-    <div className="min-h-full h-auto lg:h-full w-full flex flex-col justify-between p-4 sm:p-8 select-none space-y-4">
+    <div className="min-h-full h-auto md:h-full w-full flex flex-col justify-between p-4 sm:p-8 select-none space-y-4">
       
       {/* Title Header */}
       <div className="text-center max-w-xl mx-auto space-y-1">
@@ -39,10 +39,10 @@ export const StudioTab: React.FC<StudioTabProps> = ({ language }) => {
       </div>
 
       {/* Main Grid Viewport */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-stretch max-w-6xl w-full mx-auto my-1 lg:my-3">
+      <div className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-5 md:gap-6 items-stretch max-w-6xl w-full mx-auto my-1 md:my-3">
         
         {/* Left Card: Address & Operating Hours */}
-        <div className="lg:col-span-5 bg-white border border-black/15 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-sm">
+        <div className="md:col-span-5 bg-white border border-black/15 rounded-2xl p-5 sm:p-6 flex flex-col justify-between shadow-sm">
           <div className="space-y-4">
             {/* Address */}
             <div className="border-b border-black/10 pb-4">
@@ -99,7 +99,7 @@ export const StudioTab: React.FC<StudioTabProps> = ({ language }) => {
               <div className="space-y-1.5 text-xs">
                 {STUDIO_CONFIG.hours.map((h, i) => (
                   <div key={i} className="flex justify-between items-center border-b border-black/5 pb-1">
-                    <span className="text-black/70">{h.days}</span>
+                    <span className="text-black/70">{language === 'vi' ? h.daysVi : h.days}</span>
                     <span className="font-mono text-black font-medium">{h.time}</span>
                   </div>
                 ))}
@@ -110,7 +110,7 @@ export const StudioTab: React.FC<StudioTabProps> = ({ language }) => {
           {/* Instagram Follow Bar */}
           <div className="pt-3 border-t border-black/10 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <InstagramIcon className="w-4 h-4 text-black" />
+              <InstagramIcon className="w-4 h-4 text-black" aria-hidden="true" focusable="false" />
               <span className="text-xs font-mono font-medium text-black">
                 {STUDIO_CONFIG.instagram.handle}
               </span>
@@ -127,16 +127,16 @@ export const StudioTab: React.FC<StudioTabProps> = ({ language }) => {
         </div>
 
         {/* Right Card: Google Maps & Highlight Badges */}
-        <div className="lg:col-span-7 bg-white border border-black/15 rounded-2xl overflow-hidden flex flex-col shadow-sm">
+        <div className="md:col-span-7 bg-white border border-black/15 rounded-2xl overflow-hidden flex flex-col shadow-sm">
           {/* Map & Visual */}
-          <div className="w-full relative h-[220px] sm:h-[260px] lg:h-auto lg:flex-1 bg-[#EFECE6] flex items-center justify-center overflow-hidden">
+          <div className="w-full relative h-[220px] sm:h-[260px] md:h-auto md:flex-1 bg-[#EFECE6] flex items-center justify-center overflow-hidden">
             <iframe
               title="Poseclub Fullerton Map"
               src={STUDIO_CONFIG.mapsEmbedUrl}
               width="100%"
               height="100%"
               style={{ border: 0 }}
-              allowFullScreen={false}
+              allowFullScreen={true}
               loading="lazy"
               className="w-full h-full relative z-10"
             />

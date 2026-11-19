@@ -16,11 +16,11 @@ export interface StudioConfig {
     url: string;
   };
   contact: {
-    phone: string;
     email: string;
   };
   hours: {
     days: string;
+    daysVi: string;
     time: string;
   }[];
   boothHighlights: {
@@ -48,13 +48,12 @@ export const STUDIO_CONFIG: StudioConfig = {
     url: "https://www.instagram.com/poseclub.photobooth",
   },
   contact: {
-    phone: "+1 (714) 000-0000",
     email: "hello@poseclubstudio.com",
   },
   hours: [
-    { days: "Monday – Thursday", time: "11:00 AM – 10:00 PM" },
-    { days: "Friday – Saturday", time: "11:00 AM – 11:00 PM" },
-    { days: "Sunday", time: "11:00 AM – 11:00 PM" },
+    { days: "Monday – Thursday", daysVi: "Thứ 2 – Thứ 5", time: "11:00 AM – 10:00 PM" },
+    { days: "Friday – Saturday", daysVi: "Thứ 6 – Thứ 7", time: "11:00 AM – 11:00 PM" },
+    { days: "Sunday", daysVi: "Chủ Nhật", time: "11:00 AM – 11:00 PM" },
   ],
   boothHighlights: [
     {

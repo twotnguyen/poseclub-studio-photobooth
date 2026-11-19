@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Language, TRANSLATIONS } from '../../i18n/translations';
 
@@ -20,21 +20,61 @@ const GALLERY_ITEMS = [
 export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudio }) => {
   const t = TRANSLATIONS[language].home;
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const isLightboxOpen = selectedIdx !== null;
 
   useEffect(() => {
-    if (selectedIdx === null) return;
+    if (!isLightboxOpen) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setSelectedIdx(null);
-      } else if (e.key === 'ArrowLeft') {
+        return;
+      }
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
         setSelectedIdx((prev) => (prev !== null && prev > 0 ? prev - 1 : GALLERY_ITEMS.length - 1));
-      } else if (e.key === 'ArrowRight') {
+        return;
+      }
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
         setSelectedIdx((prev) => (prev !== null && prev < GALLERY_ITEMS.length - 1 ? prev + 1 : 0));
+        return;
+      }
+      if (e.key === 'Tab') {
+        const root = dialogRef.current;
+        if (!root) return;
+        const focusables = Array.from(
+          root.querySelectorAll<HTMLElement>(
+            'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+          )
+        );
+        if (focusables.length === 0) {
+          e.preventDefault();
+          return;
+        }
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        const active = document.activeElement;
+        if (e.shiftKey && (active === first || !root.contains(active))) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && (active === last || !root.contains(active))) {
+          e.preventDefault();
+          first.focus();
+        }
       }
     };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedIdx]);
+    closeButtonRef.current?.focus();
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      triggerRef.current?.focus();
+    };
+  }, [isLightboxOpen]);
   return (
     <div className="h-full w-full flex flex-col items-center justify-between p-4 sm:p-12 relative overflow-hidden select-none">
       
@@ -110,7 +150,10 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
               <button
                 key={item.id}
                 type="button"
-                onClick={() => setSelectedIdx(index)}
+                onClick={(e) => {
+                  triggerRef.current = e.currentTarget;
+                  setSelectedIdx(index);
+                }}
                 className="group relative flex-shrink-0 flex flex-col items-center p-1 sm:p-1.5 bg-white border border-black/15 rounded-md shadow-sm hover:shadow-xl hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer focus:outline-none focus:ring-1 focus:ring-black/30"
                 style={{ transform: `rotate(${item.rotate}deg)` }}
                 title={`${meta.title} — ${t.galleryHint}`}
@@ -119,11 +162,15 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
                   <img
                     src={item.src}
                     alt={meta.title}
-                    className="w-full h-full object-cover filter contrast-125 brightness-95 group-hover:contrast-105 transition-all duration-300"
+                    className={`w-full h-full object-cover contrast-125 brightness-95 transition-all duration-300 ${
+                      selectedIdx === index
+                        ? 'grayscale-0'
+                        : 'grayscale group-hover:grayscale-0 group-hover:contrast-105'
+                    }`}
                     loading="lazy"
                   />
                   <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <span className="text-[9px] font-mono text-white bg-black/70 px-1 py-0.5 rounded backdrop-blur-xs">
+                    <span className="text-[9px] font-mono text-white bg-black/70 px-1 py-0.5 rounded backdrop-blur-sm">
                       ✦
                     </span>
                   </div>
@@ -160,6 +207,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
       {/* Full-Screen Lightbox Modal for Color Viewing */}
       {selectedIdx !== null && (
         <div
+          ref={dialogRef}
           className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md transition-opacity animate-fadeIn"
           onClick={() => setSelectedIdx(null)}
           role="dialog"
@@ -169,6 +217,8 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
           {/* Close button top right */}
           <button
             type="button"
+            ref={closeButtonRef}
+            autoFocus
             onClick={() => setSelectedIdx(null)}
             className="absolute top-4 right-4 sm:top-6 sm:right-6 w-11 h-11 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center border border-white/20 transition-all z-20 backdrop-blur-sm shadow-lg hover:scale-105 active:scale-95"
             aria-label={t.galleryClose}

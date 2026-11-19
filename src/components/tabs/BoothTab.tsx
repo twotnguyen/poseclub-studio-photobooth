@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Camera, ArrowLeft, RefreshCw, Upload, Download, Printer, Check, Plus, Minus, RotateCcw, Ticket, SwitchCamera } from 'lucide-react';
+import { Sparkles, Camera, ArrowLeft, RefreshCw, Upload, Download, Printer, Check, Plus, Minus, RotateCcw, SwitchCamera } from 'lucide-react';
 import { sounds } from '../Photobooth/SoundEffects';
 import { renderPhotostripToCanvas, renderIndividualPhoto, downloadCanvas, printCanvas } from '../Photobooth/CanvasExporter';
 import type { FilterType, FrameTheme } from '../Photobooth/types';
@@ -9,6 +9,8 @@ import { Language, TRANSLATIONS } from '../../i18n/translations';
 import { FrameMockup } from '../Photobooth/FrameMockup';
 import { ThemedFramePreview } from '../Photobooth/ThemedFramePreview';
 import { ALL_THEMES, CUSTOM_FRAMES, getThemesForStyle } from '../Photobooth/FrameThemes';
+import { buildUploadedShots } from '../Photobooth/upload';
+import { isStripComplete } from '../Photobooth/strip';
 interface BoothTabProps {
   language: Language;
   onBackToHome: () => void;
@@ -37,10 +39,8 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
   const availableThemes = styleThemes;
   const [printCopies, setPrintCopies] = useState<number>(1);
   const [customText, setCustomText] = useState<string>('');
-  const [showVoucherModal, setShowVoucherModal] = useState<boolean>(false);
-  const [voucherInput, setVoucherInput] = useState<string>('');
-  const [voucherMessage, setVoucherMessage] = useState<string | null>(null);
   const [singlesDownloaded, setSinglesDownloaded] = useState<boolean>(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   // Camera & Capture states
   const videoRef = React.useRef<HTMLVideoElement | null>(null);
   const streamRef = React.useRef<MediaStream | null>(null);
@@ -49,6 +49,9 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
   const retakeRef = React.useRef<number | null>(null);
   const captureFnRef = React.useRef<() => void>(() => {});
   const sessionRef = React.useRef(false);
+  const cameraGenerationRef = React.useRef(0);
+  const countdownTimerRef = React.useRef<number | null>(null);
+  const timeoutsRef = React.useRef<number[]>([]);
 
   const [cameraActive, setCameraActive] = useState<boolean>(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -69,14 +72,33 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
   const [downloadSuccess, setDownloadSuccess] = useState<boolean>(false);
   const [exportError, setExportError] = useState<string | null>(null);
 
+  const clearCaptureTimers = React.useCallback(() => {
+    if (countdownTimerRef.current !== null) {
+      clearInterval(countdownTimerRef.current);
+      countdownTimerRef.current = null;
+    }
+    timeoutsRef.current.forEach(clearTimeout);
+    timeoutsRef.current = [];
+  }, []);
+
+  const scheduleTimeout = React.useCallback((fn: () => void, ms: number) => {
+    const id = window.setTimeout(() => {
+      timeoutsRef.current = timeoutsRef.current.filter((t) => t !== id);
+      fn();
+    }, ms);
+    timeoutsRef.current.push(id);
+  }, []);
+
   // Camera stream handler
   const startCamera = React.useCallback(async () => {
     setCameraError(null);
+    const generation = ++cameraGenerationRef.current;
+    let stream: MediaStream | null = null;
     try {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach((t) => t.stop());
       }
-      const stream = await navigator.mediaDevices.getUserMedia({
+      stream = await navigator.mediaDevices.getUserMedia({
         video: {
           width: { ideal: 1920 },
           height: { ideal: 1440 },
@@ -84,6 +106,10 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
         },
         audio: false,
       });
+      if (generation !== cameraGenerationRef.current) {
+        stream.getTracks().forEach((t) => t.stop());
+        return;
+      }
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
@@ -91,6 +117,9 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
       }
       setCameraActive(true);
     } catch (err: unknown) {
+      stream?.getTracks().forEach((t) => t.stop());
+      if (generation !== cameraGenerationRef.current) return;
+      streamRef.current = null;
       console.error('Camera access error:', err);
       setCameraError(TRANSLATIONS[language].booth.cameraError);
       setCameraActive(false);
@@ -106,12 +135,18 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
   }, []);
 
   const stopCamera = React.useCallback(() => {
+    cameraGenerationRef.current += 1;
+    clearCaptureTimers();
+    sessionRef.current = false;
+    setCountdown(null);
+    setIsSessionActive(false);
+    setIsFlashing(false);
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
     }
     setCameraActive(false);
-  }, []);
+  }, [clearCaptureTimers]);
 
   // When step changes to 'camera', start camera. When leaving, stop camera.
   React.useEffect(() => {
@@ -166,36 +201,39 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
     if (shotIndexRef.current < totalShots - 1) {
       shotIndexRef.current += 1;
       setCurrentShotIndex(shotIndexRef.current);
-      setTimeout(() => captureFnRef.current(), 1000);
+      scheduleTimeout(() => captureFnRef.current(), 1000);
     } else {
       sessionRef.current = false;
       setIsSessionActive(false);
-      setTimeout(() => setStep('confirm'), 600);
+      scheduleTimeout(() => setStep('confirm'), 600);
     }
-  }, [totalShots]);
+  }, [totalShots, scheduleTimeout]);
 
   // The recurring timer must reach the newest callback; a captured closure
   // would keep reading shot index 0 and overwrite the same photo forever.
   const triggerCapture = React.useCallback(() => {
-    if (sessionRef.current) return;
+    if (sessionRef.current || !streamRef.current) return;
     sessionRef.current = true;
     setIsSessionActive(true);
     let secondsLeft = countdownDuration;
     setCountdown(secondsLeft);
     sounds.playCountdownTick();
 
-    const interval = setInterval(() => {
+    countdownTimerRef.current = window.setInterval(() => {
       secondsLeft -= 1;
       if (secondsLeft > 0) {
         setCountdown(secondsLeft);
         sounds.playCountdownTick();
         return;
       }
-      clearInterval(interval);
+      if (countdownTimerRef.current !== null) {
+        clearInterval(countdownTimerRef.current);
+        countdownTimerRef.current = null;
+      }
       setCountdown(null);
       setIsFlashing(true);
       sounds.playShutterSound();
-      setTimeout(() => setIsFlashing(false), 220);
+      scheduleTimeout(() => setIsFlashing(false), 220);
 
       const photoData = snapFrame();
       if (photoData) {
@@ -205,7 +243,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
         setIsSessionActive(false);
       }
     }, 1000);
-  }, [countdownDuration, snapFrame, finishShot]);
+  }, [countdownDuration, snapFrame, finishShot, scheduleTimeout]);
 
   captureFnRef.current = triggerCapture;
 
@@ -258,34 +296,42 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
   };
 
   // Upload handler
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    if (files.length !== totalShots) {
+      setUploadError(t.uploadCountError.replace('{count}', String(totalShots)));
+      e.target.value = '';
+      return;
+    }
 
-    const fileList = Array.from(files).slice(0, totalShots);
-    const loadedUrls: string[] = [];
-
-    fileList.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          loadedUrls.push(event.target.result as string);
-          if (loadedUrls.length === fileList.length) {
-            const finalShots = [...loadedUrls];
-            while (finalShots.length < totalShots) {
-              finalShots.push(finalShots[0]);
-            }
-            setShots(finalShots);
-            setStep('confirm');
-          }
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+    setUploadError(null);
+    try {
+      const dataUrls = await Promise.all(files.map((file) => new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+      })));
+      const shots = buildUploadedShots(dataUrls, totalShots);
+      if (!shots) {
+        setUploadError(t.uploadFailed);
+        return;
+      }
+      setShots(shots);
+      setStep('confirm');
+    } catch {
+      setUploadError(t.uploadFailed);
+    } finally {
+      e.target.value = '';
+    }
   };
 
   // Export handlers
   const handleDownload = async () => {
+    if (!isStripComplete(shots, totalShots)) {
+      setExportError(t.stripIncomplete);
+      return;
+    }
     setIsExporting(true);
     setExportError(null);
     try {
@@ -312,6 +358,10 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
   };
 
   const handleDownloadSingles = async () => {
+    if (!isStripComplete(shots, totalShots)) {
+      setExportError(t.stripIncomplete);
+      return;
+    }
     setIsExporting(true);
     setExportError(null);
     try {
@@ -337,6 +387,11 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
   };
 
   const handlePrint = async () => {
+    if (isExporting || !isStripComplete(shots, totalShots)) {
+      if (!isExporting) setExportError(t.stripIncomplete);
+      return;
+    }
+    setIsExporting(true);
     setExportError(null);
     try {
       const canvas = await renderPhotostripToCanvas({
@@ -353,6 +408,8 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
     } catch (err) {
       console.error(err);
       setExportError(t.exportError);
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -417,10 +474,10 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
           <div className="w-full max-w-4xl mx-auto flex items-center justify-between pt-1 pb-1">
             <button
               onClick={onBackToHome}
-              className="w-11 h-11 sm:w-14 sm:h-14 rounded-full border border-black/60 bg-white hover:bg-black hover:text-white transition-all flex flex-col items-center justify-center text-black shadow-xs cursor-pointer group"
+              className="w-11 h-11 sm:w-14 sm:h-14 rounded-full border border-black/60 bg-white hover:bg-black hover:text-white transition-all flex flex-col items-center justify-center text-black shadow-sm cursor-pointer group"
               title={t.back}
             >
-              <span className="text-[8px] sm:text-[9px] font-serif uppercase tracking-widest leading-none">BACK</span>
+              <span className="text-[8px] sm:text-[9px] font-serif uppercase tracking-widest leading-none">{t.back.toUpperCase()}</span>
               <span className="text-[10px] sm:text-xs leading-none mt-0.5 sm:mt-1 group-hover:-translate-x-0.5 transition-transform">←</span>
             </button>
 
@@ -432,15 +489,6 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
             </div>
 
             <div className="flex items-center gap-2 sm:gap-3">
-              <button
-                onClick={() => setShowVoucherModal(true)}
-                className="w-11 h-11 sm:w-14 sm:h-14 rounded-full border border-black/60 bg-white hover:bg-black hover:text-white transition-all flex flex-col items-center justify-center text-black shadow-xs cursor-pointer group"
-                title={t.voucherBtn}
-              >
-                <span className="text-[7px] sm:text-[8px] font-serif uppercase tracking-widest leading-none">{t.voucherBtn}</span>
-                <Ticket className="w-3 h-3 sm:w-3.5 sm:h-3.5 mt-0.5 opacity-70 group-hover:opacity-100" />
-              </button>
-
               <button
                 onClick={() => setStep('filter-select')}
                 className="px-6 sm:px-8 py-2.5 sm:py-3 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-[11px] sm:text-xs font-mono uppercase tracking-widest transition-all shadow-md flex items-center gap-1.5 sm:gap-2 cursor-pointer hover:scale-105 active:scale-95"
@@ -477,7 +525,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
           </div>
 
           {/* BELOW: Controls Dock (Themes, Filters & Custom Text) */}
-          <div className="max-w-4xl w-full mx-auto bg-white/95 backdrop-blur-xs border border-black/15 rounded-2xl p-2.5 sm:p-3 shadow-xs space-y-2 my-1">
+          <div className="max-w-4xl w-full mx-auto bg-white/95 backdrop-blur-sm border border-black/15 rounded-2xl p-2.5 sm:p-3 shadow-sm space-y-2 my-1">
             
             {/* Row 1: All 10 Themes Carousel Chips (from mysketchbooth) */}
             <div className="space-y-1">
@@ -486,7 +534,9 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                   {t.themeLabel}
                 </label>
                 <span className="text-[10px] font-mono text-black/50">
-                  {ALL_THEMES.find((th) => th.id === theme)?.nameVi}
+                  {language === 'vi'
+                    ? ALL_THEMES.find((th) => th.id === theme)?.nameVi
+                    : ALL_THEMES.find((th) => th.id === theme)?.nameEn}
                 </span>
               </div>
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
@@ -498,7 +548,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                       onClick={() => setTheme(th.id)}
                       className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border text-[11px] sm:text-xs font-mono whitespace-nowrap flex items-center gap-1.5 transition-all cursor-pointer ${
                         isSelected
-                          ? 'border-black bg-black text-white shadow-xs font-semibold scale-102'
+                          ? 'border-black bg-black text-white shadow-sm font-semibold scale-102'
                           : 'border-black/20 bg-stone-50 hover:border-black/50 text-black/75'
                       }`}
                     >
@@ -524,7 +574,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                       onClick={() => setFilter(f.id as FilterType)}
                       className={`py-1.5 px-2 rounded-xl border text-center transition-all cursor-pointer ${
                         filter === f.id
-                          ? 'border-black bg-black text-white shadow-xs'
+                          ? 'border-black bg-black text-white shadow-sm'
                           : 'border-black/20 bg-stone-50 hover:border-black/50 text-black'
                       }`}
                     >
@@ -555,10 +605,10 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
           <div className="w-full max-w-3xl mx-auto flex items-center justify-between pt-1 pb-1">
             <button
               onClick={() => setStep('frame-select')}
-              className="w-11 h-11 sm:w-13 sm:h-13 rounded-full border border-black/50 bg-white hover:bg-black hover:text-white transition-all flex flex-col items-center justify-center text-black shadow-xs cursor-pointer group"
+              className="w-11 h-11 sm:w-13 sm:h-13 rounded-full border border-black/50 bg-white hover:bg-black hover:text-white transition-all flex flex-col items-center justify-center text-black shadow-sm cursor-pointer group"
               title={t.back}
             >
-              <span className="text-[8px] font-serif uppercase tracking-widest leading-none">BACK</span>
+              <span className="text-[8px] font-serif uppercase tracking-widest leading-none">{t.back.toUpperCase()}</span>
               <span className="text-xs leading-none mt-0.5 group-hover:-translate-x-0.5 transition-transform">←</span>
             </button>
 
@@ -595,6 +645,9 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                 ? `${t.step3SubtitleRetake} 0${retakeIndex + 1}`
                 : `${t.step3SubtitleNormal} 0${Math.min(currentShotIndex + 1, totalShots)}/0${totalShots}`}
             </p>
+            {uploadError && (
+              <p className="text-[11px] text-red-600 font-mono">{uploadError}</p>
+            )}
           </div>
 
           {/* 2-COLUMN VIEWPORT: Responsive Mobile View (Camera first, shots row, controls) */}
@@ -615,7 +668,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                       isCurrent
                         ? 'ring-2 ring-emerald-500 scale-105 shadow-md'
                         : hasShot
-                        ? 'border-black/40 cursor-pointer shadow-xs'
+                        ? 'border-black/40 cursor-pointer shadow-sm'
                         : 'border-black/20 bg-stone-100'
                     }`}
                     style={{
@@ -907,10 +960,10 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
               </button>
 
               {/* If user took some shots, show direct preview button */}
-              {shots.filter(Boolean).length > 0 && !isSessionActive && (
+              {isStripComplete(shots, totalShots) && !isSessionActive && (
                 <button
                   onClick={() => setStep('confirm')}
-                  className="px-5 py-2.5 rounded-full border border-black/40 bg-white hover:bg-black hover:text-white text-xs font-mono tracking-wider uppercase transition-all shadow-xs cursor-pointer"
+                  className="px-5 py-2.5 rounded-full border border-black/40 bg-white hover:bg-black hover:text-white text-xs font-mono tracking-wider uppercase transition-all shadow-sm cursor-pointer"
                 >
                   {t.viewStrip}
                 </button>
@@ -963,7 +1016,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                     {printCopies}
                   </span>
                   <button
-                    onClick={() => setPrintCopies(printCopies + 1)}
+                    onClick={() => setPrintCopies(Math.min(20, printCopies + 1))}
                     className="w-9 h-9 rounded-full border border-black/30 flex items-center justify-center hover:bg-black hover:text-white transition-colors"
                   >
                     <Plus className="w-3.5 h-3.5" />
@@ -1050,6 +1103,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
 
                 <button
                   onClick={handlePrint}
+                  disabled={isExporting}
                   className="w-full py-2.5 rounded-full border border-black/30 hover:border-black text-black hover:bg-black/5 text-xs font-mono uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Printer className="w-3.5 h-3.5" />
@@ -1138,68 +1192,6 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
             >
               {t.returnHomeBtn}
             </button>
-          </div>
-        </div>
-      )}
-      {/* Voucher Code Keypad Modal (Canva Slide 4) */}
-      {showVoucherModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border-2 border-black rounded-[28px] p-6 max-w-sm w-full space-y-4 shadow-2xl relative text-center">
-            <button
-              onClick={() => {
-                setShowVoucherModal(false);
-                setVoucherMessage(null);
-              }}
-              className="absolute top-4 right-4 text-black/50 hover:text-black text-xs font-mono p-1"
-            >
-              ✕
-            </button>
-            <div className="space-y-1 pt-1">
-              <span className="text-[9px] font-mono tracking-widest text-black/50 uppercase">PROMOTION CODE</span>
-              <h3 className="font-editorial text-xl font-medium tracking-wider text-black">
-                {t.voucherTitle}
-              </h3>
-            </div>
-
-            {/* Voucher Screen Display */}
-            <div className="w-full h-12 border-2 border-black rounded-xl flex items-center justify-center text-xl font-mono tracking-[0.25em] bg-[#FAF8F5]">
-              {voucherInput || '— — — —'}
-            </div>
-
-            {voucherMessage && (
-              <p className="text-xs text-emerald-600 font-mono font-medium">{voucherMessage}</p>
-            )}
-
-            {/* Keypad 1-9 (exact Canva Slide 4 design) */}
-            <div className="grid grid-cols-3 gap-2.5 max-w-[220px] mx-auto pt-1">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-                <button
-                  key={num}
-                  onClick={() => setVoucherInput((prev) => (prev.length < 8 ? prev + num : prev))}
-                  className="w-16 h-12 rounded-xl border border-black/30 hover:border-black hover:bg-black hover:text-white font-mono text-base font-semibold transition-colors cursor-pointer"
-                >
-                  {num}
-                </button>
-              ))}
-              <button
-                onClick={() => setVoucherInput('')}
-                className="w-16 h-12 rounded-xl border border-black/30 hover:bg-black/10 font-mono text-xs uppercase cursor-pointer"
-              >
-                CLEAR
-              </button>
-              <button
-                onClick={() => setVoucherInput((prev) => (prev.length < 8 ? prev + '0' : prev))}
-                className="w-16 h-12 rounded-xl border border-black/30 hover:border-black hover:bg-black hover:text-white font-mono text-base font-semibold cursor-pointer"
-              >
-                0
-              </button>
-              <button
-                onClick={() => { if (voucherInput.length > 0) setVoucherMessage(t.voucherApplied); }}
-                className="w-16 h-12 rounded-xl border-2 border-black bg-black text-white hover:bg-black/85 font-mono text-xs font-bold cursor-pointer"
-              >
-                APPLY
-              </button>
-            </div>
           </div>
         </div>
       )}

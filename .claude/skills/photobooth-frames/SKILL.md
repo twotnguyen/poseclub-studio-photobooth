@@ -77,6 +77,7 @@ Expect ~65–85% transparent and the sticker colour still present.
 - **Export** (`CanvasExporter.ts`): photo first, frame PNG on top.
 - **Catalog** (`public/exported-frames/index.html`): cards and ZIP must match
   the frame count; preview shows the ORIGINAL checkerboard versions.
+- Custom strip text is drawn in the free band below the last slot (`getFrameCaptionBox`). Keep at least ~90 px there in new frames; the caption is skipped when the band is too small.
 
 ### 5. Verify end to end
 Build and run the flow in the browser:
@@ -104,5 +105,22 @@ Use the browse MCP tools in the user's Chrome for this; camera works there.
   `scripts/detect_slots.py` (transparent-region slot detection) and registered in `FrameThemes.ts` via `STYLE_FRAMES`.
   ThemeConfig carries `style` + `slots[]` (reading order); the single `photoBox` was replaced by `slots` everywhere.
   Style-5 frames are landscape 1844x1240 (files renamed 41–55 to avoid clashing with style-1 numbering).
+
 - The ZIP in the catalog is a static file — regenerate it whenever the frame
   set changes.
+
+### 6. Keep slot metadata and green-screen edges clean
+`slots.json` in this folder mirrors the 72 PNGs the app actually loads (23 style-1 alpha overlays + 49 multi-slot overlays). Regenerate it after changing any frame:
+```bash
+python .claude/skills/photobooth-frames/scripts/detect_slots.py
+```
+The measured boxes must also match `STYLE1_BOXES` / `STYLE_FRAMES` in `FrameThemes.ts`.
+
+Canva green-screen slots leave pale anti-aliased green pixels at slot borders. `green_to_alpha.py` now clears them during conversion; to clean already shipped PNGs:
+```bash
+python .claude/skills/photobooth-frames/scripts/clean_green_edges.py --dry-run
+python .claude/skills/photobooth-frames/scripts/clean_green_edges.py --write
+```
+Repeat `--write` until `--dry-run` reports `total=0` (the first pass exposes a second ring of pixels).
+
+Verify both tools with `python -m unittest tests/test_frame_tools.py`.

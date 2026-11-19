@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Camera } from 'lucide-react';
 import { FrameTheme, FilterType } from './types';
 import { getThemeById, CUSTOM_FRAMES } from './FrameThemes';
+import { getFrameCaptionBox, captionTextColor } from './frameCaption';
 
 interface ThemedFramePreviewProps {
   theme: FrameTheme;
@@ -45,6 +46,24 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
 
   const slotBg = getSlotBg();
   const isCustomImage = !!currentTheme.imagePath;
+  const captionBox = isCustomImage && currentTheme.imageWidth && currentTheme.imageHeight
+    ? getFrameCaptionBox(currentTheme.imageWidth, currentTheme.imageHeight, currentTheme.slots ?? [], customText)
+    : null;
+  const [captionFill, setCaptionFill] = useState<string>('#111111');
+  const isLongCaption = captionBox
+    ? customText.trim().length * captionBox.fontSize * 0.6 > captionBox.maxWidth
+    : false;
+  const handleFrameLoad = (image: HTMLImageElement) => {
+    if (!captionBox) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = image.naturalWidth;
+    canvas.height = image.naturalHeight;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.drawImage(image, 0, 0);
+    const [r, g, b] = ctx.getImageData(captionBox.centerX, captionBox.centerY, 1, 1).data;
+    setCaptionFill(captionTextColor(r, g, b));
+  };
 
   return (
     <div className="relative w-full max-w-4xl mx-auto flex items-center justify-center gap-2 sm:gap-6 md:gap-12 select-none">
@@ -70,11 +89,36 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
         }}
       >
         {isCustomImage && (
-          <img
-            src={currentTheme.imagePath}
-            alt={currentTheme.nameEn}
-            className="max-h-[52vh] w-auto max-w-full object-contain"
-          />
+          <div className="relative inline-block leading-none">
+            <img
+              src={currentTheme.imagePath}
+              alt={currentTheme.nameEn}
+              className="max-h-[52vh] w-auto max-w-full object-contain"
+              onLoad={(event) => handleFrameLoad(event.currentTarget)}
+            />
+            {captionBox && (
+              <svg
+                viewBox={`0 0 ${currentTheme.imageWidth} ${currentTheme.imageHeight}`}
+                className="pointer-events-none absolute inset-0 h-full w-full"
+                aria-hidden="true"
+              >
+                <text
+                  x={captionBox.centerX}
+                  y={captionBox.centerY}
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  fontFamily="Playfair Display, Georgia, serif"
+                  fontWeight={600}
+                  fontSize={captionBox.fontSize}
+                  fill={captionFill}
+                  textLength={isLongCaption ? captionBox.maxWidth : undefined}
+                  lengthAdjust={isLongCaption ? 'spacingAndGlyphs' : undefined}
+                >
+                  {customText.trim().toUpperCase()}
+                </text>
+              </svg>
+            )}
+          </div>
         )}
 
         {/* ================= STYLE 1: POLAROID ================= */}
@@ -117,7 +161,7 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
         )}
 
         {/* ================= STYLE 2, 4: VERTICAL STRIP (Classic 1x4 or 1x2) ================= */}
-        {(selectedStyle === 2 || selectedStyle === 4) && (
+        {!isCustomImage && (selectedStyle === 2 || selectedStyle === 4) && (
           <div
             className={`flex flex-col items-center relative ${
               selectedStyle === 4
@@ -169,7 +213,7 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
         )}
 
         {/* ================= STYLE 3, 5, 6: GRID LAYOUTS (2x2, 2x3, 3x3) ================= */}
-        {(selectedStyle === 3 || selectedStyle === 5 || selectedStyle === 6) && (
+        {!isCustomImage && (selectedStyle === 3 || selectedStyle === 5 || selectedStyle === 6) && (
           <div
             className={`flex flex-col items-center relative ${
               selectedStyle === 3

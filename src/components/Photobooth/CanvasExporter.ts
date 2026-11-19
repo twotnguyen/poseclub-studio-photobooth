@@ -2,6 +2,7 @@ import type { FilterType, LayoutType, FrameTheme } from './types';
 import { getThemeById } from './FrameThemes';
 import { getLayoutGeometry } from './layouts';
 import { getFilterCss, isLightColor } from './color';
+import { getFrameCaptionBox, captionTextColor } from './frameCaption';
 
 interface RenderOptions {
   images: string[];
@@ -73,6 +74,21 @@ export const renderPhotostripToCanvas = async (options: RenderOptions): Promise<
       ctx.filter = 'none';
     }
     ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
+
+    const captionText = (customFooterText ?? '').trim();
+    const caption = getFrameCaptionBox(canvas.width, canvas.height, themeCfg.slots, captionText);
+    if (caption) {
+      if (document.fonts?.ready) await document.fonts.ready;
+      const [r, g, b, a] = ctx.getImageData(caption.centerX, caption.centerY, 1, 1).data;
+      const alpha = a / 255;
+      const blend = (channel: number) => Math.round(channel * alpha + 255 * (1 - alpha));
+      ctx.fillStyle = captionTextColor(blend(r), blend(g), blend(b));
+      ctx.font = `600 ${caption.fontSize}px "Playfair Display", "Cormorant Garamond", Georgia, serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(captionText.toUpperCase(), caption.centerX, caption.centerY, caption.maxWidth);
+    }
+    if (filter === 'bw-film') drawGrain(ctx, canvas.width, canvas.height, 0.035);
     return canvas;
   }
 
@@ -215,7 +231,7 @@ export const renderIndividualPhoto = async (
 
   ctx.fillStyle = '#777777';
   ctx.font = '500 20px "Inter", sans-serif';
-  ctx.fillText(`SHOT 0${index + 1}  •  ${dateStr.toUpperCase()}`, W / 2, 1400);
+  ctx.fillText(`SHOT ${String(index + 1).padStart(2, '0')}  •  ${dateStr.toUpperCase()}`, W / 2, 1400);
 
   return canvas;
 };
@@ -228,8 +244,8 @@ export const printCanvas = (canvas: HTMLCanvasElement, copies = 1) => {
     return;
   }
 
-  const total = Math.max(1, copies);
-  const images = Array.from({ length: total }, () => `<img src="${dataUrl}" alt="poseclub studio photostrip" onload="if(--window.__pending===0){window.print();window.close();}" />`).join('');
+  const total = Math.min(20, Math.max(1, copies));
+  const images = Array.from({ length: total }, () => `<img src="${dataUrl}" alt="poseclub studio photostrip" onload="if(--window.__pending===0){window.print();window.close();}" onerror="if(--window.__pending===0){window.print();window.close();}" />`).join('');
   printWindow.document.write(`
     <!DOCTYPE html>
     <html>
