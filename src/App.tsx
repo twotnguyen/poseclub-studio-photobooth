@@ -39,8 +39,8 @@ export default function App() {
         onToggleLanguage={handleToggleLanguage}
       />
 
-      {/* Main Tab Viewport (Routes for each tab, Responsive Scroll for Mobile, Zero Scroll on Desktop) */}
-      <main className="flex-1 w-full overflow-y-auto md:overflow-hidden relative">
+      {/* Main Tab Viewport (Zero-scroll on all breakpoints) */}
+      <main className="flex-1 w-full overflow-hidden relative">
         <Routes>
           <Route
             path="/"

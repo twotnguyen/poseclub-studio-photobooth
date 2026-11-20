@@ -1,6 +1,6 @@
 ---
 name: photobooth-frames
-description: Add, replace or debug custom photo-booth frame designs in this project. Use whenever the user mentions frame PNGs, exported-frames, checkerboard photo slots, frames that cover the customer's photo, stickers/hearts/logos disappearing on export, Canva frame exports, the 23 Custom frames, or asks to "put new frames on the web". Covers converting Canva PNGs to transparent overlays, wiring them into FrameThemes.ts, the catalog, live preview, camera aspect ratio, and end-to-end verification.
+description: Add, replace or debug custom photo-booth frame designs in this project. Use whenever the user mentions frame PNGs, exported-frames, checkerboard photo slots, frames that cover the customer's photo, stickers/hearts/logos disappearing on export, Canva frame exports, all 72 frames across six styles, or asks to "put new frames on the web". Covers converting Canva PNGs to transparent overlays, wiring them into FrameThemes.ts, the catalog, live preview, camera aspect ratio, and end-to-end verification.
 ---
 
 # Photobooth frames
@@ -20,9 +20,12 @@ There are two versions of every frame:
 | Original (checkerboard baked in) | `exported-frames/style-1-polaroid/` | Design source + catalog preview |
 | RGBA overlay (checkerboard -> alpha) | `public/exported-frames/style-1-polaroid-alpha/` | What the web app actually draws |
 
+Styles 2–6 use the same pattern in `public/exported-frames/style-{2..6}-*/`;
+their design sources stay outside `public/`.
+
 **Draw order matters.** Export and live preview both do:
 
-1. Draw the customer's photo into `photoBox`.
+1. Draw the customer's photo into each measured `slots[]` rectangle.
 2. Draw the RGBA frame PNG **on top**.
 
 Reversing this order puts the opaque checkerboard over the photo and hides the
@@ -41,9 +44,13 @@ python .claude/skills/photobooth-frames/scripts/make_alpha_frames.py \
   --src exported-frames/style-1-polaroid \
   --out public/exported-frames/style-1-polaroid-alpha
 ```
+
 The script auto-detects the checkerboard (rows/columns dense in grey 204),
 clears near-grey pixels in that box, and keeps coloured decorations opaque.
 It prints one detected box per file — sanity-check those numbers.
+
+For styles 2–6 (transparent Canva exports rather than checkerboards), generate
+overlays and slot boxes with `scripts/detect_slots.py` instead — see §6.
 
 Verify one frame:
 ```bash
@@ -55,25 +62,25 @@ Expect ~65–85% transparent and the sticker colour still present.
 
 ### 3. Register the frames in code
 `src/components/Photobooth/FrameThemes.ts`:
-- `CUSTOM_PHOTO_BOXES` — one `[left, top, right, bottom]` per frame, measured
-  from the checkerboard. Keep these in sync with the script's detected boxes.
-- `CUSTOM_FRAMES` maps those to themes with `id: custom-N`,
-  `imagePath: /exported-frames/style-1-polaroid-alpha/N.png`, `imageWidth`/
-  `imageHeight` and `photoBox`.
-- `ALL_THEMES` is what the UI iterates; `getThemeById` falls back to
-  `CUSTOM_FRAMES[0]`.
+- `STYLE1_BOXES` (style 1) and `STYLE_FRAMES` (styles 2–6) hold one
+  `[left, top, right, bottom]` box per photo slot, in reading order. Keep them
+  in sync with `.claude/skills/photobooth-frames/slots.json`.
+- `CUSTOM_FRAMES` maps those to themes with `id: custom-N`, `imagePath`,
+  `imageWidth`/`imageHeight` and `slots[]`.
+- `getThemesForStyle(style)` feeds the step 2 chips and carousel;
+  `getThemeById` falls back to `CUSTOM_FRAMES[0]`.
 
 `src/components/Photobooth/types.ts`: `FrameTheme = \`custom-${number}\``.
 
 ### 4. Keep every surface in sync
-- **Step 2 picker** (`BoothTab.tsx`): `availableThemes = CUSTOM_FRAMES`.
+- **Step 2 picker** (`BoothTab.tsx`): `styleThemes = getThemesForStyle(selectedStyle)`.
 - **Step 2 preview** (`ThemedFramePreview.tsx`): when `selectedStyle === 1` and
   `imagePath` exists, show just the `<img>` — no extra border, rounded corners
-  or shadow. Carousel uses `CUSTOM_FRAMES`.
+  or shadow. Carousel uses the same per-style theme list.
 - **Step 3 live preview** (`BoothTab.tsx`, `renderCustomFrame`): photo absolutely
-  positioned at `photoBox` percentages, frame `<img>` layered on top.
-- **Camera viewfinder**: `cameraRatio = photoBox.w / photoBox.h` so customers
-  can compose in the same shape as the final photo. Other styles stay 4/3.
+  positioned at each `slots[]` percentage, frame `<img>` layered on top.
+- **Camera viewfinder**: `cameraRatio = slots[0].w / slots[0].h` so customers
+  can compose in the same shape as the final photo.
 - **Export** (`CanvasExporter.ts`): photo first, frame PNG on top.
 - **Catalog** (`public/exported-frames/index.html`): cards and ZIP must match
   the frame count; preview shows the ORIGINAL checkerboard versions.

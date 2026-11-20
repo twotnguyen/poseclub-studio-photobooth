@@ -52,6 +52,8 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
   const cameraGenerationRef = React.useRef(0);
   const countdownTimerRef = React.useRef<number | null>(null);
   const timeoutsRef = React.useRef<number[]>([]);
+  const languageRef = React.useRef(language);
+  languageRef.current = language;
 
   const [cameraActive, setCameraActive] = useState<boolean>(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -121,10 +123,10 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
       if (generation !== cameraGenerationRef.current) return;
       streamRef.current = null;
       console.error('Camera access error:', err);
-      setCameraError(TRANSLATIONS[language].booth.cameraError);
+      setCameraError(TRANSLATIONS[languageRef.current].booth.cameraError);
       setCameraActive(false);
     }
-  }, [facingMode, language]);
+  }, [facingMode]);
 
   const toggleCameraFacing = React.useCallback(() => {
     setFacingMode((prev) => {
@@ -201,6 +203,8 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
     if (shotIndexRef.current < totalShots - 1) {
       shotIndexRef.current += 1;
       setCurrentShotIndex(shotIndexRef.current);
+      sessionRef.current = false;
+      setIsSessionActive(false);
       scheduleTimeout(() => captureFnRef.current(), 1000);
     } else {
       sessionRef.current = false;
@@ -404,7 +408,10 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
         location: 'Fullerton, CA',
         dateStr: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
       });
-      printCanvas(canvas, printCopies);
+      printCanvas(canvas, printCopies, {
+        popupBlocked: t.printPopupBlocked,
+        printTitle: t.printDocumentTitle,
+      });
     } catch (err) {
       console.error(err);
       setExportError(t.exportError);
@@ -416,12 +423,12 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
   const getFilterStyle = (): React.CSSProperties => ({ filter: getFilterCss(filter) });
 
   return (
-    <div className="min-h-full h-auto md:h-full w-full flex flex-col justify-between p-3 sm:p-7 select-none">
+    <div className="h-full w-full flex flex-col justify-between p-1.5 sm:p-7 select-none">
       
       {/* ----------------- SUB-STEP 1: SELECT A FRAME (Slide 2) ----------------- */}
       {step === 'frame-select' && (
-        <div className="min-h-full h-auto md:h-full flex flex-col justify-between pb-1">
-          <div className="text-center space-y-0.5 sm:space-y-1 py-1">
+        <div className="h-full flex flex-col justify-between pb-1">
+          <div className="text-center space-y-0.5 sm:space-y-1 py-0.5 sm:py-1">
             <h2 className="font-editorial text-xl sm:text-4xl text-black font-medium tracking-[0.12em] sm:tracking-[0.15em] uppercase">
               {t.step1Title}
             </h2>
@@ -431,39 +438,41 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
           </div>
 
           {/* 6 Styles Grid from Canva Slide 2 */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-5 max-w-4xl w-full mx-auto my-auto py-1">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-1 sm:gap-5 max-w-4xl w-full mx-auto my-auto py-1">
             {[
-              { id: 1, title: 'STYLE 1', desc: '1 Photo Polaroid' },
-              { id: 2, title: 'STYLE 2', desc: '2 Photos Strip (1x2)' },
-              { id: 3, title: 'STYLE 3', desc: '4 Photos Grid (2x2)' },
-              { id: 4, title: 'STYLE 4', desc: '8 Photos Grid (2x4)' },
-              { id: 5, title: 'STYLE 5', desc: '6 Photos Landscape (2x3)' },
-              { id: 6, title: 'STYLE 6', desc: '9 Photos Grid (3x3)' },
+              { id: 1, title: 'STYLE 1' },
+              { id: 2, title: 'STYLE 2' },
+              { id: 3, title: 'STYLE 3' },
+              { id: 4, title: 'STYLE 4' },
+              { id: 5, title: 'STYLE 5' },
+              { id: 6, title: 'STYLE 6' },
             ].map((style) => {
               const isSelected = selectedStyle === style.id;
               return (
                 <button
                   key={style.id}
                   onClick={() => { setSelectedStyle(style.id); setTheme(getThemesForStyle(style.id)[0].id); }}
-                  className={`relative p-2 sm:p-3.5 rounded-[18px] sm:rounded-[26px] bg-white transition-all flex flex-col items-center justify-between text-center group cursor-pointer ${
+                  className={`relative p-1.5 sm:p-3.5 rounded-[18px] sm:rounded-[26px] bg-white transition-all flex flex-col items-center justify-between text-center group cursor-pointer ${
                     isSelected
-                      ? 'border-2 border-black shadow-xl scale-102 ring-2 ring-black/15 bg-black/[0.015]'
+                      ? 'border-2 border-black shadow-xl scale-105 ring-2 ring-black/15 bg-black/[0.015]'
                       : 'border border-black hover:border-2 hover:border-black hover:shadow-md'
                   }`}
                 >
                   {/* Style Header */}
-                  <p className="font-serif text-sm tracking-[0.2em] uppercase font-medium text-black pt-0.5">
+                  <p className="font-serif text-xs sm:text-sm tracking-[0.2em] uppercase font-medium text-black pt-0.5">
                     {style.title}
                   </p>
 
                   {/* Accurate Canva Overlapping Mockup */}
-                  <div className="my-1 flex items-center justify-center">
-                    <FrameMockup styleId={style.id} />
+                  <div className="my-1 flex items-center justify-center max-[375px]:my-0 max-[375px]:h-[96px] max-[375px]:overflow-hidden">
+                    <div className="max-[375px]:scale-[0.85]">
+                      <FrameMockup styleId={style.id} />
+                    </div>
                   </div>
 
                   {/* Style Subtitle */}
-                  <p className="text-[10px] font-mono text-black/50 uppercase pb-0.5">
-                    {t.styles.find(s => s.id === style.id)?.desc || style.desc}
+                  <p className="text-[9px] sm:text-[10px] font-mono text-black/50 uppercase leading-tight pb-0.5">
+                    {t.styles.find(s => s.id === style.id)?.desc}
                   </p>
                 </button>
               );
@@ -474,7 +483,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
           <div className="w-full max-w-4xl mx-auto flex items-center justify-between pt-1 pb-1">
             <button
               onClick={onBackToHome}
-              className="w-11 h-11 sm:w-14 sm:h-14 rounded-full border border-black/60 bg-white hover:bg-black hover:text-white transition-all flex flex-col items-center justify-center text-black shadow-sm cursor-pointer group"
+              className="w-10 h-10 sm:w-14 sm:h-14 rounded-full border border-black/60 bg-white hover:bg-black hover:text-white transition-all flex flex-col items-center justify-center text-black shadow-sm cursor-pointer group"
               title={t.back}
             >
               <span className="text-[8px] sm:text-[9px] font-serif uppercase tracking-widest leading-none">{t.back.toUpperCase()}</span>
@@ -491,7 +500,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
             <div className="flex items-center gap-2 sm:gap-3">
               <button
                 onClick={() => setStep('filter-select')}
-                className="px-6 sm:px-8 py-2.5 sm:py-3 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-[11px] sm:text-xs font-mono uppercase tracking-widest transition-all shadow-md flex items-center gap-1.5 sm:gap-2 cursor-pointer hover:scale-105 active:scale-95"
+                className="px-5 sm:px-8 py-2 sm:py-3 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-[11px] sm:text-xs font-mono uppercase tracking-widest transition-all shadow-md flex items-center gap-1.5 sm:gap-2 cursor-pointer hover:scale-105 active:scale-95"
               >
                 <span>{t.next}</span>
                 <span>✦</span>
@@ -503,7 +512,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
 
       {/* ----------------- SUB-STEP 2: CHOOSE FILTER & FRAME (Slide 3 & 6) ----------------- */}
       {step === 'filter-select' && (
-        <div className="min-h-full h-auto md:h-full flex flex-col justify-between pb-1">
+        <div className="h-full flex flex-col justify-between pb-1">
           <div className="text-center space-y-0.5 sm:space-y-1 py-1">
             <h2 className="font-editorial text-xl sm:text-4xl text-black font-medium tracking-[0.12em] sm:tracking-[0.15em] uppercase">
               {t.step2Title}
@@ -519,8 +528,9 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
               theme={theme}
               onThemeChange={setTheme}
               selectedStyle={selectedStyle}
-              filter={filter}
               customText={customText}
+              previousThemeLabel={t.previousTheme}
+              nextThemeLabel={t.nextTheme}
             />
           </div>
 
@@ -548,7 +558,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                       onClick={() => setTheme(th.id)}
                       className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border text-[11px] sm:text-xs font-mono whitespace-nowrap flex items-center gap-1.5 transition-all cursor-pointer ${
                         isSelected
-                          ? 'border-black bg-black text-white shadow-sm font-semibold scale-102'
+                          ? 'border-black bg-black text-white shadow-sm font-semibold scale-105'
                           : 'border-black/20 bg-stone-50 hover:border-black/50 text-black/75'
                       }`}
                     >
@@ -605,7 +615,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
           <div className="w-full max-w-3xl mx-auto flex items-center justify-between pt-1 pb-1">
             <button
               onClick={() => setStep('frame-select')}
-              className="w-11 h-11 sm:w-13 sm:h-13 rounded-full border border-black/50 bg-white hover:bg-black hover:text-white transition-all flex flex-col items-center justify-center text-black shadow-sm cursor-pointer group"
+              className="w-11 h-11 sm:w-14 sm:h-14 rounded-full border border-black/50 bg-white hover:bg-black hover:text-white transition-all flex flex-col items-center justify-center text-black shadow-sm cursor-pointer group"
               title={t.back}
             >
               <span className="text-[8px] font-serif uppercase tracking-widest leading-none">{t.back.toUpperCase()}</span>
@@ -635,7 +645,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
 
       {/* ----------------- SUB-STEP 3: TAKE YOUR PHOTOS (Slide 7) ----------------- */}
       {step === 'camera' && (
-        <div className="min-h-full h-auto md:h-full flex flex-col justify-between pb-1">
+        <div className="h-full flex flex-col justify-between pb-1">
           <div className="text-center space-y-0.5 pt-0.5 sm:pt-1">
             <h2 className="font-editorial text-xl sm:text-3xl text-black font-medium tracking-[0.12em] sm:tracking-[0.15em] uppercase">
               {t.step3Title}
@@ -655,195 +665,12 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
             
             {/* Mobile Compact Horizontal Shot Preview (Order 2 on mobile, Hidden on desktop) */}
             <div className="order-2 md:hidden w-full flex items-center justify-center gap-2 py-1 overflow-x-auto">
-              {isCustomImage ? renderCustomFrame('w-[120px]') : [...Array(totalShots)].map((_, idx) => {
-                const hasShot = !!shots[idx];
-                const isCurrent = idx === currentShotIndex && isSessionActive;
-                return (
-                  <div
-                    key={idx}
-                    onClick={() => {
-                      if (hasShot && !isSessionActive) startRetake(idx);
-                    }}
-                    className={`w-14 h-14 rounded-xl border relative overflow-hidden flex flex-col items-center justify-center transition-all ${
-                      isCurrent
-                        ? 'ring-2 ring-emerald-500 scale-105 shadow-md'
-                        : hasShot
-                        ? 'border-black/40 cursor-pointer shadow-sm'
-                        : 'border-black/20 bg-stone-100'
-                    }`}
-                    style={{
-                      backgroundColor: hasShot ? '#000000' : currentTheme.slotBgDefault,
-                      borderColor: currentTheme.slotBorderColor,
-                    }}
-                  >
-                    {hasShot ? (
-                      <img
-                        src={shots[idx]}
-                        alt={`Shot ${idx + 1}`}
-                        style={getFilterStyle()}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <>
-                        <Camera className="w-4 h-4 opacity-40 text-current" style={{ color: currentTheme.textColor }} />
-                        <span className="text-[7px] font-mono opacity-60 mt-0.5" style={{ color: currentTheme.textColor }}>
-                          0{idx + 1}
-                        </span>
-                      </>
-                    )}
-                    {isCurrent && (
-                      <div className="absolute inset-0 bg-emerald-500/20 border-2 border-emerald-500 animate-pulse pointer-events-none" />
-                    )}
-                  </div>
-                );
-              })}
+              {renderCustomFrame('w-[120px]')}
             </div>
 
             {/* Desktop Live Photostrip Progress Preview (Hidden on mobile, Visible on desktop) */}
             <div className="order-3 md:order-1 hidden md:flex md:col-span-5 lg:col-span-4 flex-col items-center justify-center">
-              {isCustomImage ? renderCustomFrame('w-[190px] lg:w-[210px]') : (
-              <div
-                className="relative rounded-2xl border-2 shadow-2xl p-2.5 flex flex-col items-center justify-between transition-all duration-300"
-                style={{
-                  backgroundColor: currentTheme.bgColor,
-                  borderColor: currentTheme.borderColor,
-                  boxShadow: '0 15px 35px -5px rgba(0,0,0,0.2)',
-                }}
-              >
-                {/* Header text bar if theme has it */}
-                {currentTheme.isTextBar && (
-                  <p
-                    className="font-mono text-[8px] font-bold tracking-wider text-center uppercase mb-1 truncate max-w-[130px]"
-                    style={{ color: currentTheme.textColor }}
-                  >
-                    {currentTheme.barText}
-                  </p>
-                )}
-
-                {/* 1x2 or 1x4 Vertical Strip */}
-                {(selectedStyle === 2 || selectedStyle === 4) && (
-                  <div className="w-[110px] sm:w-[124px] space-y-1">
-                    {[...Array(totalShots)].map((_, idx) => {
-                      const hasShot = !!shots[idx];
-                      const isCurrent = idx === currentShotIndex && isSessionActive;
-                      return (
-                        <div
-                          key={idx}
-                          onClick={() => {
-                            if (hasShot && !isSessionActive) startRetake(idx);
-                          }}
-                          className={`w-full h-[58px] sm:h-[62px] rounded-xs border relative overflow-hidden flex flex-col items-center justify-center transition-all ${
-                            isCurrent
-                              ? 'ring-2 ring-emerald-500 scale-102 shadow-md'
-                              : hasShot
-                              ? 'border-black/30 cursor-pointer hover:opacity-85'
-                              : 'border-black/20'
-                          }`}
-                          style={{
-                            backgroundColor: hasShot ? '#000000' : currentTheme.slotBgDefault,
-                            borderColor: currentTheme.slotBorderColor,
-                          }}
-                          title={hasShot ? `0${idx + 1} — ${t.retakeHint}` : `0${idx + 1}`}
-                        >
-                          {hasShot ? (
-                            <img
-                              src={shots[idx]}
-                              alt={`Shot ${idx + 1}`}
-                              style={getFilterStyle()}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <>
-                              <Camera className="w-5 h-5 opacity-40 text-current" style={{ color: currentTheme.textColor }} />
-                              <span className="text-[7px] font-mono opacity-50 mt-0.5" style={{ color: currentTheme.textColor }}>
-                                0{idx + 1}
-                              </span>
-                            </>
-                          )}
-                          {isCurrent && (
-                            <div className="absolute inset-0 bg-emerald-500/20 border-2 border-emerald-500 animate-pulse pointer-events-none" />
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-
-                {/* Polaroid Style 1 */}
-                {selectedStyle === 1 && (
-                  <div className="w-[190px] flex flex-col items-center">
-                    <div
-                      className="w-full aspect-square rounded-xs border relative overflow-hidden flex flex-col items-center justify-center"
-                      style={{
-                        backgroundColor: shots[0] ? '#000000' : currentTheme.slotBgDefault,
-                        borderColor: currentTheme.slotBorderColor,
-                      }}
-                    >
-                      {shots[0] ? (
-                        <img
-                          src={shots[0]}
-                          alt="Shot 1"
-                          style={getFilterStyle()}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <Camera className="w-10 h-10 opacity-40 text-current" style={{ color: currentTheme.textColor }} />
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Grid 2x2, 2x3, 3x3 */}
-                {(selectedStyle === 3 || selectedStyle === 5 || selectedStyle === 6) && (
-                  <div
-                    className={`grid gap-1 ${
-                      selectedStyle === 3 ? 'w-[170px] grid-cols-2' : selectedStyle === 5 ? 'w-[150px] grid-cols-2' : 'w-[190px] grid-cols-3'
-                    }`}
-                  >
-                    {[...Array(totalShots)].map((_, idx) => {
-                      const hasShot = !!shots[idx];
-                      const isCurrent = idx === currentShotIndex && isSessionActive;
-                      return (
-                        <div
-                          key={idx}
-                          className={`aspect-square rounded-xs border relative overflow-hidden flex flex-col items-center justify-center ${
-                            isCurrent ? 'ring-2 ring-emerald-500' : ''
-                          }`}
-                          style={{
-                            backgroundColor: hasShot ? '#000000' : currentTheme.slotBgDefault,
-                            borderColor: currentTheme.slotBorderColor,
-                          }}
-                        >
-                          {hasShot ? (
-                            <img
-                              src={shots[idx]}
-                              alt={`Shot ${idx + 1}`}
-                              style={getFilterStyle()}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <Camera className="w-4 h-4 opacity-40 text-current" style={{ color: currentTheme.textColor }} />
-                          )}
-                          <span className="absolute bottom-0.5 right-1 text-[6px] font-mono opacity-50" style={{ color: currentTheme.textColor }}>
-                            0{idx + 1}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-
-                {/* Bottom Watermark */}
-                <div className="pt-2 text-center w-full">
-                  <p
-                    className="font-editorial text-[9px] font-bold tracking-widest uppercase truncate max-w-[130px] mx-auto"
-                    style={{ color: currentTheme.textColor }}
-                  >
-                    {customText.trim() ? customText.trim().toUpperCase() : 'POSECLUB STUDIO'}
-                  </p>
-                </div>
-              </div>
-              )}
+              {renderCustomFrame('w-[190px] lg:w-[210px]')}
             </div>
 
             {/* RIGHT: Live Camera Viewport (Order 1 on mobile, Order 2 on desktop) */}
@@ -985,7 +812,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
 
       {/* ----------------- SUB-STEP 4: CONFIRM & PRINT (Slide 8 & 9) ----------------- */}
       {step === 'confirm' && (
-        <div className="min-h-full h-auto md:h-full flex flex-col justify-between pb-2">
+        <div className="h-full flex flex-col justify-between pb-2">
           <div className="text-center space-y-0.5 sm:space-y-1 py-1">
             <h2 className="font-editorial text-xl sm:text-4xl text-black font-medium tracking-[0.12em] sm:tracking-[0.15em] uppercase">
               {t.step4Title}
@@ -996,12 +823,15 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
           </div>
 
           {/* Main Grid: Left Controls, Right Preview */}
-          <div className="max-w-4xl w-full mx-auto my-auto grid grid-cols-1 md:grid-cols-12 gap-5 md:gap-8 items-center py-2">
+          <div className="max-w-4xl w-full mx-auto my-auto grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-8 items-center py-1 md:py-2">
             
             {/* Left Column: Prints Quantity & Retake Gallery */}
-            <div className="md:col-span-6 space-y-5 bg-white border border-black/15 rounded-2xl p-5 shadow-sm">
+            <div className="md:col-span-6 space-y-2 md:space-y-5 bg-white border border-black/15 rounded-2xl p-3 md:p-5 shadow-sm">
+              <div className="flex justify-center md:hidden">
+                {renderCustomFrame('w-20')}
+              </div>
               {/* Select Number of Prints */}
-              <div className="space-y-2 border-b border-black/10 pb-4">
+              <div className="space-y-1 md:space-y-2 border-b border-black/10 pb-2 md:pb-4">
                 <label className="text-xs font-mono uppercase tracking-widest text-black/60">
                   {t.quantityLabel}
                 </label>
@@ -1026,11 +856,11 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
               </div>
 
               {/* Single Shot Retake Thumbnails */}
-              <div className="space-y-2">
+              <div className="space-y-1 md:space-y-2">
                 <label className="text-xs font-mono uppercase tracking-widest text-black/60">
                   {t.singleRetakeLabel}
                 </label>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-4 gap-1 md:gap-2">
                   {shots.map((shot, idx) => (
                     <div
                       key={idx}
@@ -1064,11 +894,11 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
               {exportError && <p className="text-xs text-red-600 font-mono">{exportError}</p>}
 
               {/* Action Buttons */}
-              <div className="space-y-2 pt-2">
+              <div className="space-y-1 pt-1 md:space-y-2 md:pt-2">
                 <button
                   onClick={handleDownload}
                   disabled={isExporting}
-                  className="w-full py-3 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-xs font-mono uppercase tracking-widest transition-all shadow-md flex items-center justify-center gap-2"
+                  className="w-full py-2 md:py-3 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-xs font-mono uppercase tracking-widest transition-all shadow-md flex items-center justify-center gap-2"
                 >
                   {downloadSuccess ? (
                     <>
@@ -1086,7 +916,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                 <button
                   onClick={handleDownloadSingles}
                   disabled={isExporting}
-                  className="w-full py-2.5 rounded-full border border-black/30 hover:border-black text-black hover:bg-black/5 text-xs font-mono uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-1.5 md:py-2.5 rounded-full border border-black/30 hover:border-black text-black hover:bg-black/5 text-xs font-mono uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {singlesDownloaded ? (
                     <>
@@ -1104,7 +934,7 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
                 <button
                   onClick={handlePrint}
                   disabled={isExporting}
-                  className="w-full py-2.5 rounded-full border border-black/30 hover:border-black text-black hover:bg-black/5 text-xs font-mono uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-1.5 md:py-2.5 rounded-full border border-black/30 hover:border-black text-black hover:bg-black/5 text-xs font-mono uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Printer className="w-3.5 h-3.5" />
                   <span>{t.printBtn}</span>
@@ -1113,62 +943,8 @@ export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) =>
             </div>
 
             {/* Right Column: Live Result Strip */}
-            <div className="md:col-span-6 flex justify-center">
-              {isCustomImage ? renderCustomFrame('w-56') : (
-              <div
-                className="w-56 p-4 rounded-xl border-2 shadow-2xl flex flex-col justify-between"
-                style={{
-                  backgroundColor: currentTheme.bgColor,
-                  color: currentTheme.textColor,
-                  borderColor: currentTheme.borderColor,
-                }}
-              >
-                {layout === 'strip-1x4' ? (
-                  <div className="space-y-2">
-                    {shots.map((shot, idx) => (
-                      <div
-                        key={idx}
-                        className="aspect-[4/3] rounded bg-stone-900 overflow-hidden border border-black/10"
-                      >
-                        <img
-                          src={shot}
-                          alt={`Shot ${idx + 1}`}
-                          style={getFilterStyle()}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 gap-2">
-                    {shots.map((shot, idx) => (
-                      <div
-                        key={idx}
-                        className="aspect-[4/3] rounded bg-stone-900 overflow-hidden border border-black/10"
-                      >
-                        <img
-                          src={shot}
-                          alt={`Shot ${idx + 1}`}
-                          style={getFilterStyle()}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Watermark Bottom */}
-                <div className="pt-3 text-center space-y-0.5">
-                  <p className="font-editorial text-xs font-bold tracking-widest uppercase truncate max-w-[200px] mx-auto">
-                    {customText.trim() ? customText.trim().toUpperCase() : 'POSECLUB STUDIO'}
-                  </p>
-                  <div className="w-8 h-[1px] bg-current opacity-30 mx-auto" />
-                  <p className="text-[8px] font-mono tracking-wider opacity-70">
-                    FULLERTON, CA &bull; {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                  </p>
-                </div>
-              </div>
-              )}
+            <div className="hidden md:col-span-6 md:flex justify-center">
+              {renderCustomFrame('w-56')}
             </div>
 
           </div>

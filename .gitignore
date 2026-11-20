@@ -29,3 +29,10 @@ scratch/
 # Python bytecode from frame tool tests
 __pycache__/
 *.pyc
+
+# Archived frame exports kept locally only; the app loads public/exported-frames/
+all/
+all-alpha/
+6-frame/
+6-frame-alpha/
+frame/

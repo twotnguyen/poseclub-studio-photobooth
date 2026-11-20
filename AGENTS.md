@@ -87,7 +87,7 @@ src/
   * Monospace: `font-mono` — used for buttons, metadata, and timestamps.
 * **Component Patterns**:
   * Buttons: Pill-shaped (`rounded-full`), double border or bold border, uppercase tracking.
-  * Circular controls: `w-13 h-13` or `w-14 h-14` rounded-full buttons for `BACK ←`, `VOUCHER 🎫`, and `< >` carousel arrows.
+  * Circular controls: `w-11 h-11` or `w-14 h-14` rounded-full buttons for `BACK ←`, `VOUCHER 🎫`, and `< >` carousel arrows.
 
 ---
 
@@ -101,9 +101,9 @@ src/
    * **Left Column**: Live Photostrip Progress Preview displaying the exact chosen style and theme. When a shot is taken, the photo immediately appears in the corresponding slot with the active filter.
    * **Right Column**: Live video viewfinder with countdown overlay, white flash animation (220ms), and shutter sound.
 3. **Canvas 300 DPI Export**:
-   * Dải ảnh dọc 1x4 (2x6 inches): 1200 x 3600 px.
-   * Khung lưới 2x2 (4x6 inches): 1800 x 2400 px.
-   * Card ảnh đơn lẻ: 1200 x 1500 px.
+   * 72 khung PNG là nguồn kích thước: style 1/2/3/4/6 xuất ở 1240 x 1844 px; style 5 (ngang) xuất ở 1844 x 1240 px.
+   * Fallback CSS (khi không có PNG) giữ bố cục in cũ: 1200 x 3600 (1x4), 1800 x 2400 (2x2/2x3/3x3).
+   * Card ảnh đơn lẻ: 1200 x 1500 px. Mọi PNG xuất đều mang chunk pHYs 300 DPI (`pngDpi.ts`); khổ giấy do hộp thoại in chọn.
    * In ấn qua `@media print { @page { size: auto; margin: 0; } }`.
 
 ---

@@ -22,7 +22,7 @@
 ## ✨ Điểm nổi bật & Tính năng (Key Features)
 
 ### 🖥️ 1. Giao diện Đơn màn hình không cuộn (Zero-Scroll Architecture)
-* Desktop (`md` trở lên) cố định vừa khít màn hình (`h-[100dvh] overflow-hidden`), không phát sinh thanh cuộn dọc; trên mobile nội dung dài hơn được cuộn bên trong vùng `main`.
+* Mọi breakpoint đều cố định vừa khít màn hình (`h-[100dvh]` + `main overflow-hidden`); bố cục mobile thu gọn card, ảnh và controls để không phát sinh thanh cuộn dọc.
 * Bố cục tối giản sang trọng theo phong cách thời trang cao cấp (Monochrome Editorial), kết hợp nền kem ấm (`#FAF8F5`), viền đen tuyền (`#0C0C0C`) và font chữ thư pháp cổ điển `Poseclub`.
 
 ### 🧭 2. Hệ thống Định tuyến Tab riêng biệt (Distinct URL Routing)
@@ -41,6 +41,7 @@ Mỗi chức năng hoạt động trên một đường dẫn URL độc lập, 
 * Trang chủ có 6 ảnh studio: thumbnail đen trắng, bấm để xem ảnh màu; dùng phím trái/phải để chuyển ảnh và `Esc` để đóng.
 * Catalog tải 23 khung PNG và ZIP: `/exported-frames/index.html` (23 khung Style 1 custom). App dùng tổng cộng 72 khung PNG qua 6 style.
 * Catalog/ZIP đang phát hành là snapshot 23 khung Style 1 custom. `scripts/export_all_frames.py` chỉ tạo khung mẫu vào `scratch/export_all_frames/` để tham khảo, **không** ghi đè catalog đang dùng.
+* Các thư mục `all/`, `all-alpha/`, `6-frame/`, `6-frame-alpha/`, `frame/` là archive giữ locally và nằm trong `.gitignore`; clone mới chỉ cần `public/exported-frames/` và `exported-frames/style-1-polaroid/`.
 
 ### 📸 4. Quy trình Buồng chụp Photobooth 4 bước chuyên sâu
 * **Bước 1 — Chọn kiểu bố cục (Select Frame Layout)**: 
@@ -58,7 +59,7 @@ Mỗi chức năng hoạt động trên một đường dẫn URL độc lập, 
   * Hỗ trợ tải ảnh có sẵn từ máy tính / điện thoại (Upload fallback) — phải chọn đúng số ảnh của khung, thứ tự ảnh được giữ nguyên.
 * **Bước 4 — Xác nhận, In & Xuất ảnh độ phân giải cao (Confirm & Export)**:
   * Tùy chọn số lượng bản in `- 1 +`.
-  * **✦ Tải dải ảnh High-Res (PNG) ✦**: Render bằng Canvas — xuất theo kích thước gốc của khung PNG đang chọn (ví dụ 1240×1844 px); khi không dùng khung PNG thì dùng bố cục dự phòng 1200×3600 / 1800×2400 px. File PNG không nhét metadata DPI; hãy chọn khổ giấy trong hộp thoại in.
+  * **✦ Tải dải ảnh High-Res (PNG) ✦**: Render bằng Canvas — xuất theo kích thước gốc của khung PNG đang chọn (ví dụ 1240×1844 px); khi không dùng khung PNG thì dùng bố cục dự phòng 1200×3600 / 1800×2400 px. Mọi PNG đều mang metadata 300 DPI (chunk `pHYs`); khổ giấy vẫn do người dùng chọn trong hộp thoại in.
   * **✦ Tải từng ảnh đơn lẻ ✦**: Tải mỗi tấm ảnh thành một card polaroid riêng biệt.
   * **✦ PRINT NGAY ✦**: Mở hộp thoại in riêng với `@page { margin: 0 }`; khổ giấy do người dùng chọn trong trình duyệt.
 

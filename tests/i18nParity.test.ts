@@ -42,3 +42,14 @@ test('no translation value is an empty string', () => {
   collectEmptyStrings(TRANSLATIONS.en, 'TRANSLATIONS.en', empty);
   assert.deepEqual(empty, [], `empty translation values: ${empty.join(', ')}`);
 });
+
+test('booth strings rendered outside the dictionary are translated', () => {
+  const keys = ['previousTheme', 'nextTheme', 'printPopupBlocked', 'printDocumentTitle'] as const;
+  for (const lang of ['vi', 'en'] as const) {
+    const booth = TRANSLATIONS[lang].booth as unknown as Record<string, unknown>;
+    for (const key of keys) {
+      assert.equal(typeof booth[key], 'string', `${lang}.booth.${key}`);
+      assert.ok((booth[key] as string).length > 0, `${lang}.booth.${key} is empty`);
+    }
+  }
+});

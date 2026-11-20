@@ -44,6 +44,10 @@ export const TRANSLATIONS = {
     booth: {
       step1Title: 'BƯỚC 1: VUI LÒNG CHỌN BỐ CỤC KHUNG',
       step1Subtitle: 'Chọn bố cục dải ảnh bạn yêu thích nhất',
+      previousTheme: 'Khung trước',
+      nextTheme: 'Khung tiếp theo',
+      printPopupBlocked: 'Vui lòng cho phép cửa sổ pop-up để in dải ảnh.',
+      printDocumentTitle: 'In dải ảnh - poseclub studio',
       styles: [
         { id: 1, title: 'STYLE 1', desc: '1 Ảnh Polaroid' },
         { id: 2, title: 'STYLE 2', desc: '2 Ảnh Dọc (1x2)' },
@@ -184,6 +188,10 @@ export const TRANSLATIONS = {
     booth: {
       step1Title: 'STEP 1: PLEASE SELECT A FRAME',
       step1Subtitle: 'Choose your favorite photostrip layout',
+      previousTheme: 'Previous Theme',
+      nextTheme: 'Next Theme',
+      printPopupBlocked: 'Please allow popups to print your photo strip.',
+      printDocumentTitle: 'Print Photostrip - poseclub studio',
       styles: [
         { id: 1, title: 'STYLE 1', desc: '1 Photo Polaroid' },
         { id: 2, title: 'STYLE 2', desc: '2 Photos Strip (1x2)' },

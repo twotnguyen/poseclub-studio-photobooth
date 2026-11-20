@@ -1,8 +1,9 @@
 import type { FilterType, LayoutType, FrameTheme } from './types';
 import { getThemeById } from './FrameThemes';
-import { getLayoutGeometry } from './layouts';
-import { getFilterCss, isLightColor } from './color';
+import { getFilterCss } from './color';
 import { getFrameCaptionBox, captionTextColor } from './frameCaption';
+import { withPngDpi } from './pngDpi';
+import { buildPrintDocument } from './printDocument';
 
 interface RenderOptions {
   images: string[];
@@ -29,20 +30,40 @@ export const applyCanvasFilter = (ctx: CanvasRenderingContext2D, filter: FilterT
   ctx.filter = getFilterCss(filter);
 };
 
-const drawGrain = (ctx: CanvasRenderingContext2D, width: number, height: number, intensity = 0.04) => {
-  const imgData = ctx.getImageData(0, 0, width, height);
-  const data = imgData.data;
-  for (let i = 0; i < data.length; i += 4) {
-    const noise = (Math.random() - 0.5) * intensity * 255;
-    data[i] = Math.min(255, Math.max(0, data[i] + noise));
-    data[i + 1] = Math.min(255, Math.max(0, data[i + 1] + noise));
-    data[i + 2] = Math.min(255, Math.max(0, data[i + 2] + noise));
+const GRAIN_TILE = 256;
+
+const createGrainPattern = (ctx: CanvasRenderingContext2D, intensity: number): CanvasPattern | null => {
+  const tile = document.createElement('canvas');
+  tile.width = GRAIN_TILE;
+  tile.height = GRAIN_TILE;
+  const tileCtx = tile.getContext('2d');
+  if (!tileCtx) return null;
+
+  const image = tileCtx.createImageData(GRAIN_TILE, GRAIN_TILE);
+  const alpha = Math.round(intensity * 255);
+  for (let i = 0; i < image.data.length; i += 4) {
+    const value = Math.random() * 255;
+    image.data[i] = value;
+    image.data[i + 1] = value;
+    image.data[i + 2] = value;
+    image.data[i + 3] = alpha;
   }
-  ctx.putImageData(imgData, 0, 0);
+  tileCtx.putImageData(image, 0, 0);
+  return ctx.createPattern(tile, 'repeat');
+};
+
+const drawGrain = (ctx: CanvasRenderingContext2D, width: number, height: number, intensity = 0.04) => {
+  const pattern = createGrainPattern(ctx, intensity);
+  if (!pattern) return;
+  ctx.save();
+  ctx.globalCompositeOperation = 'overlay';
+  ctx.fillStyle = pattern;
+  ctx.fillRect(0, 0, width, height);
+  ctx.restore();
 };
 
 export const renderPhotostripToCanvas = async (options: RenderOptions): Promise<HTMLCanvasElement> => {
-  const { images, layout, theme, filter, brandName, customFooterText, location, dateStr } = options;
+  const { images, theme, filter, customFooterText } = options;
   const themeCfg = getThemeById(theme);
 
   // Custom Canva PNG frames have transparent photo slots. Paint each shot
@@ -91,88 +112,13 @@ export const renderPhotostripToCanvas = async (options: RenderOptions): Promise<
     if (filter === 'bw-film') drawGrain(ctx, canvas.width, canvas.height, 0.035);
     return canvas;
   }
-
-  const mainLabel = customFooterText?.trim() || themeCfg.barText || brandName;
-  const geo = getLayoutGeometry(layout);
-  const { width: W, height: H, footerY, footerHeight, cells } = geo;
-
-  const canvas = document.createElement('canvas');
-  canvas.width = W;
-  canvas.height = H;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('Could not get canvas context');
-
-  // Google Fonts load asynchronously; drawing earlier bakes in a fallback font.
-  if (document.fonts?.ready) await document.fonts.ready;
-
-  const [loadedImages] = await Promise.all([
-    Promise.all(images.map((src) => loadImage(src))),
-  ]);
-
-  const isDark = !isLightColor(themeCfg.bgColor);
-  const secondaryTextColor = isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.55)';
-
-  ctx.fillStyle = themeCfg.bgColor;
-  ctx.fillRect(0, 0, W, H);
-
-  for (let i = 0; i < cells.length && i < loadedImages.length; i++) {
-    const img = loadedImages[i];
-    const { x, y, w, h } = cells[i];
-    ctx.save();
-    applyCanvasFilter(ctx, filter);
-
-    const targetAspect = w / h;
-    const imgAspect = img.width / img.height;
-    let sx = 0, sy = 0, sw = img.width, sh = img.height;
-    if (imgAspect > targetAspect) {
-      sw = img.height * targetAspect;
-      sx = (img.width - sw) / 2;
-    } else {
-      sh = img.width / targetAspect;
-      sy = (img.height - sh) / 2;
-    }
-    ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
-    ctx.restore();
-
-    ctx.strokeStyle = themeCfg.slotBorderColor;
-    ctx.lineWidth = 3;
-    ctx.strokeRect(x, y, w, h);
-  }
-
-  ctx.save();
-  ctx.fillStyle = themeCfg.textColor;
-  ctx.font = `600 ${W >= 1800 ? 56 : 54}px "Playfair Display", "Cormorant Garamond", Georgia, serif`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(mainLabel.toUpperCase(), W / 2, footerY + footerHeight * 0.32);
-
-  ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(W / 2 - 120, footerY + footerHeight * 0.45);
-  ctx.lineTo(W / 2 + 120, footerY + footerHeight * 0.45);
-  ctx.stroke();
-
-  ctx.fillStyle = secondaryTextColor;
-  ctx.font = '500 24px "Inter", system-ui, sans-serif';
-  ctx.fillText(`${location.toUpperCase()}  •  ${dateStr.toUpperCase()}`, W / 2, footerY + footerHeight * 0.58);
-
-  if (H >= 3000) {
-    ctx.font = '400 19px "Inter", monospace';
-    ctx.fillStyle = secondaryTextColor;
-    ctx.fillText('ORIGINAL PHOTOSTRIP ARCHIVE', W / 2, footerY + footerHeight * 0.75);
-  }
-  ctx.restore();
-
-  if (filter === 'bw-film') drawGrain(ctx, W, H, 0.035);
-
-  return canvas;
+  throw new Error('Frame overlay or photos are missing');
 };
 
 export const downloadCanvas = (canvas: HTMLCanvasElement, filename: string) => {
   const link = document.createElement('a');
   link.download = filename;
-  link.href = canvas.toDataURL('image/png', 1.0);
+  link.href = withPngDpi(canvas.toDataURL('image/png'), 300);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -236,38 +182,14 @@ export const renderIndividualPhoto = async (
   return canvas;
 };
 
-export const printCanvas = (canvas: HTMLCanvasElement, copies = 1) => {
-  const dataUrl = canvas.toDataURL('image/png', 1.0);
+export const printCanvas = (canvas: HTMLCanvasElement, copies = 1, strings: { popupBlocked: string; printTitle: string }) => {
+  const dataUrl = withPngDpi(canvas.toDataURL('image/png'), 300);
   const printWindow = window.open('', '_blank');
   if (!printWindow) {
-    alert('Please allow popups to print your photo strip.');
+    alert(strings.popupBlocked);
     return;
   }
 
-  const total = Math.min(20, Math.max(1, copies));
-  const images = Array.from({ length: total }, () => `<img src="${dataUrl}" alt="poseclub studio photostrip" onload="if(--window.__pending===0){window.print();window.close();}" onerror="if(--window.__pending===0){window.print();window.close();}" />`).join('');
-  printWindow.document.write(`
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <title>Print Photostrip - poseclub studio</title>
-        <script>window.__pending=${total};<\/script>
-        <style>
-          @page { size: auto; margin: 0mm; }
-          body {
-            margin: 0; padding: 10px; display: flex; flex-wrap: wrap;
-            justify-content: center; align-items: center; gap: 10px;
-            min-height: 100vh; background: #fff;
-          }
-          img { max-width: 95vw; max-height: 95vh; object-fit: contain; }
-          @media print {
-            body { padding: 0; gap: 0; }
-            img { max-width: 100%; max-height: 100vh; }
-          }
-        </style>
-      </head>
-      <body>${images}</body>
-    </html>
-  `);
+  printWindow.document.write(buildPrintDocument(dataUrl, copies, strings));
   printWindow.document.close();
 };
