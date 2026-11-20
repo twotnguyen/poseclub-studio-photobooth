@@ -61,10 +61,12 @@ src/
 │   │   ├── FrameMockup.tsx     # Overlapping photostrip mockups for Step 1
 │   │   ├── ThemedFramePreview.tsx # Centered preview with < > carousel for Step 2
 │   │   ├── SoundEffects.ts     # Web Audio API shutter click and countdown beeps
+│   │   ├── BoothContext.tsx    # Shared booth state + camera lifecycle across step routes
+│   │   ├── steps/              # FrameSelect / ThemeSelect / Capture / Confirm pages
 │   │   └── CanvasExporter.ts   # 300 DPI high-res canvas renderer & print helper
 │   └── tabs/
 │       ├── HomeTab.tsx         # Route / & /home (Canva Slide 1 replica)
-│       ├── BoothTab.tsx        # Route /photobooth & /booth (4-step interactive booth)
+│       ├── BoothTab.tsx        # Route /photobooth/* (provider + nested step outlet)
 │       ├── StudioTab.tsx       # Route /studio (Fullerton showroom & Google Maps)
 │       └── GuideTab.tsx        # Route /how-to-use & /guide (3-step user guide)
 ```

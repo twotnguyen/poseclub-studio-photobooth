@@ -162,11 +162,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
                   <img
                     src={item.src}
                     alt={meta.title}
-                    className={`w-full h-full object-cover contrast-125 brightness-95 transition-all duration-300 ${
-                      selectedIdx === index
-                        ? 'grayscale-0'
-                        : 'grayscale group-hover:grayscale-0 group-hover:contrast-105'
-                    }`}
+                    className="w-full h-full object-cover transition-all duration-300"
                     loading="lazy"
                   />
                   <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">

@@ -39,14 +39,15 @@ export const Navigation: React.FC<NavigationProps> = ({
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [mobileMenuOpen]);
 
+  const rawPath = location.pathname;
   const canonicalPath =
-    location.pathname === '/home'
+    rawPath === '/home'
       ? '/'
-      : location.pathname === '/booth'
-        ? '/photobooth'
-        : location.pathname === '/guide'
+      : rawPath.startsWith('/booth')
+        ? `/photobooth${rawPath.slice('/booth'.length)}`
+        : rawPath === '/guide'
           ? '/how-to-use'
-          : location.pathname;
+          : rawPath;
 
   const tabs = [
     { path: '/', label: t.nav.home },

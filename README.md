@@ -28,7 +28,7 @@
 ### 🧭 2. Hệ thống Định tuyến Tab riêng biệt (Distinct URL Routing)
 Mỗi chức năng hoạt động trên một đường dẫn URL độc lập, hỗ trợ chia sẻ link trực tiếp và nút Back/Forward của trình duyệt:
 * `/` hoặc `/home`: **✦ HOME / TRANG CHỦ** — Màn hình chào đón theo thiết kế Canva Flow Frame (chữ ký `Poseclub`, camera doodle, nút `✦ START`).
-* `/photobooth`: **✦ PHOTOBOOTH / BUỒNG CHỤP** — Quy trình chụp ảnh 4 bước toàn diện.
+* `/photobooth`: **✦ PHOTOBOOTH / BUỒNG CHỤP** — redirect tới `/photobooth/frame`; 4 bước là 4 route riêng: `/frame` (chọn bố cục), `/theme` (khung + filter + chữ), `/capture` (camera/upload), `/confirm` (xác nhận + in/tải). `/booth` và `/booth/*` redirect về bước đầu. Trạng thái (khung, ảnh đã chụp, chữ tùy biến) được giữ qua `BoothProvider` khi đổi route.
 * `/studio`: **✦ FULLERTON STUDIO** — Thông tin địa chỉ showroom 1327 S Harbor Blvd, bản đồ Google Maps, giờ mở cửa.
 * `/how-to-use`: **✦ HOW TO USE / HƯỚNG DẪN** — 3 bước hướng dẫn trải nghiệm.
 
@@ -38,7 +38,7 @@ Mỗi chức năng hoạt động trên một đường dẫn URL độc lập, 
 * Ghi nhớ ngôn ngữ ưu tiên của người dùng qua `localStorage`.
 
 ### Studio gallery & frame catalog
-* Trang chủ có 6 ảnh studio: thumbnail đen trắng, bấm để xem ảnh màu; dùng phím trái/phải để chuyển ảnh và `Esc` để đóng.
+* Trang chủ có 6 ảnh studio hiển thị đầy đủ màu; bấm vào ảnh để phóng to, dùng phím trái/phải để chuyển ảnh và `Esc` để đóng.
 * Catalog tải 23 khung PNG và ZIP: `/exported-frames/index.html` (23 khung Style 1 custom). App dùng tổng cộng 72 khung PNG qua 6 style.
 * Catalog/ZIP đang phát hành là snapshot 23 khung Style 1 custom. `scripts/export_all_frames.py` chỉ tạo khung mẫu vào `scratch/export_all_frames/` để tham khảo, **không** ghi đè catalog đang dùng.
 * Các thư mục `all/`, `all-alpha/`, `6-frame/`, `6-frame-alpha/`, `frame/` là archive giữ locally và nằm trong `.gitignore`; clone mới chỉ cần `public/exported-frames/` và `exported-frames/style-1-polaroid/`.
@@ -47,15 +47,14 @@ Mỗi chức năng hoạt động trên một đường dẫn URL độc lập, 
 * **Bước 1 — Chọn kiểu bố cục (Select Frame Layout)**: 
 * 6 kiểu khung PNG (72 thiết kế): Style 1 — Polaroid 1 ảnh; Style 2 — dải 1×2; Style 3 — lưới 2×2; Style 4 — lưới 2×4 (8 ảnh); Style 5 — khung ngang 3×2 (6 ảnh); Style 6 — lưới 3×3 (9 ảnh).
 * Mỗi thiết kế là overlay PNG trong suốt: ảnh của khách được vẽ vào các ô đã đo, sau đó khung được vẽ lên trên để giữ sticker/tim/logo.
-* **Bước 2 — Chọn thiết kế theme & bộ lọc (Design & Filter)**:
+* **Bước 2 — Chọn thiết kế khung (Design)**:
   * Khung ảnh đặt ngay **chính giữa màn hình**, tự động thay đổi theo Style đã chọn ở Bước 1.
-  * Chọn khung bằng mũi tên **`<` / `>`** và dải chip: 23 khung Style 1 + 49 khung cho Style 2–6 (`/exported-frames/style-*/`).
-  * 3 Bộ lọc màu sắc: *B&W Contrast* (đen trắng điện ảnh tương phản cao), *B&W Film Grain* (hạt film hoài niệm), *Clean Natural* (màu trong sáng tự nhiên).
+  * Đổi khung bằng 2 nút **`<` / `>`** trên preview (23 khung Style 1 + 49 khung cho Style 2–6); danh sách chip `FRAME DESIGNS` đã được bỏ để gọn giao diện.
   * Ô nhập chữ in tùy biến (Custom Strip Text): chữ căn giữa trong khoảng trống bên dưới các ô ảnh, hiển thị ngay trên preview và được khắc vào ảnh export; màu chữ tự đổi theo nền khung.
 * **Bước 3 — Chụp ảnh trực tiếp (Live Camera & Real-time Progress)**:
   * **Khung dải ảnh bên trái**: Mỗi khi chụp xong một shot, ảnh vừa chụp xuất hiện ngay lập tức vào ô tương ứng trên khung để người chụp xem lại theo thời gian thực.
   * Hỗ trợ bấm chụp lại riêng từng tấm (Single-Shot Retake) trực tiếp trên dải ảnh bên trái.
-  * Khung camera live stream với chế độ lật gương (Mirror Mode), đếm ngược 3s/5s, chớp flash trắng và tiếng màn trập cơ học Web Audio API.
+  * Chọn bộ lọc ngay trên màn hình chụp: *B&W Contrast* (đen trắng điện ảnh tương phản cao), *B&W Film Grain* (hạt film hoài niệm), *Clean Natural* (màu trong sáng tự nhiên). Filter áp dụng cho video, preview và ảnh export.
   * Hỗ trợ tải ảnh có sẵn từ máy tính / điện thoại (Upload fallback) — phải chọn đúng số ảnh của khung, thứ tự ảnh được giữ nguyên.
 * **Bước 4 — Xác nhận, In & Xuất ảnh độ phân giải cao (Confirm & Export)**:
   * Tùy chọn số lượng bản in `- 1 +`.

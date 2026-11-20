@@ -5,6 +5,10 @@ import { Language } from './i18n/translations';
 import { HomeTab } from './components/tabs/HomeTab';
 import { BoothTab } from './components/tabs/BoothTab';
 import { StudioTab } from './components/tabs/StudioTab';
+import { FrameSelectStep } from './components/Photobooth/steps/FrameSelectStep';
+import { ThemeSelectStep } from './components/Photobooth/steps/ThemeSelectStep';
+import { CaptureStep } from './components/Photobooth/steps/CaptureStep';
+import { ConfirmStep } from './components/Photobooth/steps/ConfirmStep';
 import { GuideTab } from './components/tabs/GuideTab';
 import { sounds } from './components/Photobooth/SoundEffects';
 export default function App() {
@@ -67,13 +71,15 @@ export default function App() {
             element={
               <BoothTab language={language} onBackToHome={() => navigate('/')} />
             }
-          />
-          <Route
-            path="/booth"
-            element={
-              <BoothTab language={language} onBackToHome={() => navigate('/')} />
-            }
-          />
+          >
+            <Route index element={<Navigate to="frame" replace />} />
+            <Route path="frame" element={<FrameSelectStep />} />
+            <Route path="theme" element={<ThemeSelectStep />} />
+            <Route path="capture" element={<CaptureStep />} />
+            <Route path="confirm" element={<ConfirmStep />} />
+          </Route>
+          <Route path="/booth" element={<Navigate to="/photobooth/frame" replace />} />
+          <Route path="/booth/*" element={<Navigate to="/photobooth/frame" replace />} />
           <Route path="/studio" element={<StudioTab language={language} />} />
           <Route
             path="/how-to-use"
