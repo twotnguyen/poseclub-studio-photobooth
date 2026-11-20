@@ -21,8 +21,8 @@ export const FrameSelectStep: React.FC = () => {
           { id: 1, title: 'STYLE 1' },
           { id: 2, title: 'STYLE 2' },
           { id: 3, title: 'STYLE 3' },
-          { id: 4, title: 'STYLE 4' },
           { id: 5, title: 'STYLE 5' },
+          { id: 4, title: 'STYLE 4' },
           { id: 6, title: 'STYLE 6' },
         ].map((style) => {
           const isSelected = selectedStyle === style.id;

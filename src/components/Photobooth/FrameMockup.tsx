@@ -1,4 +1,5 @@
 import React from 'react';
+import { getThemesForStyle } from './FrameThemes';
 
 interface FrameMockupProps {
   styleId: number;
@@ -162,104 +163,36 @@ export const FrameMockup: React.FC<FrameMockupProps> = ({ styleId }) => {
       );
 
     case 4:
-      // STYLE 4: Two overlapping 4-photo classic vertical strips (1x4)
+    case 5: {
+      const theme = getThemesForStyle(styleId)[0];
+      const fw = theme.imageWidth ?? 1240;
+      const fh = theme.imageHeight ?? 1844;
+      const width = styleId === 4 ? 72 : 124;
       return (
         <div className="relative w-[150px] h-[116px] flex items-center justify-center">
-          {/* Strip behind */}
           <div
-            className="absolute shadow-md flex flex-col justify-between"
-            style={{
-              width: '46px',
-              height: '104px',
-              left: '26px',
-              top: '2px',
-              backgroundColor: frameBg,
-              border: frameBorder,
-              padding: '4px',
-            }}
+            className="relative shadow-md"
+            style={{ width, height: (width * fh) / fw, backgroundColor: frameBg, border: frameBorder }}
           >
-            <div className="flex flex-col gap-1">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="w-full h-[18px]" style={{ backgroundColor: photoBg, border: slotBorder }} />
-              ))}
-            </div>
-            <span className="font-script text-[7px] text-white text-center leading-none mt-1">studio</span>
-          </div>
-
-          {/* Strip in front */}
-          <div
-            className="absolute shadow-xl flex flex-col justify-between z-10"
-            style={{
-              width: '46px',
-              height: '104px',
-              left: '68px',
-              top: '12px',
-              backgroundColor: frameBg,
-              border: frameBorder,
-              padding: '4px',
-            }}
-          >
-            <div className="flex flex-col gap-1">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="w-full h-[18px]" style={{ backgroundColor: photoBg, border: slotBorder }} />
-              ))}
-            </div>
-            <span className="font-script text-[7px] text-white text-center leading-none mt-1">studio</span>
+            {(theme.slots ?? []).map((box, i) => (
+              <div
+                key={i}
+                className="absolute"
+                style={{
+                  left: `${(box.x / fw) * 100}%`,
+                  top: `${(box.y / fh) * 100}%`,
+                  width: `${(box.w / fw) * 100}%`,
+                  height: `${(box.h / fh) * 100}%`,
+                  backgroundColor: photoBg,
+                  border: slotBorder,
+                }}
+              />
+            ))}
+            <img src={theme.imagePath} alt="" className="absolute inset-0 w-full h-full pointer-events-none invert" />
           </div>
         </div>
       );
-
-    case 5:
-      // STYLE 5: Two overlapping 6-photo vertical cards (2x3)
-      return (
-        <div className="relative w-[150px] h-[116px] flex items-center justify-center">
-          {/* Card behind */}
-          <div
-            className="absolute shadow-md flex flex-col justify-between"
-            style={{
-              width: '62px',
-              height: '102px',
-              left: '20px',
-              top: '2px',
-              backgroundColor: frameBg,
-              border: frameBorder,
-              padding: '4px 4px 6px 4px',
-            }}
-          >
-            <div className="grid grid-cols-2 gap-1">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="h-[23px]" style={{ backgroundColor: photoBg, border: slotBorder }} />
-              ))}
-            </div>
-            <div className="text-center mt-1">
-              <span className="font-script text-[9px] text-white leading-none">studio</span>
-            </div>
-          </div>
-
-          {/* Card in front */}
-          <div
-            className="absolute shadow-xl flex flex-col justify-between z-10"
-            style={{
-              width: '62px',
-              height: '102px',
-              left: '66px',
-              top: '18px',
-              backgroundColor: frameBg,
-              border: frameBorder,
-              padding: '4px 4px 6px 4px',
-            }}
-          >
-            <div className="grid grid-cols-2 gap-1">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="h-[23px]" style={{ backgroundColor: photoBg, border: slotBorder }} />
-              ))}
-            </div>
-            <div className="text-center mt-1">
-              <span className="font-script text-[9px] text-white leading-none">studio</span>
-            </div>
-          </div>
-        </div>
-      );
+    }
 
     case 6:
       // STYLE 6: Two overlapping 9-photo cards (3x3)

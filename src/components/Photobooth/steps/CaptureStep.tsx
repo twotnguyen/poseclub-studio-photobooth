@@ -12,7 +12,7 @@ export const CaptureStep: React.FC = () => {
     uploadError, handleFileUpload, goTo, totalShots, cameraRatio, currentTheme, renderCustomFrame, getFilterStyle,
   } = useBooth();
   const isLandscapeFrame = (currentTheme.imageWidth ?? 1240) > (currentTheme.imageHeight ?? 1844);
-  const frameSizeClass = isLandscapeFrame ? 'w-[min(40vw,520px)]' : 'w-[400px]';
+  const frameSizeClass = isLandscapeFrame ? 'w-[min(43vw,560px)]' : 'w-[440px]';
 
   return (
     <div className="h-full flex flex-col pb-1">
@@ -34,13 +34,13 @@ export const CaptureStep: React.FC = () => {
           {renderCustomFrame('w-[120px]')}
         </div>
 
-        <div className="order-3 md:order-1 hidden md:flex relative md:-top-20 md:-ml-14 justify-self-center flex-col items-center justify-center">
+        <div className={`order-3 md:order-1 hidden md:flex relative md:-top-20 ${isLandscapeFrame ? 'md:-ml-10' : 'md:-ml-24'} justify-self-center flex-col items-center justify-center`}>
           {renderCustomFrame(frameSizeClass)}
         </div>
 
-        <div className="order-1 md:order-2 w-full md:w-auto justify-self-center flex flex-col items-center justify-center">
+        <div className="order-1 md:order-2 w-full md:w-auto md:translate-x-6 md:-translate-y-8 justify-self-center flex flex-col items-center justify-center">
           <div
-            className="relative w-full h-auto md:w-auto md:h-[min(50vh,430px)] overflow-hidden border-2 border-black bg-black shadow-2xl flex items-center justify-center"
+            className="relative w-full h-auto md:w-auto md:h-[min(46vh,400px)] overflow-hidden border-2 border-black bg-black shadow-2xl flex items-center justify-center"
             style={{ aspectRatio: cameraRatio }}
           >
             <video
