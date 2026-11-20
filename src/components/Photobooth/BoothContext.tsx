@@ -366,7 +366,7 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
         <img
           src={currentTheme.imagePath}
           alt={currentTheme.nameEn}
-          className={`block w-full h-auto ${shots.some(Boolean) ? 'pointer-events-none' : ''}`}
+          className={`relative z-10 block w-full h-auto ${shots.some(Boolean) ? 'pointer-events-none' : ''}`}
         />
       </div>
     );

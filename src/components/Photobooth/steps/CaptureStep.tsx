@@ -9,56 +9,59 @@ export const CaptureStep: React.FC = () => {
     t, filter, setFilter, videoRef, fileInputRef, cameraActive, cameraError, facingMode, isMirror, setIsMirror,
     countdownDuration, setCountdownDuration, countdown, isFlashing, toggleCameraFacing,
     startCamera, triggerCapture, shots, currentShotIndex, retakeIndex, isSessionActive,
-    uploadError, handleFileUpload, goTo, totalShots, cameraRatio, renderCustomFrame, getFilterStyle,
+    uploadError, handleFileUpload, goTo, totalShots, cameraRatio, currentTheme, renderCustomFrame, getFilterStyle,
   } = useBooth();
+  const isLandscapeFrame = (currentTheme.imageWidth ?? 1240) > (currentTheme.imageHeight ?? 1844);
+  const frameSizeClass = isLandscapeFrame ? 'w-[min(40vw,520px)]' : 'w-[400px]';
 
   return (
-    <div className="h-full flex flex-col justify-between pb-1">
-      <div className="text-center space-y-0.5 pt-0.5 sm:pt-1">
-        <h2 className="font-editorial text-xl sm:text-3xl text-black font-medium tracking-[0.12em] sm:tracking-[0.15em] uppercase">
+    <div className="h-full flex flex-col pb-1">
+      <div className="text-center space-y-0.5 pt-0.5 sm:pt-1 pb-0.5">
+        <h2 className="font-editorial text-xl text-black font-medium tracking-[0.12em] sm:tracking-[0.15em] uppercase">
           {t.step3Title}
         </h2>
-        <p className="text-[11px] text-black/50 font-mono tracking-wider">
+        <p className="text-[10px] text-black/50 font-mono tracking-wider">
           {retakeIndex !== null
             ? `${t.step3SubtitleRetake} 0${retakeIndex + 1}`
             : `${t.step3SubtitleNormal} 0${Math.min(currentShotIndex + 1, totalShots)}/0${totalShots}`}
         </p>
         {uploadError && <p className="text-[11px] text-red-600 font-mono">{uploadError}</p>}
-      </div>
-      <div className="w-full max-w-4xl mx-auto flex items-center justify-center gap-2 py-0.5">
-        <span className="hidden sm:inline text-[9px] font-mono uppercase tracking-widest text-black/50">
-          {t.filterLabel}
-        </span>
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          {t.filters.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setFilter(item.id as FilterType)}
-              className={`px-2 sm:px-3 py-1 rounded-full border text-[9px] sm:text-[11px] font-mono uppercase tracking-wider transition-all cursor-pointer ${
-                filter === item.id
-                  ? 'border-black bg-black text-white shadow-sm'
-                  : 'border-black/20 bg-stone-50 hover:border-black/50 text-black'
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
+
+        <div className="flex items-center justify-center gap-2 pt-0.5">
+          <span className="hidden sm:inline text-[9px] font-mono uppercase tracking-widest text-black/50">
+            {t.filterLabel}
+          </span>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {t.filters.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setFilter(item.id as FilterType)}
+                className={`px-2 sm:px-3 py-0 rounded-full border text-[9px] sm:text-[11px] font-mono uppercase tracking-wider transition-all cursor-pointer ${
+                  filter === item.id
+                    ? 'border-black bg-black text-white shadow-sm'
+                    : 'border-black/20 bg-stone-50 hover:border-black/50 text-black'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="flex-1 w-full max-w-5xl mx-auto my-auto flex flex-col md:grid md:grid-cols-12 gap-3 sm:gap-5 items-center px-2 sm:px-4 min-h-0">
+      <div className="flex-1 min-h-0 w-full flex flex-col md:grid md:grid-cols-[1fr_auto_1fr] items-center gap-2 px-2 sm:px-6">
         <div className="order-2 md:hidden w-full flex items-center justify-center gap-2 py-1 overflow-x-auto">
           {renderCustomFrame('w-[120px]')}
         </div>
 
-        <div className="order-3 md:order-1 hidden md:flex md:col-span-5 lg:col-span-4 flex-col items-center justify-center">
-          {renderCustomFrame('w-[190px] lg:w-[210px]')}
+        <div className="order-3 md:order-1 hidden md:flex relative md:-top-20 md:-ml-14 justify-self-center flex-col items-center justify-center">
+          {renderCustomFrame(frameSizeClass)}
         </div>
 
-        <div className="order-1 md:order-2 w-full md:col-span-7 lg:col-span-8 flex flex-col items-center justify-center">
+        <div className="order-1 md:order-2 w-full md:w-auto justify-self-center flex flex-col items-center justify-center">
           <div
-            className="relative rounded-2xl sm:rounded-3xl overflow-hidden border-2 border-black bg-black shadow-2xl flex items-center justify-center"
-            style={{ aspectRatio: cameraRatio, height: 'min(46vh, 370px)' }}
+            className="relative w-full h-auto md:w-auto md:h-[min(50vh,430px)] overflow-hidden border-2 border-black bg-black shadow-2xl flex items-center justify-center"
+            style={{ aspectRatio: cameraRatio }}
           >
             <video
               ref={videoRef}
@@ -128,17 +131,29 @@ export const CaptureStep: React.FC = () => {
             )}
           </div>
         </div>
+        <div className="hidden md:block order-4" aria-hidden="true" />
       </div>
 
-      <div className="w-full max-w-4xl mx-auto flex items-center justify-between pt-1 pb-1">
+      <div className="w-full max-w-4xl mx-auto grid grid-cols-[auto_1fr_auto] lg:grid-cols-3 items-center gap-2 py-0">
         <button
           onClick={() => goTo('theme')}
           disabled={isSessionActive}
-          className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-black/40 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-black disabled:opacity-40 cursor-pointer"
+          className="justify-self-center w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-black/40 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-black disabled:opacity-40 cursor-pointer"
           title={t.back}
         >
           <ArrowLeft className="w-4 h-4" />
         </button>
+
+        <div className="flex items-center justify-center gap-1.5">
+          {Array.from({ length: totalShots }, (_, idx) => (
+            <span
+              key={idx}
+              className={`h-1.5 w-1.5 rounded-full transition-colors ${
+                shots[idx] ? 'bg-black' : 'bg-black/15'
+              }`}
+            />
+          ))}
+        </div>
 
         <input
           type="file"
@@ -149,11 +164,11 @@ export const CaptureStep: React.FC = () => {
           className="hidden"
         />
 
-        <div className="flex items-center gap-3">
+        <div className="justify-self-center flex items-center gap-3">
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={isSessionActive}
-            className="px-4 py-2.5 rounded-full border border-black/30 hover:border-black text-xs font-mono text-black transition-colors flex items-center gap-1.5 cursor-pointer"
+            className="px-4 py-2 rounded-full border border-black/30 hover:border-black text-xs font-mono text-black transition-colors flex items-center gap-1.5 cursor-pointer"
           >
             <Upload className="w-3.5 h-3.5" />
             <span>{t.uploadBtn}</span>
@@ -162,7 +177,7 @@ export const CaptureStep: React.FC = () => {
           {isStripComplete(shots, totalShots) && !isSessionActive && (
             <button
               onClick={() => goTo('confirm')}
-              className="px-5 py-2.5 rounded-full border border-black/40 bg-white hover:bg-black hover:text-white text-xs font-mono tracking-wider uppercase transition-all shadow-sm cursor-pointer"
+              className="px-5 py-2 rounded-full border border-black/40 bg-white hover:bg-black hover:text-white text-xs font-mono tracking-wider uppercase transition-all shadow-sm cursor-pointer"
             >
               {t.viewStrip}
             </button>
@@ -171,7 +186,7 @@ export const CaptureStep: React.FC = () => {
           <button
             onClick={triggerCapture}
             disabled={isSessionActive || !cameraActive}
-            className="px-8 py-3 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-xs font-mono uppercase tracking-widest transition-all shadow-lg flex items-center gap-2 disabled:opacity-40 cursor-pointer hover:scale-105 active:scale-95"
+            className="px-8 py-2 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-xs font-mono uppercase tracking-widest transition-all shadow-lg flex items-center gap-2 disabled:opacity-40 cursor-pointer hover:scale-105 active:scale-95"
           >
             <Camera className="w-4 h-4" />
             <span>{isSessionActive ? t.capturing : t.captureBtn}</span>
