@@ -27,26 +27,6 @@ export const CaptureStep: React.FC = () => {
         </p>
         {uploadError && <p className="text-[11px] text-red-600 font-mono">{uploadError}</p>}
 
-        <div className="flex items-center justify-center gap-2 pt-0.5">
-          <span className="hidden sm:inline text-[9px] font-mono uppercase tracking-widest text-black/50">
-            {t.filterLabel}
-          </span>
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            {t.filters.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setFilter(item.id as FilterType)}
-                className={`px-2 sm:px-3 py-0 rounded-full border text-[9px] sm:text-[11px] font-mono uppercase tracking-wider transition-all cursor-pointer ${
-                  filter === item.id
-                    ? 'border-black bg-black text-white shadow-sm'
-                    : 'border-black/20 bg-stone-50 hover:border-black/50 text-black'
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
 
       <div className="flex-1 min-h-0 w-full flex flex-col md:grid md:grid-cols-[1fr_auto_1fr] items-center gap-2 px-2 sm:px-6">
@@ -130,6 +110,28 @@ export const CaptureStep: React.FC = () => {
               </div>
             )}
           </div>
+
+        <div className="mt-3 sm:mt-4 flex flex-col items-center gap-1.5 sm:gap-2">
+          <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-[0.2em] text-black/50">
+            {t.filterLabel}
+          </span>
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+            {t.filters.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setFilter(item.id as FilterType)}
+                aria-pressed={filter === item.id}
+                className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full border text-[11px] sm:text-[13px] font-mono uppercase tracking-wider transition-all cursor-pointer ${
+                  filter === item.id
+                    ? 'border-2 border-black bg-black text-white shadow-sm'
+                    : 'border-black/25 bg-white hover:border-black text-black'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </div>
         </div>
         <div className="hidden md:block order-4" aria-hidden="true" />
       </div>
@@ -164,11 +166,11 @@ export const CaptureStep: React.FC = () => {
           className="hidden"
         />
 
-        <div className="justify-self-center flex items-center gap-3">
+        <div className="justify-self-center flex items-center gap-2 sm:gap-3">
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={isSessionActive}
-            className="px-4 py-2 rounded-full border border-black/30 hover:border-black text-xs font-mono text-black transition-colors flex items-center gap-1.5 cursor-pointer"
+            className="px-3 sm:px-4 py-2 rounded-full border border-black/30 hover:border-black text-[10px] sm:text-xs font-mono text-black transition-colors flex items-center gap-1.5 cursor-pointer"
           >
             <Upload className="w-3.5 h-3.5" />
             <span>{t.uploadBtn}</span>
@@ -186,7 +188,7 @@ export const CaptureStep: React.FC = () => {
           <button
             onClick={triggerCapture}
             disabled={isSessionActive || !cameraActive}
-            className="px-8 py-2 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-xs font-mono uppercase tracking-widest transition-all shadow-lg flex items-center gap-2 disabled:opacity-40 cursor-pointer hover:scale-105 active:scale-95"
+            className="px-5 sm:px-8 py-2 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-[10px] sm:text-xs font-mono uppercase tracking-wider sm:tracking-widest transition-all shadow-lg flex items-center gap-1.5 sm:gap-2 disabled:opacity-40 cursor-pointer hover:scale-105 active:scale-95"
           >
             <Camera className="w-4 h-4" />
             <span>{isSessionActive ? t.capturing : t.captureBtn}</span>

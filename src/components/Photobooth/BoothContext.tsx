@@ -114,7 +114,7 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
   const styleThemes = getThemesForStyle(selectedStyle);
   const [theme, setTheme] = useState<FrameTheme>(() => getThemesForStyle(4)[0].id);
   const currentTheme = styleThemes.find((item) => item.id === theme) ?? styleThemes[0];
-  const [filter, setFilter] = useState<FilterType>('bw-contrast');
+  const [filter, setFilter] = useState<FilterType>('natural');
   const [customText, setCustomText] = useState<string>('');
   const [printCopies, setPrintCopies] = useState<number>(1);
 
