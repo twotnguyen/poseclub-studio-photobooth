@@ -7,7 +7,7 @@ import { getFrameCaptionBox, captionTextColor } from './frameCaption';
 interface ThemedFramePreviewProps {
   theme: FrameTheme;
   onThemeChange: (theme: FrameTheme) => void;
-  selectedStyle: number;
+  selectedStyle: number | null;
   customText: string;
   previousThemeLabel: string;
   nextThemeLabel: string;
@@ -21,7 +21,7 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
   previousThemeLabel,
   nextThemeLabel,
 }) => {
-  const themes = CUSTOM_FRAMES.filter((t) => t.style === selectedStyle);
+  const themes = CUSTOM_FRAMES.filter((t) => t.style === (selectedStyle ?? 1));
   const effectiveTheme = themes.find((t) => t.id === theme) ?? themes[0];
   const currentTheme = getThemeById(effectiveTheme?.id ?? theme);
 

@@ -21,8 +21,8 @@ export const FrameSelectStep: React.FC = () => {
           { id: 1, title: 'STYLE 1' },
           { id: 2, title: 'STYLE 2' },
           { id: 3, title: 'STYLE 3' },
-          { id: 5, title: 'STYLE 5' },
           { id: 4, title: 'STYLE 4' },
+          { id: 5, title: 'STYLE 5' },
           { id: 6, title: 'STYLE 6' },
         ].map((style) => {
           const isSelected = selectedStyle === style.id;
@@ -32,8 +32,8 @@ export const FrameSelectStep: React.FC = () => {
               onClick={() => selectStyle(style.id)}
               className={`relative p-1.5 sm:p-3.5 rounded-[18px] sm:rounded-[26px] bg-white transition-all flex flex-col items-center justify-between text-center group cursor-pointer ${
                 isSelected
-                  ? 'border-2 border-black shadow-xl scale-105 ring-2 ring-black/15 bg-black/[0.015]'
-                  : 'border border-black hover:border-2 hover:border-black hover:shadow-md'
+                  ? 'border border-black shadow-xl scale-105 ring-2 ring-black/20 bg-black/[0.015]'
+                  : 'border border-black hover:shadow-md hover:ring-1 hover:ring-black/30'
               }`}
             >
               <p className="font-serif text-xs sm:text-sm tracking-[0.2em] uppercase font-medium text-black pt-0.5">
@@ -72,7 +72,8 @@ export const FrameSelectStep: React.FC = () => {
 
         <button
           onClick={() => goTo('theme')}
-          className="px-5 sm:px-8 py-2 sm:py-3 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-[11px] sm:text-xs font-mono uppercase tracking-widest transition-all shadow-md flex items-center gap-1.5 sm:gap-2 cursor-pointer hover:scale-105 active:scale-95"
+          disabled={selectedStyle === null}
+          className="px-5 sm:px-8 py-2 sm:py-3 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-[11px] sm:text-xs font-mono uppercase tracking-widest transition-all shadow-md flex items-center gap-1.5 sm:gap-2 cursor-pointer hover:scale-105 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
         >
           <span>{t.next}</span>
           <span>✦</span>

@@ -31,7 +31,7 @@ interface BoothContextValue {
   goTo: (step: BoothStep) => void;
   backToHome: () => void;
 
-  selectedStyle: number;
+  selectedStyle: number | null;
   selectStyle: (id: number) => void;
   theme: FrameTheme;
   setTheme: (theme: FrameTheme) => void;
@@ -108,10 +108,11 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
 
   const goTo = useCallback((next: BoothStep) => navigate(BOOTH_STEP_PATH[next]), [navigate]);
 
-  const [selectedStyle, setSelectedStyle] = useState<number>(4);
-  const layout = getLayoutForStyle(selectedStyle);
-  const styleThemes = getThemesForStyle(selectedStyle);
-  const [theme, setTheme] = useState<FrameTheme>(() => getThemesForStyle(4)[0].id);
+  const [selectedStyle, setSelectedStyle] = useState<number | null>(null);
+  const activeStyle = selectedStyle ?? 1;
+  const layout = getLayoutForStyle(activeStyle);
+  const styleThemes = getThemesForStyle(activeStyle);
+  const [theme, setTheme] = useState<FrameTheme>(() => getThemesForStyle(1)[0].id);
   const currentTheme = styleThemes.find((item) => item.id === theme) ?? styleThemes[0];
   const [filter, setFilter] = useState<FilterType>('natural');
   const [customText, setCustomText] = useState<string>('');
