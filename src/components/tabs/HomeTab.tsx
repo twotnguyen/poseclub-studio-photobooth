@@ -102,8 +102,8 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
           {t.studio}
         </p>
 
-        {/* Large Signature Script */}
-        <h1 className="font-script text-6xl sm:text-8xl md:text-9xl text-black leading-none drop-shadow-sm py-1 sm:py-2">
+        {/* Large Signature Wordmark */}
+        <h1 className="font-signature text-6xl sm:text-8xl md:text-9xl text-black leading-none drop-shadow-sm py-1 sm:py-2">
           Poseclub
         </h1>
 

@@ -26,6 +26,7 @@ export default {
         serif: ['"Playfair Display"', 'Georgia', 'serif'],
         editorial: ['"Cormorant Garamond"', 'Didot', 'serif'],
         script: ['"Alex Brush"', '"Pinyon Script"', 'cursive'],
+        signature: ['"Pinyon Script"', 'cursive'],
         sans: ['"Inter"', 'system-ui', '-apple-system', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'monospace'],
       },
