@@ -103,8 +103,7 @@ src/
    * **Left Column**: Live Photostrip Progress Preview displaying the exact chosen style and theme. When a shot is taken, the photo immediately appears in the corresponding slot with the active filter.
    * **Right Column**: Live video viewfinder with countdown overlay, white flash animation (220ms), and shutter sound.
 3. **Canvas 300 DPI Export**:
-   * 72 khung PNG là nguồn kích thước: style 1/2/3/4/6 xuất ở 1240 x 1844 px; style 5 (ngang) xuất ở 1844 x 1240 px.
-   * Fallback CSS (khi không có PNG) giữ bố cục in cũ: 1200 x 3600 (1x4), 1800 x 2400 (2x2/2x3/3x3).
+   * Tất cả 72 khung đã đăng ký đều có overlay PNG; ảnh xuất dùng đúng kích thước pixel của PNG nguồn: style 1/2/3/4/6 xuất ở 1240 x 1844 px; style 5 (ngang) xuất ở 1844 x 1240 px.
    * Card ảnh đơn lẻ: 1200 x 1500 px. Mọi PNG xuất đều mang chunk pHYs 300 DPI (`pngDpi.ts`); khổ giấy do hộp thoại in chọn.
    * In ấn qua `@media print { @page { size: auto; margin: 0; } }`.
 

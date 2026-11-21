@@ -1,22 +1,5 @@
 import type { LayoutType } from './types';
 
-export interface PhotoCell {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-}
-
-export interface LayoutGeometry {
-  width: number;
-  height: number;
-  rows: number;
-  cols: number;
-  footerY: number;
-  footerHeight: number;
-  cells: PhotoCell[];
-}
-
 export const LAYOUT_SPECS: Record<LayoutType, { width: number; height: number; slots: number; rows: number; cols: number }> = {
   polaroid: { width: 1200, height: 1500, slots: 1, rows: 1, cols: 1 },
   'strip-1x2': { width: 1200, height: 3600, slots: 2, rows: 2, cols: 1 },
@@ -39,24 +22,3 @@ export const getLayoutForStyle = (styleId: number): LayoutType =>
   STYLE_LAYOUTS[styleId - 1] ?? 'strip-1x4';
 
 export const getLayoutSpec = (layout: LayoutType) => LAYOUT_SPECS[layout];
-
-export const getLayoutGeometry = (layout: LayoutType): LayoutGeometry => {
-  const { width, height, slots, rows, cols } = LAYOUT_SPECS[layout];
-  const padX = cols === 1 ? 80 : 100;
-  const padTop = cols === 1 ? 80 : 100;
-  const gap = cols === 1 ? 45 : 50;
-  const footerHeight = height >= 3000 ? 440 : 360;
-  const footerY = height - footerHeight;
-
-  const cellW = (width - padX * 2 - gap * (cols - 1)) / cols;
-  const cellH = (footerY - padTop - gap * (rows - 1)) / rows;
-
-  const cells: PhotoCell[] = Array.from({ length: slots }, (_, i) => ({
-    x: padX + (i % cols) * (cellW + gap),
-    y: padTop + Math.floor(i / cols) * (cellH + gap),
-    w: cellW,
-    h: cellH,
-  }));
-
-  return { width, height, rows, cols, footerY, footerHeight, cells };
-};

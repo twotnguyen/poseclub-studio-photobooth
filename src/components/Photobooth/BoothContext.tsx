@@ -6,7 +6,7 @@ import { getLayoutForStyle, getLayoutSpec } from './layouts';
 import { getThemesForStyle, type ThemeConfig } from './FrameThemes';
 import { getFilterCss } from './color';
 import { buildUploadedShots } from './upload';
-import { isStripComplete } from './strip';
+import { shouldRestartCapture, isStripComplete } from './strip';
 import { sounds } from './SoundEffects';
 import {
   downloadCanvas,
@@ -39,7 +39,6 @@ interface BoothContextValue {
   setFilter: (filter: FilterType) => void;
   currentTheme: ThemeConfig;
   styleThemes: ThemeConfig[];
-  availableThemes: ThemeConfig[];
   layout: LayoutType;
   totalShots: number;
   cameraRatio: string;
@@ -153,11 +152,6 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
     ? `${currentTheme.slots[0].w} / ${currentTheme.slots[0].h}`
     : '4 / 3';
 
-  const selectStyle = useCallback((id: number) => {
-    setSelectedStyle(id);
-    setTheme(getThemesForStyle(id)[0].id);
-  }, []);
-
   const clearCaptureTimers = useCallback(() => {
     if (countdownTimerRef.current !== null) {
       clearInterval(countdownTimerRef.current);
@@ -226,12 +220,10 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
   }, [step, startCamera, stopCamera]);
 
   const toggleCameraFacing = useCallback(() => {
-    setFacingMode((prev) => {
-      const next = prev === 'user' ? 'environment' : 'user';
-      setIsMirror(next === 'user');
-      return next;
-    });
-  }, []);
+    const next = facingMode === 'user' ? 'environment' : 'user';
+    setFacingMode(next);
+    setIsMirror(next === 'user');
+  }, [facingMode]);
 
   const snapFrame = useCallback((): string | null => {
     const video = videoRef.current;
@@ -250,15 +242,14 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
   }, [isMirror]);
 
   const finishShot = useCallback((photoData: string) => {
-    const retakeIdx = retakeRef.current;
-    const target = retakeIdx ?? shotIndexRef.current;
+    const target = retakeRef.current ?? shotIndexRef.current;
     setShots((prev) => {
       const next = [...prev];
       next[target] = photoData;
       return next;
     });
 
-    if (retakeIdx !== null) {
+    if (retakeRef.current !== null) {
       retakeRef.current = null;
       setRetakeIndex(null);
       sessionRef.current = false;
@@ -267,9 +258,10 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
       return;
     }
 
-    if (shotIndexRef.current < totalShots - 1) {
-      shotIndexRef.current += 1;
-      setCurrentShotIndex(shotIndexRef.current);
+    const nextIndex = target + 1;
+    if (nextIndex < totalShots) {
+      shotIndexRef.current = nextIndex;
+      setCurrentShotIndex(nextIndex);
       sessionRef.current = false;
       setIsSessionActive(false);
       scheduleTimeout(() => captureFnRef.current(), 1000);
@@ -278,10 +270,20 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
       setIsSessionActive(false);
       scheduleTimeout(() => goTo('confirm'), 600);
     }
-  }, [goTo, totalShots, scheduleTimeout]);
+  }, [shots, goTo, totalShots, scheduleTimeout]);
+
+  const startNewStrip = useCallback(() => {
+    shotIndexRef.current = 0;
+    retakeRef.current = null;
+    sessionRef.current = false;
+    setCurrentShotIndex(0);
+    setRetakeIndex(null);
+    setShots([]);
+  }, []);
 
   const triggerCapture = useCallback(() => {
     if (sessionRef.current || !streamRef.current) return;
+    if (shouldRestartCapture(shots, totalShots, retakeRef.current)) startNewStrip();
     sessionRef.current = true;
     setIsSessionActive(true);
     let secondsLeft = countdownDuration;
@@ -311,7 +313,7 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
         setIsSessionActive(false);
       }
     }, 1000);
-  }, [countdownDuration, snapFrame, finishShot, scheduleTimeout]);
+  }, [countdownDuration, snapFrame, finishShot, scheduleTimeout, shots, totalShots, startNewStrip]);
 
   captureFnRef.current = triggerCapture;
 
@@ -327,14 +329,11 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
     goTo('capture');
   }, [goTo]);
 
-  const startNewStrip = useCallback(() => {
-    shotIndexRef.current = 0;
-    retakeRef.current = null;
-    sessionRef.current = false;
-    setCurrentShotIndex(0);
-    setRetakeIndex(null);
-    setShots([]);
-  }, []);
+  const selectStyle = useCallback((id: number) => {
+    startNewStrip();
+    setSelectedStyle(id);
+    setTheme(getThemesForStyle(id)[0].id);
+  }, [startNewStrip]);
 
   const getFilterStyle = useCallback(
     (): React.CSSProperties => ({ filter: getFilterCss(filter) }),
@@ -379,6 +378,11 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
       e.target.value = '';
       return;
     }
+    if (files.some((file) => !file.type.startsWith('image/'))) {
+      setUploadError(t.uploadFailed);
+      e.target.value = '';
+      return;
+    }
     setUploadError(null);
     try {
       const dataUrls = await Promise.all(files.map((file) => new Promise<string>((resolve, reject) => {
@@ -413,16 +417,12 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
     try {
       const canvas = await renderPhotostripToCanvas({
         images: shots,
-        layout,
         theme: currentTheme.id,
         filter,
-        brandName: 'poseclub studio',
         customFooterText: customText.trim(),
-        location: 'Fullerton, CA',
-        dateStr: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
       });
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-      downloadCanvas(canvas, `poseclub-photostrip-${timestamp}.png`);
+      await downloadCanvas(canvas, `poseclub-photostrip-${timestamp}.png`);
       setDownloadSuccess(true);
       setTimeout(() => setDownloadSuccess(false), 2500);
     } catch (err) {
@@ -431,7 +431,7 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
     } finally {
       setIsExporting(false);
     }
-  }, [shots, totalShots, t, layout, currentTheme.id, filter, customText]);
+  }, [shots, totalShots, t, currentTheme.id, filter, customText]);
 
   const handleDownloadSingles = useCallback(async () => {
     if (!isStripComplete(shots, totalShots)) {
@@ -447,7 +447,7 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
           customText.trim() || 'poseclub studio',
           new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
         );
-        downloadCanvas(canvas, `poseclub-individual-0${i + 1}-${Date.now()}.png`);
+        await downloadCanvas(canvas, `poseclub-individual-0${i + 1}-${Date.now()}.png`);
         await new Promise((resolve) => setTimeout(resolve, 250));
       }
       setSinglesDownloaded(true);
@@ -465,35 +465,37 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
       if (!isExporting) setExportError(t.stripIncomplete);
       return;
     }
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      setExportError(t.printPopupBlocked);
+      return;
+    }
     setIsExporting(true);
     setExportError(null);
     try {
       const canvas = await renderPhotostripToCanvas({
         images: shots,
-        layout,
         theme: currentTheme.id,
         filter,
-        brandName: 'poseclub studio',
         customFooterText: customText.trim(),
-        location: 'Fullerton, CA',
-        dateStr: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
       });
-      printCanvas(canvas, printCopies, {
+      await printCanvas(canvas, printCopies, {
         popupBlocked: t.printPopupBlocked,
         printTitle: t.printDocumentTitle,
-      });
+      }, printWindow);
     } catch (err) {
+      printWindow.close();
       console.error(err);
       setExportError(t.exportError);
     } finally {
       setIsExporting(false);
     }
-  }, [isExporting, shots, totalShots, t, layout, currentTheme.id, filter, customText, printCopies]);
+  }, [isExporting, shots, totalShots, t, currentTheme.id, filter, customText, printCopies]);
 
   const value: BoothContextValue = {
     language, t, step, goTo, backToHome: onBackToHome,
     selectedStyle, selectStyle, theme, setTheme, filter, setFilter,
-    currentTheme, styleThemes, availableThemes: styleThemes, layout, totalShots, cameraRatio,
+    currentTheme, styleThemes, layout, totalShots, cameraRatio,
     customText, setCustomText, printCopies, setPrintCopies,
     videoRef, fileInputRef, cameraActive, cameraError, facingMode, isMirror, setIsMirror,
     countdownDuration, setCountdownDuration, countdown, isFlashing, toggleCameraFacing,

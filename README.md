@@ -58,7 +58,7 @@ Mỗi chức năng hoạt động trên một đường dẫn URL độc lập, 
   * Hỗ trợ tải ảnh có sẵn từ máy tính / điện thoại (Upload fallback) — phải chọn đúng số ảnh của khung, thứ tự ảnh được giữ nguyên.
 * **Bước 4 — Xác nhận, In & Xuất ảnh độ phân giải cao (Confirm & Export)**:
   * Tùy chọn số lượng bản in `- 1 +`.
-  * **✦ Tải dải ảnh High-Res (PNG) ✦**: Render bằng Canvas — xuất theo kích thước gốc của khung PNG đang chọn (ví dụ 1240×1844 px); khi không dùng khung PNG thì dùng bố cục dự phòng 1200×3600 / 1800×2400 px. Mọi PNG đều mang metadata 300 DPI (chunk `pHYs`); khổ giấy vẫn do người dùng chọn trong hộp thoại in.
+  * **✦ Tải dải ảnh High-Res (PNG) ✦**: Render bằng Canvas — tất cả 72 khung đã đăng ký đều có overlay PNG và ảnh xuất dùng đúng kích thước pixel gốc của PNG đó (ví dụ 1240×1844 px). Mọi PNG đều mang metadata 300 DPI (chunk `pHYs`); khổ giấy vẫn do người dùng chọn trong hộp thoại in.
   * **✦ Tải từng ảnh đơn lẻ ✦**: Tải mỗi tấm ảnh thành một card polaroid riêng biệt.
   * **✦ PRINT NGAY ✦**: Mở hộp thoại in riêng với `@page { margin: 0 }`; khổ giấy do người dùng chọn trong trình duyệt.
 

@@ -36,3 +36,6 @@ all-alpha/
 6-frame/
 6-frame-alpha/
 frame/
+
+# Archived frame exports kept locally only; the app loads public/exported-frames/
+/exported-frames/

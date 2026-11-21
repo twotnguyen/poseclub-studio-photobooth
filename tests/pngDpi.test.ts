@@ -2,11 +2,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { withPngDpi } from '../src/components/Photobooth/pngDpi.ts';
 
-const ONE_PIXEL_PNG =
-  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8AAAwAB/AF+pZUeAAAAAElFTkSuQmCC';
+const ONE_PIXEL_PNG = new Uint8Array(
+  Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8AAAwAB/AF+pZUeAAAAAElFTkSuQmCC',
+    'base64'
+  )
+);
 
-function parseChunks(dataUrl: string): { type: string; data: Buffer }[] {
-  const bytes = Buffer.from(dataUrl.slice(dataUrl.indexOf(',') + 1), 'base64');
+function parseChunks(input: Uint8Array): { type: string; data: Buffer }[] {
+  const bytes = Buffer.from(input);
   assert.equal(bytes.subarray(0, 8).toString('hex'), '89504e470d0a1a0a');
   const chunks: { type: string; data: Buffer }[] = [];
   let offset = 8;

@@ -35,7 +35,7 @@ export const buildPrintDocument = (
       const total=${total};
       let pending = total;
       let loaded = 0;
-      const finish = () => { window.print(); window.close(); };
+      const finish = () => { if (src.startsWith('blob:')) URL.revokeObjectURL(src); window.print(); window.close(); };
       for (let i = 0; i < total; i++) {
         const img = document.createElement('img');
         img.alt = 'poseclub studio photostrip';

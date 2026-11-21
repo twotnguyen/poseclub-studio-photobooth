@@ -16,24 +16,8 @@ const crc32 = (bytes: Uint8Array): number => {
   return (crc ^ 0xffffffff) >>> 0;
 };
 
-const decodeBase64 = (dataUrl: string): Uint8Array => {
-  const binary = atob(dataUrl.slice(dataUrl.indexOf(',') + 1));
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-  return bytes;
-};
-
-const encodeBase64 = (bytes: Uint8Array): string => {
-  let binary = '';
-  for (let i = 0; i < bytes.length; i += 0x8000) {
-    binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
-  }
-  return btoa(binary);
-};
-
 /** Adds a pHYs chunk so printers read the exported PNG at the requested DPI. */
-export const withPngDpi = (dataUrl: string, dpi: number): string => {
-  const bytes = decodeBase64(dataUrl);
+export const withPngDpi = (bytes: Uint8Array, dpi: number): Uint8Array<ArrayBuffer> => {
   const ihdrLength = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint32(8);
   const insertAt = 8 + 12 + ihdrLength;
 
@@ -50,5 +34,5 @@ export const withPngDpi = (dataUrl: string, dpi: number): string => {
   output.set(bytes.subarray(0, insertAt), 0);
   output.set(phys, insertAt);
   output.set(bytes.subarray(insertAt), insertAt + phys.length);
-  return `data:image/png;base64,${encodeBase64(output)}`;
+  return output;
 };

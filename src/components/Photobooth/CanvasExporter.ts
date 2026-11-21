@@ -1,4 +1,4 @@
-import type { FilterType, LayoutType, FrameTheme } from './types';
+import type { FilterType, FrameTheme } from './types';
 import { getThemeById } from './FrameThemes';
 import { getFilterCss } from './color';
 import { getFrameCaptionBox, captionTextColor } from './frameCaption';
@@ -7,13 +7,9 @@ import { buildPrintDocument } from './printDocument';
 
 interface RenderOptions {
   images: string[];
-  layout: LayoutType;
   theme: FrameTheme;
   filter: FilterType;
-  brandName: string;
   customFooterText?: string;
-  location: string;
-  dateStr: string;
 }
 
 export const loadImage = (src: string): Promise<HTMLImageElement> => {
@@ -115,13 +111,24 @@ export const renderPhotostripToCanvas = async (options: RenderOptions): Promise<
   throw new Error('Frame overlay or photos are missing');
 };
 
-export const downloadCanvas = (canvas: HTMLCanvasElement, filename: string) => {
+const toDpiPngBlob = async (canvas: HTMLCanvasElement): Promise<Blob> => {
+  const blob = await new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob((result) => (result ? resolve(result) : reject(new Error('PNG export failed'))), 'image/png');
+  });
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+  const out = withPngDpi(bytes, 300);
+  return new Blob([out], { type: 'image/png' });
+};
+
+export const downloadCanvas = async (canvas: HTMLCanvasElement, filename: string): Promise<void> => {
+  const url = URL.createObjectURL(await toDpiPngBlob(canvas));
   const link = document.createElement('a');
   link.download = filename;
-  link.href = withPngDpi(canvas.toDataURL('image/png'), 300);
+  link.href = url;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(url), 0);
 };
 
 export const renderIndividualPhoto = async (
@@ -179,17 +186,17 @@ export const renderIndividualPhoto = async (
   ctx.font = '500 20px "Inter", sans-serif';
   ctx.fillText(`SHOT ${String(index + 1).padStart(2, '0')}  •  ${dateStr.toUpperCase()}`, W / 2, 1400);
 
+  if (filter === 'bw-film') drawGrain(ctx, W, H, 0.035);
   return canvas;
 };
 
-export const printCanvas = (canvas: HTMLCanvasElement, copies = 1, strings: { popupBlocked: string; printTitle: string }) => {
-  const dataUrl = withPngDpi(canvas.toDataURL('image/png'), 300);
-  const printWindow = window.open('', '_blank');
-  if (!printWindow) {
-    alert(strings.popupBlocked);
-    return;
-  }
-
-  printWindow.document.write(buildPrintDocument(dataUrl, copies, strings));
+export const printCanvas = async (
+  canvas: HTMLCanvasElement,
+  copies = 1,
+  strings: { popupBlocked: string; printTitle: string },
+  printWindow: Window
+): Promise<void> => {
+  const url = URL.createObjectURL(await toDpiPngBlob(canvas));
+  printWindow.document.write(buildPrintDocument(url, copies, strings));
   printWindow.document.close();
 };

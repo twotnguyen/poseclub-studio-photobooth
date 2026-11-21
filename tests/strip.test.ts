@@ -1,6 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { isStripComplete } from '../src/components/Photobooth/strip.ts';
+import { shouldRestartCapture, isStripComplete } from '../src/components/Photobooth/strip.ts';
+
+test('shouldRestartCapture only restarts a complete strip without a retake', () => {
+  assert.equal(shouldRestartCapture(['a', 'b', 'c'], 3, null), true);
+  assert.equal(shouldRestartCapture(['a', '', 'c'], 3, null), false);
+  assert.equal(shouldRestartCapture(['a', 'b', 'c'], 3, 2), false);
+});
 
 test('a strip with one missing shot is incomplete', () => {
   assert.equal(isStripComplete(['a', '', 'c'], 3), false);
