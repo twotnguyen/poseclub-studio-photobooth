@@ -102,9 +102,13 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
           {t.studio}
         </p>
 
-        {/* Large Signature Wordmark */}
-        <h1 className="font-signature text-6xl sm:text-8xl md:text-9xl text-black leading-none drop-shadow-sm py-1 sm:py-2">
-          Poseclub
+        {/* Exact Canva wordmark artwork */}
+        <h1 className="py-1 sm:py-2">
+          <img
+            src="/images/poseclub-wordmark.png"
+            alt="Poseclub"
+            className="mx-auto h-auto w-[min(78vw,620px)] drop-shadow-sm"
+          />
         </h1>
 
         {/* Action Button: ✦ START */}
