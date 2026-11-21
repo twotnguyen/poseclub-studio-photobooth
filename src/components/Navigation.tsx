@@ -58,17 +58,17 @@ export const Navigation: React.FC<NavigationProps> = ({
 
   return (
     <>
-      <header className="h-16 border-b border-black/10 bg-[#FAF8F5]/95 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between select-none z-50 sticky top-0">
+      <header className="h-16 border-b border-black/10 bg-[#FAF8F5]/95 backdrop-blur-md px-3 sm:px-6 flex items-center justify-between select-none z-50 sticky top-0">
         {/* Brand Logo */}
         <Link
           to="/"
           onClick={() => setMobileMenuOpen(false)}
-          className="flex items-center gap-1.5 sm:gap-2 group text-left cursor-pointer"
+          className="flex items-center gap-1 sm:gap-2 group text-left cursor-pointer min-h-11"
         >
           <span className="text-[10px] sm:text-[11px] font-mono tracking-widest text-black/60 uppercase">
             STUDIO
           </span>
-          <span className="font-script text-2xl sm:text-3xl text-black -mb-1 group-hover:opacity-75 transition-opacity">
+          <span className="font-script text-xl sm:text-3xl text-black -mb-1 group-hover:opacity-75 transition-opacity">
             Poseclub
           </span>
         </Link>
@@ -98,12 +98,12 @@ export const Navigation: React.FC<NavigationProps> = ({
         </nav>
 
         {/* Right Controls */}
-        <div className="flex items-center space-x-2 sm:space-x-2.5">
+        <div className="flex items-center space-x-1 sm:space-x-2.5">
           {/* Language Switcher Pill */}
-          <div className="flex items-center rounded-full border border-black/20 bg-white/70 p-0.5 shadow-sm text-xs font-mono">
+          <div className="flex items-center rounded-full border border-black/20 bg-white/70 p-0.5 shadow-sm text-xs font-mono shrink-0">
             <button
               onClick={() => onToggleLanguage('vi')}
-              className={`px-2 sm:px-2.5 py-1 rounded-full transition-all text-[11px] sm:text-xs ${
+              className={`w-11 h-11 shrink-0 rounded-full transition-all text-xs sm:text-sm ${
                 language === 'vi'
                   ? 'bg-black text-white font-bold'
                   : 'text-black/60 hover:text-black'
@@ -115,7 +115,7 @@ export const Navigation: React.FC<NavigationProps> = ({
             </button>
             <button
               onClick={() => onToggleLanguage('en')}
-              className={`px-2 sm:px-2.5 py-1 rounded-full transition-all text-[11px] sm:text-xs ${
+              className={`w-11 h-11 shrink-0 rounded-full transition-all text-xs sm:text-sm ${
                 language === 'en'
                   ? 'bg-black text-white font-bold'
                   : 'text-black/60 hover:text-black'
@@ -130,12 +130,12 @@ export const Navigation: React.FC<NavigationProps> = ({
           {/* Sound Toggle Button (Desktop & Mobile) */}
           <button
             onClick={onToggleMute}
-            className="w-8 h-8 rounded-full border border-black/20 bg-white/70 hover:bg-black hover:text-white transition-colors flex items-center justify-center text-black/70 shadow-sm cursor-pointer"
+            className="w-11 h-11 shrink-0 rounded-full border border-black/20 bg-white/70 hover:bg-black hover:text-white transition-colors flex items-center justify-center text-black/70 shadow-sm cursor-pointer"
             aria-label={isMuted ? t.nav.unmute : t.nav.mute}
             title={isMuted ? t.nav.unmute : t.nav.mute}
             aria-pressed={isMuted}
           >
-            {isMuted ? <VolumeX className="w-3.5 h-3.5 text-red-500" /> : <Volume2 className="w-3.5 h-3.5" />}
+            {isMuted ? <VolumeX className="w-4 h-4 text-red-500" /> : <Volume2 className="w-4 h-4" />}
           </button>
 
           {/* Instagram Button (Desktop only) */}
@@ -154,12 +154,11 @@ export const Navigation: React.FC<NavigationProps> = ({
           <button
             ref={menuButtonRef}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden w-8 h-8 rounded-full border border-black/20 bg-white/70 hover:bg-black hover:text-white transition-colors flex items-center justify-center text-black shadow-sm cursor-pointer ml-1"
+            className="md:hidden w-11 h-11 shrink-0 rounded-full border border-black/20 bg-white/70 hover:bg-black hover:text-white transition-colors flex items-center justify-center text-black shadow-sm cursor-pointer"
             aria-label={mobileMenuOpen ? t.nav.closeMenu : t.nav.openMenu}
             aria-expanded={mobileMenuOpen}
-            aria-controls="mobile-navigation-drawer"
           >
-            {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </header>
@@ -171,7 +170,6 @@ export const Navigation: React.FC<NavigationProps> = ({
             id="mobile-navigation-drawer"
             ref={drawerRef}
             role="dialog"
-            aria-modal="true"
             aria-label={t.nav.menuLabel}
             tabIndex={-1}
             className="bg-[#FAF8F5] border-b border-black/15 shadow-2xl p-6 space-y-4 outline-none"
@@ -217,7 +215,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                 <ArrowUpRight className="w-3 h-3 opacity-50" />
               </a>
 
-              <span className="text-[10px] font-mono text-black/40 uppercase">Fullerton, CA</span>
+              <span className="text-[10px] font-mono text-black/40 uppercase">{t.nav.location}</span>
             </div>
           </div>
 

@@ -28,7 +28,9 @@ export const getFrameCaptionBox = (
   return { centerX: width / 2, centerY, fontSize, maxWidth: width - 80 };
 };
 
-export const captionTextColor = (r: number, g: number, b: number): string => {
-  const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+export const captionTextColor = (r: number, g: number, b: number, a = 255): string => {
+  const alpha = a / 255;
+  const blend = (channel: number) => Math.round(channel * alpha + 255 * (1 - alpha));
+  const luminance = 0.299 * blend(r) + 0.587 * blend(g) + 0.114 * blend(b);
   return luminance > 150 ? '#111111' : '#FFFFFF';
 };

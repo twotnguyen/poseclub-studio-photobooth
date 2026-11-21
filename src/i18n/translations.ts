@@ -15,6 +15,7 @@ export const TRANSLATIONS = {
       languageVi: 'Chuyển sang tiếng Việt',
       languageEn: 'Chuyển sang tiếng Anh',
       instagram: 'Instagram',
+      location: 'Fullerton, CA',
     },
     home: {
       studio: 'S T U D I O',
@@ -46,6 +47,8 @@ export const TRANSLATIONS = {
       step1Subtitle: 'Chọn bố cục dải ảnh bạn yêu thích nhất',
       previousTheme: 'Khung trước',
       nextTheme: 'Khung tiếp theo',
+      thumbAlt: 'Ảnh {n}',
+      countdownLabel: 'Chọn thời gian đếm ngược',
       printPopupBlocked: 'Vui lòng cho phép cửa sổ pop-up để in dải ảnh.',
       printDocumentTitle: 'In dải ảnh - poseclub studio',
       styles: [
@@ -60,7 +63,6 @@ export const TRANSLATIONS = {
       next: 'Tiếp tục',
       step2Title: 'CHỌN THIẾT KẾ KHUNG',
       step2Subtitle: 'Chọn thiết kế khung ảnh',
-      themeLabel: 'Thiết kế khung ảnh',
       filterLabel: 'Bộ lọc màu sắc (Filters)',
       filters: [
         { id: 'bw-contrast', label: 'B&W Contrast', desc: 'Đen trắng điện ảnh tương phản cao' },
@@ -75,7 +77,6 @@ export const TRANSLATIONS = {
       step3SubtitleRetake: 'Chụp lại riêng tấm số',
       mirrorTip: 'Lật gương',
       cameraError: 'Chưa mở được camera. Bạn có thể cấp quyền hoặc bấm "Tải ảnh từ máy".',
-      retakeHint: 'Bấm để chụp lại',
       cameraBack: 'Đổi sang camera sau',
       cameraFront: 'Đổi sang camera trước',
       viewStrip: 'Xem dải ảnh ✦',
@@ -115,6 +116,9 @@ export const TRANSLATIONS = {
         { title: 'Vintage Props', desc: 'Phụ kiện thời trang phong cách' },
         { title: 'Instant Prints', desc: 'In lấy liền độ phân giải cao' },
       ],
+      venueName: 'Poseclub Studio Fullerton',
+      mapTitle: 'Bản đồ Poseclub Fullerton',
+      timeVi: ['11:00 – 22:00', '11:00 – 23:00', '11:00 – 23:00'],
       largeMapBtn: 'Mở bản đồ lớn',
     },
     guide: {
@@ -159,6 +163,7 @@ export const TRANSLATIONS = {
       languageVi: 'Switch to Vietnamese',
       languageEn: 'Switch to English',
       instagram: 'Instagram',
+      location: 'Fullerton, CA',
     },
     home: {
       studio: 'S T U D I O',
@@ -190,6 +195,8 @@ export const TRANSLATIONS = {
       step1Subtitle: 'Choose your favorite photostrip layout',
       previousTheme: 'Previous Theme',
       nextTheme: 'Next Theme',
+      thumbAlt: 'Photo {n}',
+      countdownLabel: 'Countdown duration',
       printPopupBlocked: 'Please allow popups to print your photo strip.',
       printDocumentTitle: 'Print Photostrip - poseclub studio',
       styles: [
@@ -204,7 +211,6 @@ export const TRANSLATIONS = {
       next: 'Next',
       step2Title: 'SELECT A FRAME DESIGN',
       step2Subtitle: 'Choose a frame design',
-      themeLabel: 'Frame designs',
       filterLabel: 'Color & Tone Filters',
       filters: [
         { id: 'bw-contrast', label: 'B&W Contrast', desc: 'Cinematic high-contrast monochrome' },
@@ -219,7 +225,6 @@ export const TRANSLATIONS = {
       step3SubtitleRetake: 'Retaking shot number',
       mirrorTip: 'Mirror Camera',
       cameraError: 'Camera not available. You can allow permissions or click "Upload Photos".',
-      retakeHint: 'Click to retake',
       cameraBack: 'Switch to rear camera',
       cameraFront: 'Switch to front camera',
       viewStrip: 'View strip ✦',
@@ -259,7 +264,10 @@ export const TRANSLATIONS = {
         { title: 'Vintage Props', desc: 'Curated fashion accessories' },
         { title: 'Instant Prints', desc: 'Archival dye-sub print strips' },
       ],
-      largeMapBtn: 'Open Full Map',
+      venueName: 'Poseclub Studio Fullerton',
+      mapTitle: 'Poseclub Fullerton Map',
+      timeVi: ['11:00 AM – 10:00 PM', '11:00 AM – 11:00 PM', '11:00 AM – 11:00 PM'],
+      largeMapBtn: 'Open large map',
     },
     guide: {
       badge: 'FREE BROWSER-BASED EXPERIENCE',

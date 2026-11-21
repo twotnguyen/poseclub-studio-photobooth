@@ -21,14 +21,32 @@ function assertSameShape(vi: unknown, en: unknown, path: string): void {
   }
 }
 
-function collectEmptyStrings(value: unknown, path: string, empty: string[]): void {
+function collectBlankStrings(value: unknown, path: string, blanks: string[]): void {
   if (typeof value === 'string') {
-    if (value === '') empty.push(path);
+    if (value.trim() === '') blanks.push(path);
     return;
   }
   if (typeof value !== 'object' || value === null) return;
   for (const [key, child] of Object.entries(value)) {
-    collectEmptyStrings(child, Array.isArray(value) ? `${path}[${key}]` : `${path}.${key}`, empty);
+    collectBlankStrings(child, Array.isArray(value) ? `${path}[${key}]` : `${path}.${key}`, blanks);
+  }
+}
+
+const PLACEHOLDER = /\{[^{}]+\}/g;
+
+function placeholderTokens(value: unknown): string[] {
+  return typeof value === 'string' ? [...value.matchAll(PLACEHOLDER)].map((match) => match[0]).sort() : [];
+}
+
+function assertSamePlaceholders(vi: unknown, en: unknown, path: string): void {
+  if (typeof vi !== 'object' || vi === null) {
+    assert.deepEqual(placeholderTokens(vi), placeholderTokens(en), `${path}: placeholder tokens differ`);
+    return;
+  }
+  const viRecord = vi as Record<string, unknown>;
+  const enRecord = en as Record<string, unknown>;
+  for (const [key, child] of Object.entries(viRecord)) {
+    assertSamePlaceholders(child, enRecord[key], Array.isArray(vi) ? `${path}[${key}]` : `${path}.${key}`);
   }
 }
 
@@ -36,11 +54,15 @@ test('Vietnamese and English translations expose exactly the same keys', () => {
   assertSameShape(TRANSLATIONS.vi, TRANSLATIONS.en, 'TRANSLATIONS');
 });
 
-test('no translation value is an empty string', () => {
-  const empty: string[] = [];
-  collectEmptyStrings(TRANSLATIONS.vi, 'TRANSLATIONS.vi', empty);
-  collectEmptyStrings(TRANSLATIONS.en, 'TRANSLATIONS.en', empty);
-  assert.deepEqual(empty, [], `empty translation values: ${empty.join(', ')}`);
+test('no translation string is blank', () => {
+  const blanks: string[] = [];
+  collectBlankStrings(TRANSLATIONS.vi, 'TRANSLATIONS.vi', blanks);
+  collectBlankStrings(TRANSLATIONS.en, 'TRANSLATIONS.en', blanks);
+  assert.deepEqual(blanks, [], `blank translation values: ${blanks.join(', ')}`);
+});
+
+test('placeholder tokens match between languages at every string path', () => {
+  assertSamePlaceholders(TRANSLATIONS.vi, TRANSLATIONS.en, 'TRANSLATIONS');
 });
 
 test('booth strings rendered outside the dictionary are translated', () => {
@@ -49,7 +71,7 @@ test('booth strings rendered outside the dictionary are translated', () => {
     const booth = TRANSLATIONS[lang].booth as unknown as Record<string, unknown>;
     for (const key of keys) {
       assert.equal(typeof booth[key], 'string', `${lang}.booth.${key}`);
-      assert.ok((booth[key] as string).length > 0, `${lang}.booth.${key} is empty`);
+      assert.ok((booth[key] as string).trim().length > 0, `${lang}.booth.${key} is blank`);
     }
   }
 });

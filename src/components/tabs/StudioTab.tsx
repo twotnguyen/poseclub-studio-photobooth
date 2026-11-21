@@ -23,10 +23,10 @@ export const StudioTab: React.FC<StudioTabProps> = ({ language }) => {
   };
 
   return (
-    <div className="h-full w-full flex flex-col justify-between p-3 sm:p-8 select-none space-y-2 sm:space-y-4">
+    <div className="studio-tab h-full w-full flex flex-col justify-between p-3 sm:p-8 select-none space-y-2 sm:space-y-4">
       
       {/* Title Header */}
-      <div className="text-center max-w-xl mx-auto space-y-1">
+      <div className="studio-tab__header text-center max-w-xl mx-auto space-y-1">
         <span className="text-[10px] font-mono tracking-widest text-black/50 uppercase">
           {t.badge}
         </span>
@@ -39,10 +39,10 @@ export const StudioTab: React.FC<StudioTabProps> = ({ language }) => {
       </div>
 
       {/* Main Grid Viewport */}
-      <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-6 items-stretch max-w-6xl w-full mx-auto my-1 md:my-3">
+      <div className="studio-tab__grid flex-1 min-h-0 grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-6 items-stretch max-w-6xl w-full mx-auto my-1 md:my-3">
         
         {/* Left Card: Address & Operating Hours */}
-        <div className="md:col-span-5 bg-white border border-black/15 rounded-2xl p-3 sm:p-6 flex flex-col justify-between shadow-sm">
+        <div className="studio-tab__card md:col-span-5 bg-white border border-black/15 rounded-2xl p-3 sm:p-6 flex flex-col justify-between shadow-sm">
           <div className="space-y-2 sm:space-y-4">
             {/* Address */}
             <div className="border-b border-black/10 pb-2 sm:pb-4">
@@ -51,7 +51,7 @@ export const StudioTab: React.FC<StudioTabProps> = ({ language }) => {
                 <span>{t.addressLabel}</span>
               </div>
               <h3 className="font-editorial text-lg sm:text-xl text-black mt-0.5 sm:mt-1 font-semibold">
-                Poseclub Studio Fullerton
+                {t.venueName}
               </h3>
               <p className="text-[11px] sm:text-xs text-black/80 font-light mt-0.5 sm:mt-1 leading-snug sm:leading-relaxed">
                 {STUDIO_CONFIG.address.street}<br />
@@ -62,7 +62,7 @@ export const StudioTab: React.FC<StudioTabProps> = ({ language }) => {
               <div className="mt-2 sm:mt-3 flex items-center gap-2">
                 <button
                   onClick={handleCopy}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-black/20 bg-black/5 hover:bg-black/10 text-xs font-mono text-black transition-colors"
+                  className="inline-flex items-center min-h-11 gap-1.5 px-3 py-1.5 rounded-full border border-black/20 bg-black/5 hover:bg-black/10 text-xs font-mono text-black transition-colors"
                 >
                   {copied ? (
                     <>
@@ -81,7 +81,7 @@ export const StudioTab: React.FC<StudioTabProps> = ({ language }) => {
                   href={STUDIO_CONFIG.mapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black text-white hover:bg-black/85 text-xs font-medium transition-colors"
+                  className="inline-flex items-center min-h-11 gap-1.5 px-3.5 py-1.5 rounded-full bg-black text-white hover:bg-black/85 text-xs font-medium transition-colors"
                 >
                   <Navigation className="w-3 h-3" />
                   <span>{t.openMaps}</span>
@@ -91,7 +91,7 @@ export const StudioTab: React.FC<StudioTabProps> = ({ language }) => {
             </div>
 
             {/* Operating Hours */}
-            <div className="space-y-1 sm:space-y-2">
+            <div className="studio-tab__hours space-y-1 sm:space-y-2">
               <div className="flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-widest text-black/50">
                 <Clock className="w-3 h-3" />
                 <span>{t.hoursLabel}</span>
@@ -100,7 +100,7 @@ export const StudioTab: React.FC<StudioTabProps> = ({ language }) => {
                 {STUDIO_CONFIG.hours.map((h, i) => (
                   <div key={i} className="flex justify-between items-center border-b border-black/5 pb-0.5 sm:pb-1">
                     <span className="text-black/70">{language === 'vi' ? h.daysVi : h.days}</span>
-                    <span className="font-mono text-black font-medium">{h.time}</span>
+                    <span className="font-mono text-black font-medium">{t.timeVi[i]}</span>
                   </div>
                 ))}
               </div>
@@ -119,7 +119,7 @@ export const StudioTab: React.FC<StudioTabProps> = ({ language }) => {
               href={STUDIO_CONFIG.instagram.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3 py-1 rounded-full border border-black/30 hover:border-black text-[11px] font-mono uppercase tracking-wider text-black transition-colors"
+              className="inline-flex items-center min-h-11 px-3 py-1 rounded-full border border-black/30 hover:border-black text-[11px] font-mono uppercase tracking-wider text-black transition-colors"
             >
               {t.follow}
             </a>
@@ -127,11 +127,11 @@ export const StudioTab: React.FC<StudioTabProps> = ({ language }) => {
         </div>
 
         {/* Right Card: Google Maps & Highlight Badges */}
-        <div className="md:col-span-7 bg-white border border-black/15 rounded-2xl overflow-hidden flex flex-col shadow-sm">
+        <div className="studio-tab__card md:col-span-7 bg-white border border-black/15 rounded-2xl overflow-hidden flex flex-col shadow-sm">
           {/* Map & Visual */}
-          <div className="w-full relative h-[110px] sm:h-[260px] md:h-auto md:flex-1 bg-[#EFECE6] flex items-center justify-center overflow-hidden">
+          <div className="studio-tab__map w-full relative h-24 sm:h-[260px] md:h-auto md:flex-1 bg-[#EFECE6] flex items-center justify-center overflow-hidden">
             <iframe
-              title="Poseclub Fullerton Map"
+              title={t.mapTitle}
               src={STUDIO_CONFIG.mapsEmbedUrl}
               width="100%"
               height="100%"
@@ -146,7 +146,7 @@ export const StudioTab: React.FC<StudioTabProps> = ({ language }) => {
                 href={STUDIO_CONFIG.mapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black text-white text-xs font-mono tracking-wider uppercase shadow-md hover:bg-black/85 transition-colors"
+                className="inline-flex items-center min-h-11 gap-1.5 px-3 py-1.5 rounded-full bg-black text-white text-xs font-mono tracking-wider uppercase shadow-md hover:bg-black/85 transition-colors"
               >
                 <MapPin className="w-3.5 h-3.5 text-red-400" />
                 <span>{t.largeMapBtn}</span>
@@ -158,7 +158,7 @@ export const StudioTab: React.FC<StudioTabProps> = ({ language }) => {
             {t.highlights.map((h, i) => (
               <div key={i}>
                 <p className="text-xs font-semibold text-black">{h.title}</p>
-                <p className="text-[10px] text-black/60 mt-0.5">{h.desc}</p>
+                <p className="text-[11px] text-black/60 mt-0.5">{h.desc}</p>
               </div>
             ))}
           </div>
@@ -167,7 +167,7 @@ export const StudioTab: React.FC<StudioTabProps> = ({ language }) => {
       </div>
 
       {/* Bottom Center Brand Signature */}
-      <div className="w-full flex items-center justify-center gap-3 pt-1">
+      <div className="studio-tab__footer w-full flex items-center justify-center gap-3 pt-1">
         <div className="w-10 h-[1px] bg-black/20" />
         <span className="font-script text-xl text-black/70">poseclub</span>
         <span className="font-editorial text-xs tracking-widest text-black/50 uppercase">studio</span>

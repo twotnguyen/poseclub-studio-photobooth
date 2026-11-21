@@ -30,7 +30,7 @@ Mỗi chức năng hoạt động trên một đường dẫn URL độc lập, 
 * `/` hoặc `/home`: **✦ HOME / TRANG CHỦ** — Màn hình chào đón theo thiết kế Canva Flow Frame (chữ ký `Poseclub`, camera doodle, nút `✦ START`).
 * `/photobooth`: **✦ PHOTOBOOTH / BUỒNG CHỤP** — redirect tới `/photobooth/frame`; 4 bước là 4 route riêng: `/frame` (chọn bố cục), `/theme` (khung + filter + chữ), `/capture` (camera/upload), `/confirm` (xác nhận + in/tải). `/booth` và `/booth/*` redirect về bước đầu. Trạng thái (khung, ảnh đã chụp, chữ tùy biến) được giữ qua `BoothProvider` khi đổi route.
 * `/studio`: **✦ FULLERTON STUDIO** — Thông tin địa chỉ showroom 1327 S Harbor Blvd, bản đồ Google Maps, giờ mở cửa.
-* `/how-to-use`: **✦ HOW TO USE / HƯỚNG DẪN** — 3 bước hướng dẫn trải nghiệm.
+* `/how-to-use` (alias `/guide`): **✦ HOW TO USE / HƯỚNG DẪN** — 3 bước hướng dẫn trải nghiệm. `/guide` là alias trỏ tới cùng nội dung; navigation vẫn highlight `/how-to-use`.
 
 ### 🌐 3. Hỗ trợ Song ngữ tức thời (Instant Bilingual VI / EN)
 * Nút chuyển đổi nhanh `[ VI | EN ]` tại thanh điều hướng trên cùng.
@@ -40,8 +40,8 @@ Mỗi chức năng hoạt động trên một đường dẫn URL độc lập, 
 ### Studio gallery & frame catalog
 * Trang chủ có 6 ảnh studio hiển thị đầy đủ màu; bấm vào ảnh để phóng to, dùng phím trái/phải để chuyển ảnh và `Esc` để đóng.
 * Catalog tải 23 khung PNG và ZIP: `/exported-frames/index.html` (23 khung Style 1 custom). App dùng tổng cộng 72 khung PNG qua 6 style.
-* Catalog/ZIP đang phát hành là snapshot 23 khung Style 1 custom. `scripts/export_all_frames.py` chỉ tạo khung mẫu vào `scratch/export_all_frames/` để tham khảo, **không** ghi đè catalog đang dùng.
-* Các thư mục `all/`, `all-alpha/`, `6-frame/`, `6-frame-alpha/`, `frame/` là archive giữ locally và nằm trong `.gitignore`; clone mới chỉ cần `public/exported-frames/` và `exported-frames/style-1-polaroid/`.
+* Catalog/ZIP đang phát hành là snapshot 23 khung Style 1 custom. `scripts/export_all_frames.py` chỉ tạo mẫu legacy 60 khung (6 style × 10 theme) vào `scratch/export_all_frames/` để tham khảo; script **không bao giờ ghi đè** các khung đã phát hành trong `public/exported-frames/`.
+* Các thư mục `all/`, `all-alpha/`, `6-frame/`, `6-frame-alpha/`, `frame/` là archive giữ locally và nằm trong `.gitignore`; clone mới chỉ cần `public/exported-frames/` (chứa toàn bộ khung app dùng).
 
 ### 📸 4. Quy trình Buồng chụp Photobooth 4 bước chuyên sâu
 * **Bước 1 — Chọn kiểu bố cục (Select Frame Layout)**: 
@@ -96,7 +96,7 @@ Mỗi chức năng hoạt động trên một đường dẫn URL độc lập, 
 ## 🚀 Hướng dẫn Cài đặt & Chạy cục bộ (Local Development)
 
 ### Yêu cầu môi trường
-* Node.js >= 22.18 (cần thiết để `node --test` chạy file `.ts`) hoặc Bun >= 1.2
+* **Bắt buộc**: Node.js >= 22.18 cho **mọi npm script** (dev, build, test — kể cả `node --test` chạy file `.ts`). Bun >= 1.2 chỉ là tiện ích chạy nhanh, **không** thay thế được Node khi dùng npm script.
 
 ### Các bước cài đặt
 ```bash
@@ -104,13 +104,13 @@ Mỗi chức năng hoạt động trên một đường dẫn URL độc lập, 
 git clone https://github.com/twotnguyen/poseclub-studio-photobooth.git
 cd poseclub-studio-photobooth
 
-# 2. Cài đặt dependencies (sử dụng bun hoặc npm)
-bun install
-# hoặc: npm install
+# 2. Cài đặt dependencies (npm là chuẩn; bun chỉ để tiện)
+npm install
+# hoặc (tiện ích): bun install
 
 # 3. Chạy môi trường phát triển (Dev server)
-bun run dev
-# hoặc: npm run dev
+npm run dev
+# hoặc (tiện ích): bun run dev
 
 # 4. Mở trình duyệt tại:
 # http://localhost:5173/
@@ -118,8 +118,8 @@ bun run dev
 
 ### Build cho môi trường Production
 ```bash
-bun run build
-# hoặc: npm run build
+npm run build
+# hoặc (tiện ích): bun run build
 ```
 Thư mục `dist/` sẵn sàng triển khai lên Vercel. Với Netlify/Cloudflare Pages/GitHub Pages phải thêm SPA rewrite/fallback tương ứng.
 

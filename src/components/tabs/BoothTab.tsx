@@ -10,7 +10,7 @@ interface BoothTabProps {
 
 export const BoothTab: React.FC<BoothTabProps> = ({ language, onBackToHome }) => (
   <BoothProvider language={language} onBackToHome={onBackToHome}>
-    <div className="h-full w-full flex flex-col justify-between p-1.5 sm:p-7 select-none">
+    <div className="h-full w-full flex flex-col justify-between p-1.5 sm:p-7 [@media(max-height:500px)]:p-1.5 select-none">
       <Outlet />
     </div>
   </BoothProvider>

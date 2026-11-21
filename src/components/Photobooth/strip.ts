@@ -1,5 +1,10 @@
-export const isStripComplete = (shots: string[], totalShots: number): boolean =>
-  totalShots > 0 && shots.length === totalShots && shots.every((shot) => !!shot);
+export const isStripComplete = (shots: string[], totalShots: number): boolean => {
+  if (totalShots <= 0 || shots.length !== totalShots) return false;
+  for (let i = 0; i < totalShots; i += 1) {
+    if (!shots[i]) return false;
+  }
+  return true;
+};
 
 export const shouldRestartCapture = (
   shots: string[],

@@ -9,12 +9,12 @@ interface HomeTabProps {
 }
 
 const GALLERY_ITEMS = [
-  { id: 'photowall-gold-frame', src: '/images/photowall-gold-frame.jpg' },
-  { id: 'props-headbands', src: '/images/props-headbands.jpg' },
-  { id: 'booth-frame-menu', src: '/images/booth-frame-menu.jpg' },
-  { id: 'props-clips-glasses', src: '/images/props-clips-glasses.jpg' },
-  { id: 'photowall-plushie', src: '/images/photowall-plushie.jpg' },
-  { id: 'props-glasses-shelf', src: '/images/props-glasses-shelf.jpg' },
+  { id: 'photowall-gold-frame', src: '/images/photowall-gold-frame.jpg', width: 1536, height: 2048 },
+  { id: 'props-headbands', src: '/images/props-headbands.jpg', width: 1536, height: 2048 },
+  { id: 'booth-frame-menu', src: '/images/booth-frame-menu.jpg', width: 1080, height: 1350 },
+  { id: 'props-clips-glasses', src: '/images/props-clips-glasses.jpg', width: 1536, height: 2048 },
+  { id: 'photowall-plushie', src: '/images/photowall-plushie.jpg', width: 1508, height: 2011 },
+  { id: 'props-glasses-shelf', src: '/images/props-glasses-shelf.jpg', width: 1536, height: 2048 },
 ];
 
 const TILT_STATES = [0, -6, 6] as const; // upright, left, right
@@ -25,6 +25,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [tilts, setTilts] = useState<number[]>(INITIAL_TILTS);
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
+  const [pressedIdx, setPressedIdx] = useState<number | null>(null);
 
   const activateCard = (index: number) => {
     const offset = 1 + Math.floor(Math.random() * (TILT_STATES.length - 1));
@@ -89,7 +90,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
     };
   }, [isLightboxOpen]);
   return (
-    <div className="h-full w-full flex flex-col items-center justify-between p-4 sm:p-12 relative overflow-hidden select-none">
+    <div className="home-tab h-full w-full flex flex-col items-center justify-between p-4 sm:p-12 relative overflow-hidden select-none">
       
       {/* Top Left Sparkles */}
       <div className="absolute top-4 left-4 sm:top-8 sm:left-10 flex flex-col items-center gap-1 text-black opacity-85">
@@ -110,7 +111,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
       <div className="flex-1" />
 
       {/* Main Center Content */}
-      <div className="text-center space-y-4 max-w-3xl mx-auto my-auto">
+      <div className="home-tab__hero text-center space-y-4 max-w-3xl mx-auto my-auto">
         <p className="text-xs sm:text-sm font-mono tracking-[0.35em] text-black/70 uppercase">
           {t.studio}
         </p>
@@ -120,6 +121,8 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
           <img
             src="/images/poseclub-wordmark.png"
             alt="Poseclub"
+            width={2140}
+            height={621}
             className="mx-auto h-auto w-[min(78vw,620px)] drop-shadow-sm"
           />
         </h1>
@@ -140,7 +143,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
         <div className="pt-4">
           <button
             onClick={onGoToStudio}
-            className="text-[11px] font-mono text-black/60 hover:text-black tracking-wider uppercase underline underline-offset-4 decoration-black/30 hover:decoration-black transition-colors"
+            className="inline-flex items-center min-h-11 px-3 text-[11px] font-mono text-black/60 hover:text-black tracking-wider uppercase underline underline-offset-4 decoration-black/30 hover:decoration-black transition-colors"
           >
             {t.location}
           </button>
@@ -148,7 +151,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
       </div>
 
       {/* Studio Glimpse: Polaroid Gallery */}
-      <div className="w-full max-w-4xl mx-auto flex flex-col items-center my-auto py-2 z-10">
+      <div className="home-tab__gallery w-full max-w-4xl mx-auto flex flex-col items-center my-auto py-2 z-10">
         <div className="flex items-center gap-2 mb-2">
           <span className="text-[10px] font-mono tracking-[0.25em] text-black/50 uppercase">
             ✦ {t.galleryBadge}
@@ -160,7 +163,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
         </div>
 
         {/* 6 Polaroid Thumbnails */}
-        <div className="flex items-center justify-center gap-2.5 sm:gap-3.5 md:gap-4 px-4 py-4 overflow-x-auto max-w-full">
+        <div className="home-tab__thumbs flex items-center justify-center gap-1 sm:gap-3.5 md:gap-4 px-2 py-2 sm:px-4 sm:py-4 overflow-x-auto max-w-full">
           {GALLERY_ITEMS.map((item, index) => {
             const meta = t.gallery.find((g) => g.id === item.id) || { title: '', subtitle: '' };
             const isActive = activeIdx === index;
@@ -177,13 +180,17 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
                 onMouseLeave={() => setActiveIdx(null)}
                 onFocus={() => activateCard(index)}
                 onBlur={() => setActiveIdx(null)}
-                className="group relative flex-shrink-0 flex flex-col items-center p-1 sm:p-1.5 bg-white border border-black/15 rounded-md shadow-sm hover:shadow-xl active:scale-95 transition-all duration-300 cursor-pointer focus:outline-none focus:ring-1 focus:ring-black/30"
+                className="home-tab__thumb group relative flex-shrink-0 flex flex-col items-center p-0.5 sm:p-1.5 bg-white border border-black/15 rounded-md shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer focus:outline-none focus:ring-1 focus:ring-black/30"
+                onPointerDown={() => setPressedIdx(index)}
+                onPointerUp={() => setPressedIdx(null)}
+                onPointerCancel={() => setPressedIdx(null)}
+                onPointerLeave={() => setPressedIdx(null)}
                 style={{
-                  transform: `rotate(${tilt}deg) translateY(${isActive ? '-4px' : '0'}) scale(${isActive ? 1.06 : 1})`,
+                  transform: `rotate(${tilt}deg) translateY(${isActive ? '-4px' : '0'}) scale(${pressedIdx === index ? 0.95 : isActive ? 1.06 : 1})`,
                 }}
                 title={`${meta.title} — ${t.galleryHint}`}
               >
-                <div className="w-[3.25rem] h-[4.25rem] sm:w-16 sm:h-[5.5rem] md:w-20 md:h-[6.5rem] overflow-hidden rounded-[2px] bg-black/5 relative">
+                <div className="home-tab__thumb-photo w-10 h-[3.25rem] sm:w-16 sm:h-[5.5rem] md:w-20 md:h-[6.5rem] overflow-hidden rounded-[2px] bg-black/5 relative">
                   <img
                     src={item.src}
                     alt={meta.title}
@@ -209,7 +216,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
       <div className="flex-1" />
 
       {/* Bottom Center Brand Signature & Ornament */}
-      <div className="w-full flex flex-col items-center justify-center gap-1.5 pb-2">
+      <div className="home-tab__footer w-full flex flex-col items-center justify-center gap-1.5 pb-2">
         <div className="flex items-center gap-3">
           <div className="w-12 h-[1px] bg-black/20" />
           <span className="font-script text-2xl text-black/80">poseclub</span>
@@ -276,28 +283,30 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
           {/* Centered Modal Card: clicking inside DOES NOT close */}
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative max-w-xl md:max-w-2xl w-full max-h-[92vh] flex flex-col items-center bg-[#FAF8F5] rounded-2xl shadow-2xl border border-white/20 p-3 sm:p-4 animate-scaleUp overflow-hidden"
+            className="home-tab__modal relative max-w-xl md:max-w-2xl w-full max-h-[92dvh] flex flex-col items-center bg-[#FAF8F5] rounded-2xl shadow-2xl border border-white/20 p-3 sm:p-4 animate-scaleUp overflow-hidden"
           >
             {/* Full Color Image Container */}
-            <div className="w-full flex items-center justify-center max-h-[68vh] sm:max-h-[72vh] overflow-hidden rounded-xl bg-black/5">
+            <div className="w-full flex items-center justify-center max-h-[calc(92dvh-8rem)] overflow-hidden rounded-xl bg-black/5">
               <img
                 src={GALLERY_ITEMS[selectedIdx].src}
                 alt={t.gallery[selectedIdx]?.title || ''}
-                className="max-h-[68vh] sm:max-h-[72vh] w-auto max-w-full object-contain rounded-lg shadow-sm"
+                width={GALLERY_ITEMS[selectedIdx].width}
+                height={GALLERY_ITEMS[selectedIdx].height}
+                className="max-h-[calc(92dvh-8rem)] w-auto max-w-full object-contain rounded-lg shadow-sm"
               />
             </div>
 
             {/* Caption & Metadata Bar */}
-            <div className="w-full pt-3 pb-1 px-2 flex items-center justify-between gap-4">
+            <div className="w-full pt-3 pb-1 px-2 flex items-center justify-between gap-4" aria-live="polite">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="font-script text-lg text-black/70">poseclub</span>
                   <span className="text-[10px] font-mono tracking-widest text-black/40 uppercase">studio</span>
                 </div>
-                <h3 className="font-editorial text-lg sm:text-xl text-black font-semibold tracking-wide truncate">
+                <h3 className="font-editorial text-lg sm:text-xl text-black font-semibold tracking-wide line-clamp-2">
                   {t.gallery[selectedIdx]?.title}
                 </h3>
-                <p className="text-xs text-black/60 font-light truncate">
+                <p className="text-xs text-black/60 font-light line-clamp-2">
                   {t.gallery[selectedIdx]?.subtitle}
                 </p>
               </div>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import { Navigation } from './components/Navigation';
 import { Language } from './i18n/translations';
@@ -11,27 +11,63 @@ import { CaptureStep } from './components/Photobooth/steps/CaptureStep';
 import { ConfirmStep } from './components/Photobooth/steps/ConfirmStep';
 import { GuideTab } from './components/tabs/GuideTab';
 import { sounds } from './components/Photobooth/SoundEffects';
+
+const LANGUAGE_KEY = 'poseclub_lang';
+const MUTED_KEY = 'poseclub_muted';
+
+function readStoredValue(key: string): string | null {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredValue(key: string, value: string): void {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // Storage may be blocked; keep the app usable in memory.
+  }
+}
+
 export default function App() {
   const navigate = useNavigate();
-  const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [isMuted, setIsMuted] = useState<boolean>(() => readStoredValue(MUTED_KEY) === 'true');
   const [language, setLanguage] = useState<Language>(() => {
-    const saved = localStorage.getItem('poseclub_lang');
+    const saved = readStoredValue(LANGUAGE_KEY);
     return saved === 'en' || saved === 'vi' ? saved : 'en';
   });
 
+  useEffect(() => {
+    sounds.muted = isMuted;
+    writeStoredValue(MUTED_KEY, String(isMuted));
+  }, [isMuted]);
+
   const handleToggleLanguage = (lang: Language) => {
     setLanguage(lang);
-    localStorage.setItem('poseclub_lang', lang);
+    writeStoredValue(LANGUAGE_KEY, lang);
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     document.documentElement.lang = language;
   }, [language]);
 
-  const toggleMute = () => {
-    sounds.muted = !isMuted;
-    setIsMuted(!isMuted);
-  };
+  const toggleMute = () => setIsMuted(!isMuted);
+
+  const homeTab = (
+    <HomeTab
+      language={language}
+      onStart={() => navigate('/photobooth')}
+      onGoToStudio={() => navigate('/studio')}
+    />
+  );
+  const guideTab = (
+    <GuideTab
+      language={language}
+      onStartBooth={() => navigate('/photobooth')}
+    />
+  );
 
   return (
     <div className="h-[100dvh] w-full flex flex-col overflow-hidden bg-[#FAF8F5] text-black font-sans selection:bg-black selection:text-white">
@@ -46,26 +82,8 @@ export default function App() {
       {/* Main Tab Viewport (Zero-scroll on all breakpoints) */}
       <main className="flex-1 w-full overflow-hidden relative">
         <Routes>
-          <Route
-            path="/"
-            element={
-              <HomeTab
-                language={language}
-                onStart={() => navigate('/photobooth')}
-                onGoToStudio={() => navigate('/studio')}
-              />
-            }
-          />
-          <Route
-            path="/home"
-            element={
-              <HomeTab
-                language={language}
-                onStart={() => navigate('/photobooth')}
-                onGoToStudio={() => navigate('/studio')}
-              />
-            }
-          />
+          <Route path="/" element={homeTab} />
+          <Route path="/home" element={homeTab} />
           <Route
             path="/photobooth"
             element={
@@ -81,24 +99,8 @@ export default function App() {
           <Route path="/booth" element={<Navigate to="/photobooth/frame" replace />} />
           <Route path="/booth/*" element={<Navigate to="/photobooth/frame" replace />} />
           <Route path="/studio" element={<StudioTab language={language} />} />
-          <Route
-            path="/how-to-use"
-            element={
-              <GuideTab
-                language={language}
-                onStartBooth={() => navigate('/photobooth')}
-              />
-            }
-          />
-          <Route
-            path="/guide"
-            element={
-              <GuideTab
-                language={language}
-                onStartBooth={() => navigate('/photobooth')}
-              />
-            }
-          />
+          <Route path="/how-to-use" element={guideTab} />
+          <Route path="/guide" element={guideTab} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

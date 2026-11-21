@@ -8,7 +8,10 @@ export const getFilterCss = (filter: FilterType): string => {
       return 'grayscale(100%) contrast(115%) brightness(104%) sepia(8%)';
     case 'natural':
       return 'contrast(106%) brightness(102%) saturate(108%)';
-    default:
+    default: {
+      const exhaustive: never = filter;
+      void exhaustive;
       return 'none';
+    }
   }
 };

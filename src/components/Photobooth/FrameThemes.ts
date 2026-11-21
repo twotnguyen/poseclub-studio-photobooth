@@ -3,17 +3,7 @@ import type { FrameTheme } from './types';
 export interface ThemeConfig {
   id: FrameTheme;
   style: number;
-  nameVi: string;
   nameEn: string;
-  bgColor: string;
-  textColor: string;
-  borderColor: string;
-  slotBorderColor: string;
-  slotBgDefault: string;
-  icon: string;
-  tagline?: string;
-  isTextBar?: boolean;
-  barText?: string;
   imagePath?: string;
   imageWidth?: number;
   imageHeight?: number;
@@ -78,25 +68,12 @@ const STYLE_FRAMES: { style: number; id: number; dir: string; file: string; w: n
   { style: 6, id: 72, dir: 'style-6-collage-3x3', file: '40.png', w: 1240, h: 1844, boxes: [[49, 152, 387, 508], [451, 152, 789, 508], [852, 152, 1190, 508], [50, 661, 388, 1016], [451, 661, 789, 1016], [853, 661, 1190, 1016], [50, 1169, 387, 1524], [451, 1169, 789, 1524], [852, 1169, 1190, 1524]] },
 ];
 
-const baseTheme = {
-  nameVi: '',
-  nameEn: '',
-  bgColor: '#FFFFFF',
-  textColor: '#0C0C0C',
-  borderColor: '#0C0C0C',
-  slotBorderColor: '#D4D4D8',
-  slotBgDefault: '#F4F4F5',
-  icon: '✦',
-};
-
 export const CUSTOM_FRAMES: ThemeConfig[] = [
   ...STYLE1_BOXES.map(([x1, y1, x2, y2], i) => {
     const num = i + 1;
     return {
-      ...baseTheme,
       id: `custom-${num}` as FrameTheme,
       style: 1,
-      nameVi: `Custom ${String(num).padStart(2, '0')}`,
       nameEn: `Custom ${String(num).padStart(2, '0')}`,
       imagePath: `/exported-frames/style-1-polaroid-alpha/${num}.png`,
       imageWidth: 1240,
@@ -107,10 +84,8 @@ export const CUSTOM_FRAMES: ThemeConfig[] = [
   ...STYLE_FRAMES.map(({ style, id, dir, file, w, h, boxes }) => {
     const num = String(id).padStart(2, '0');
     return {
-      ...baseTheme,
       id: `custom-${id}` as FrameTheme,
       style,
-      nameVi: `Custom ${num}`,
       nameEn: `Custom ${num}`,
       imagePath: `/exported-frames/${dir}/${file}`,
       imageWidth: w,

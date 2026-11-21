@@ -1,8 +1,4 @@
 export interface StudioConfig {
-  brandName: string;
-  subTitle: string;
-  tagline: string;
-  description: string;
   address: {
     street: string;
     cityStateZip: string;
@@ -15,26 +11,14 @@ export interface StudioConfig {
     handle: string;
     url: string;
   };
-  contact: {
-    email: string;
-  };
   hours: {
     days: string;
     daysVi: string;
     time: string;
   }[];
-  boothHighlights: {
-    title: string;
-    description: string;
-  }[];
 }
 
 export const STUDIO_CONFIG: StudioConfig = {
-  brandName: "poseclub studio",
-  subTitle: "editorial & minimalist photobooth",
-  tagline: "Unfiltered elegance in timeless black & white.",
-  description:
-    "Experience the raw intimacy of vintage film aesthetics combined with contemporary editorial design. Capture memories instantly online or immerse yourself in our signature physical booths.",
   address: {
     street: "1327 S Harbor Blvd",
     cityStateZip: "Fullerton, CA 92832",
@@ -47,26 +31,9 @@ export const STUDIO_CONFIG: StudioConfig = {
     handle: "@poseclub.photobooth",
     url: "https://www.instagram.com/poseclub.photobooth",
   },
-  contact: {
-    email: "hello@poseclubstudio.com",
-  },
   hours: [
     { days: "Monday – Thursday", daysVi: "Thứ 2 – Thứ 5", time: "11:00 AM – 10:00 PM" },
     { days: "Friday – Saturday", daysVi: "Thứ 6 – Thứ 7", time: "11:00 AM – 11:00 PM" },
     { days: "Sunday", daysVi: "Chủ Nhật", time: "11:00 AM – 11:00 PM" },
-  ],
-  boothHighlights: [
-    {
-      title: "Signature Monochrome & Film Grain",
-      description: "Custom calibrated high-contrast monochrome lighting tuned for fashion and editorial portraits.",
-    },
-    {
-      title: "High-Angle & Classic Elevator Booths",
-      description: "Distinct perspectives inspired by underground art culture and Tokyo-Seoul vintage photoboxes.",
-    },
-    {
-      title: "Archival Quality Matte Prints",
-      description: "Dye-sublimation print strips made to endure with waterproof, fingerprint-resistant finish.",
-    },
   ],
 };

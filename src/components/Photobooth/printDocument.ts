@@ -1,5 +1,4 @@
 export interface PrintDocumentStrings {
-  popupBlocked: string;
   printTitle: string;
 }
 
@@ -14,7 +13,7 @@ export const buildPrintDocument = (
 <html>
   <head>
     <meta charset="utf-8">
-    <title>${strings.printTitle}</title>
+    <title>${strings.printTitle.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</title>
     <style>
       @page { size: auto; margin: 0mm; }
       body {
@@ -31,16 +30,31 @@ export const buildPrintDocument = (
   </head>
   <body>
     <script>
-      const src = ${JSON.stringify(dataUrl)};
+      const src = ${JSON.stringify(dataUrl).replace(/</g, '\\u003c').replace(/>/g, '\\u003e')};
       const total=${total};
       let pending = total;
       let loaded = 0;
-      const finish = () => { if (src.startsWith('blob:')) URL.revokeObjectURL(src); window.print(); window.close(); };
+      let cleaned = false;
+      const cleanup = () => {
+        if (cleaned) return;
+        cleaned = true;
+        if (src.startsWith('blob:')) URL.revokeObjectURL(src);
+        window.close();
+      };
+      const finish = () => {
+        if (loaded === total) {
+          window.addEventListener('afterprint', cleanup, { once: true });
+          setTimeout(cleanup, 1000);
+          window.print();
+        } else {
+          cleanup();
+        }
+      };
       for (let i = 0; i < total; i++) {
         const img = document.createElement('img');
         img.alt = 'poseclub studio photostrip';
         img.onload = () => { loaded++; if (--pending === 0) finish(); };
-        img.onerror = () => { if (--pending === 0 && loaded > 0) finish(); };
+        img.onerror = () => { if (--pending === 0) finish(); };
         img.src = src;
         document.body.appendChild(img);
       }

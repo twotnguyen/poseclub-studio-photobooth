@@ -13,10 +13,10 @@ export const GuideTab: React.FC<GuideTabProps> = ({ language, onStartBooth }) =>
   const steps = t.steps.map((s, i) => ({ ...s, icon: icons[i] }));
 
   return (
-    <div className="h-full w-full flex flex-col justify-between p-3 sm:p-10 select-none space-y-2 sm:space-y-4">
+    <div className="guide-tab h-full w-full flex flex-col justify-between p-3 sm:p-10 select-none space-y-2 sm:space-y-4">
       
       {/* Title */}
-      <div className="text-center space-y-1">
+      <div className="guide-tab__header text-center space-y-1">
         <p className="text-[10px] font-mono tracking-[0.3em] text-black/50 uppercase">
           {t.badge}
         </p>
@@ -29,13 +29,13 @@ export const GuideTab: React.FC<GuideTabProps> = ({ language, onStartBooth }) =>
       </div>
 
       {/* 3 Step Cards */}
-      <div className="grid grid-cols-3 gap-1.5 sm:gap-6 max-w-5xl w-full mx-auto my-auto py-1">
+      <div className="guide-tab__cards grid grid-cols-3 gap-1.5 sm:gap-6 max-w-5xl w-full mx-auto my-auto py-1">
         {steps.map((step, idx) => {
           const Icon = step.icon;
           return (
             <div
               key={idx}
-              className="bg-white border border-black/15 rounded-xl sm:rounded-2xl p-2 sm:p-6 flex flex-col justify-between shadow-sm hover:border-black transition-all group"
+              className="guide-tab__card bg-white border border-black/15 rounded-xl sm:rounded-2xl p-2 sm:p-6 flex flex-col justify-between shadow-sm hover:border-black transition-all group"
             >
               <div className="space-y-2 sm:space-y-4">
                 <div className="flex items-center justify-between">
@@ -51,17 +51,17 @@ export const GuideTab: React.FC<GuideTabProps> = ({ language, onStartBooth }) =>
                   <h3 className="font-editorial text-xs sm:text-xl text-black font-semibold leading-tight">
                     {step.title}
                   </h3>
-                  <p className="text-[8px] sm:text-xs font-mono text-black/50 uppercase mt-0.5 leading-tight">
+                  <p className="text-[10px] sm:text-xs font-mono text-black/50 uppercase mt-0.5 leading-tight">
                     {step.subtitle}
                   </p>
                 </div>
 
-                <p className="text-[9px] sm:text-xs text-black/75 font-light leading-tight sm:leading-relaxed">
+                <p className="text-[11px] sm:text-xs text-black/75 font-light leading-tight sm:leading-relaxed">
                   {step.desc}
                 </p>
               </div>
 
-              <div className="pt-2 sm:pt-4 border-t border-black/5 flex items-center gap-1 text-[8px] sm:text-[11px] font-mono text-black/50 group-hover:text-black">
+              <div className="guide-tab__card-footer pt-2 sm:pt-4 border-t border-black/5 flex items-center gap-1 text-[10px] sm:text-[11px] font-mono text-black/50 group-hover:text-black">
                 <span>{t.stepPrefix} {step.num}</span>
                 <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -71,7 +71,7 @@ export const GuideTab: React.FC<GuideTabProps> = ({ language, onStartBooth }) =>
       </div>
 
       {/* Bottom CTA Button */}
-      <div className="text-center pt-2 pb-2">
+      <div className="guide-tab__cta text-center pt-2 pb-2">
         <button
           onClick={onStartBooth}
           className="inline-flex items-center gap-2 px-8 py-3 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-xs font-mono tracking-widest uppercase transition-all shadow-md hover:scale-105"
@@ -82,7 +82,7 @@ export const GuideTab: React.FC<GuideTabProps> = ({ language, onStartBooth }) =>
       </div>
 
       {/* Bottom Brand Signature */}
-      <div className="w-full flex items-center justify-center gap-3">
+      <div className="guide-tab__footer w-full flex items-center justify-center gap-3">
         <div className="w-10 h-[1px] bg-black/20" />
         <span className="font-script text-xl text-black/70">poseclub</span>
         <span className="font-editorial text-xs tracking-widest text-black/50 uppercase">studio</span>

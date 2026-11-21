@@ -14,8 +14,8 @@ class SoundController {
         this.ctx = new AudioCtxClass();
       }
     }
-    if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
+    if (this.ctx && this.ctx.state !== 'running') {
+      void this.ctx.resume().catch(() => {});
     }
   }
 

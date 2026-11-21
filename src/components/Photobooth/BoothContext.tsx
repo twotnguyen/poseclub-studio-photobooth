@@ -1,8 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { TRANSLATIONS, type Language } from '../../i18n/translations';
-import type { FilterType, FrameTheme, LayoutType } from './types';
-import { getLayoutForStyle, getLayoutSpec } from './layouts';
+import type { FilterType, FrameTheme } from './types';
 import { getThemesForStyle, type ThemeConfig } from './FrameThemes';
 import { getFilterCss } from './color';
 import { buildUploadedShots } from './upload';
@@ -39,7 +38,6 @@ interface BoothContextValue {
   setFilter: (filter: FilterType) => void;
   currentTheme: ThemeConfig;
   styleThemes: ThemeConfig[];
-  layout: LayoutType;
   totalShots: number;
   cameraRatio: string;
 
@@ -109,11 +107,14 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
   const goTo = useCallback((next: BoothStep) => navigate(BOOTH_STEP_PATH[next]), [navigate]);
 
   const [selectedStyle, setSelectedStyle] = useState<number | null>(null);
-  const activeStyle = selectedStyle ?? 1;
-  const layout = getLayoutForStyle(activeStyle);
+  const activeStyle = selectedStyle !== null && getThemesForStyle(selectedStyle).length > 0 ? selectedStyle : 1;
   const styleThemes = getThemesForStyle(activeStyle);
   const [theme, setTheme] = useState<FrameTheme>(() => getThemesForStyle(1)[0].id);
   const currentTheme = styleThemes.find((item) => item.id === theme) ?? styleThemes[0];
+  useEffect(() => {
+    if (step !== 'frame' && selectedStyle === null) goTo('frame');
+  }, [step, selectedStyle, goTo]);
+
   const [filter, setFilter] = useState<FilterType>('natural');
   const [customText, setCustomText] = useState<string>('');
   const [printCopies, setPrintCopies] = useState<number>(1);
@@ -140,6 +141,11 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
   const streamRef = useRef<MediaStream | null>(null);
   const shotIndexRef = useRef(0);
   const retakeRef = useRef<number | null>(null);
+  const isMirrorRef = useRef(isMirror);
+  isMirrorRef.current = isMirror;
+  const facingModeRef = useRef(facingMode);
+  const captureBusyRef = useRef(false);
+  const exportingRef = useRef(false);
   const captureFnRef = useRef<() => void>(() => {});
   const sessionRef = useRef(false);
   const cameraGenerationRef = useRef(0);
@@ -147,8 +153,12 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
   const timeoutsRef = useRef<number[]>([]);
   const languageRef = useRef(language);
   languageRef.current = language;
+  const updateMirror = useCallback((mirror: boolean) => {
+    isMirrorRef.current = mirror;
+    setIsMirror(mirror);
+  }, []);
 
-  const totalShots = currentTheme.slots?.length ?? getLayoutSpec(layout).slots;
+  const totalShots = currentTheme.slots?.length ?? 0;
   const cameraRatio = currentTheme.slots?.length
     ? `${currentTheme.slots[0].w} / ${currentTheme.slots[0].h}`
     : '4 / 3';
@@ -170,39 +180,10 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
     timeoutsRef.current.push(id);
   }, []);
 
-  const startCamera = useCallback(async () => {
-    setCameraError(null);
-    const generation = ++cameraGenerationRef.current;
-    let stream: MediaStream | null = null;
-    try {
-      if (streamRef.current) streamRef.current.getTracks().forEach((track) => track.stop());
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: 1920 }, height: { ideal: 1440 }, facingMode },
-        audio: false,
-      });
-      if (generation !== cameraGenerationRef.current) {
-        stream.getTracks().forEach((track) => track.stop());
-        return;
-      }
-      streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-      }
-      setCameraActive(true);
-    } catch (err) {
-      stream?.getTracks().forEach((track) => track.stop());
-      if (generation !== cameraGenerationRef.current) return;
-      streamRef.current = null;
-      console.error('Camera access error:', err);
-      setCameraError(TRANSLATIONS[languageRef.current].booth.cameraError);
-      setCameraActive(false);
-    }
-  }, [facingMode]);
-
   const stopCamera = useCallback(() => {
     cameraGenerationRef.current += 1;
     clearCaptureTimers();
+    captureBusyRef.current = false;
     sessionRef.current = false;
     setCountdown(null);
     setIsSessionActive(false);
@@ -214,6 +195,46 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
     setCameraActive(false);
   }, [clearCaptureTimers]);
 
+  const startCamera = useCallback(async () => {
+    setCameraError(null);
+    const generation = ++cameraGenerationRef.current;
+    let stream: MediaStream | null = null;
+    let previous: MediaStream | null = null;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: { ideal: 1920 }, height: { ideal: 1440 }, facingMode: facingModeRef.current },
+        audio: false,
+      });
+      if (generation !== cameraGenerationRef.current) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+      previous = streamRef.current;
+      streamRef.current = stream;
+      stream.getTracks().forEach((track) => {
+        track.addEventListener('ended', () => {
+          if (generation !== cameraGenerationRef.current) return;
+          stopCamera();
+          setCameraError(TRANSLATIONS[languageRef.current].booth.cameraError);
+        });
+      });
+      previous?.getTracks().forEach((track) => track.stop());
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+      }
+      setCameraActive(true);
+    } catch (err) {
+      stream?.getTracks().forEach((track) => track.stop());
+      previous?.getTracks().forEach((track) => track.stop());
+      if (generation !== cameraGenerationRef.current) return;
+      streamRef.current = null;
+      console.error('Camera access error:', err);
+      setCameraError(TRANSLATIONS[languageRef.current].booth.cameraError);
+      setCameraActive(false);
+    }
+  }, [stopCamera]);
+
   useEffect(() => {
     if (step === 'capture') startCamera();
     else stopCamera();
@@ -222,9 +243,11 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
 
   const toggleCameraFacing = useCallback(() => {
     const next = facingMode === 'user' ? 'environment' : 'user';
+    facingModeRef.current = next;
     setFacingMode(next);
-    setIsMirror(next === 'user');
-  }, [facingMode]);
+    updateMirror(next === 'user');
+    void startCamera();
+  }, [facingMode, startCamera, updateMirror]);
 
   const snapFrame = useCallback((): string | null => {
     const video = videoRef.current;
@@ -234,13 +257,13 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
     canvas.height = video.videoHeight;
     const ctx = canvas.getContext('2d');
     if (!ctx) return null;
-    if (isMirror) {
+    if (isMirrorRef.current) {
       ctx.translate(canvas.width, 0);
       ctx.scale(-1, 1);
     }
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     return canvas.toDataURL('image/jpeg', 0.95);
-  }, [isMirror]);
+  }, []);
 
   const finishShot = useCallback((photoData: string) => {
     const target = retakeRef.current ?? shotIndexRef.current;
@@ -269,13 +292,18 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
     } else {
       sessionRef.current = false;
       setIsSessionActive(false);
-      scheduleTimeout(() => goTo('confirm'), 600);
+      captureBusyRef.current = true;
+      scheduleTimeout(() => {
+        captureBusyRef.current = false;
+        goTo('confirm');
+      }, 600);
     }
   }, [shots, goTo, totalShots, scheduleTimeout]);
 
   const startNewStrip = useCallback(() => {
     shotIndexRef.current = 0;
     retakeRef.current = null;
+    captureBusyRef.current = false;
     sessionRef.current = false;
     setCurrentShotIndex(0);
     setRetakeIndex(null);
@@ -283,7 +311,13 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
   }, []);
 
   const triggerCapture = useCallback(() => {
-    if (sessionRef.current || !streamRef.current) return;
+    if (captureBusyRef.current || sessionRef.current || !streamRef.current) return;
+    const video = videoRef.current;
+    if (!video || video.videoWidth === 0 || video.videoHeight === 0) {
+      setCameraActive(false);
+      setCameraError(t.cameraError);
+      return;
+    }
     if (shouldRestartCapture(shots, totalShots, retakeRef.current)) startNewStrip();
     sessionRef.current = true;
     setIsSessionActive(true);
@@ -312,9 +346,11 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
       else {
         sessionRef.current = false;
         setIsSessionActive(false);
+        setCameraActive(false);
+        setCameraError(t.cameraError);
       }
     }, 1000);
-  }, [countdownDuration, snapFrame, finishShot, scheduleTimeout, shots, totalShots, startNewStrip]);
+  }, [countdownDuration, snapFrame, finishShot, scheduleTimeout, shots, totalShots, startNewStrip, t]);
 
   captureFnRef.current = triggerCapture;
 
@@ -331,9 +367,11 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
   }, [goTo]);
 
   const selectStyle = useCallback((id: number) => {
+    const themes = getThemesForStyle(id);
+    if (themes.length === 0) return;
     startNewStrip();
     setSelectedStyle(id);
-    setTheme(getThemesForStyle(id)[0].id);
+    setTheme(themes[0].id);
   }, [startNewStrip]);
 
   const getFilterStyle = useCallback(
@@ -379,7 +417,7 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
       e.target.value = '';
       return;
     }
-    if (files.some((file) => !file.type.startsWith('image/'))) {
+    if (files.some((file) => !file.type.startsWith('image/') || file.size > 20 * 1024 * 1024)) {
       setUploadError(t.uploadFailed);
       e.target.value = '';
       return;
@@ -398,6 +436,8 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
         return;
       }
       shotIndexRef.current = 0;
+      retakeRef.current = null;
+      setRetakeIndex(null);
       setCurrentShotIndex(0);
       setShots(uploaded);
       goTo('confirm');
@@ -409,10 +449,12 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
   }, [goTo, t, totalShots]);
 
   const handleDownload = useCallback(async () => {
-    if (!isStripComplete(shots, totalShots)) {
+    if (exportingRef.current) return;
+    if (shots.length !== totalShots || !isStripComplete(shots, totalShots)) {
       setExportError(t.stripIncomplete);
       return;
     }
+    exportingRef.current = true;
     setIsExporting(true);
     setExportError(null);
     try {
@@ -430,15 +472,18 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
       console.error(err);
       setExportError(t.exportError);
     } finally {
+      exportingRef.current = false;
       setIsExporting(false);
     }
   }, [shots, totalShots, t, currentTheme.id, filter, customText]);
 
   const handleDownloadSingles = useCallback(async () => {
-    if (!isStripComplete(shots, totalShots)) {
+    if (exportingRef.current) return;
+    if (shots.length !== totalShots || !isStripComplete(shots, totalShots)) {
       setExportError(t.stripIncomplete);
       return;
     }
+    exportingRef.current = true;
     setIsExporting(true);
     setExportError(null);
     try {
@@ -457,13 +502,15 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
       console.error(err);
       setExportError(t.exportError);
     } finally {
+      exportingRef.current = false;
       setIsExporting(false);
     }
   }, [shots, totalShots, t, filter, customText]);
 
   const handlePrint = useCallback(async () => {
-    if (isExporting || !isStripComplete(shots, totalShots)) {
-      if (!isExporting) setExportError(t.stripIncomplete);
+    if (exportingRef.current) return;
+    if (shots.length !== totalShots || !isStripComplete(shots, totalShots)) {
+      setExportError(t.stripIncomplete);
       return;
     }
     const printWindow = window.open('', '_blank');
@@ -471,6 +518,7 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
       setExportError(t.printPopupBlocked);
       return;
     }
+    exportingRef.current = true;
     setIsExporting(true);
     setExportError(null);
     try {
@@ -481,7 +529,6 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
         customFooterText: customText.trim(),
       });
       await printCanvas(canvas, printCopies, {
-        popupBlocked: t.printPopupBlocked,
         printTitle: t.printDocumentTitle,
       }, printWindow);
     } catch (err) {
@@ -489,16 +536,17 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
       console.error(err);
       setExportError(t.exportError);
     } finally {
+      exportingRef.current = false;
       setIsExporting(false);
     }
-  }, [isExporting, shots, totalShots, t, currentTheme.id, filter, customText, printCopies]);
+  }, [shots, totalShots, t, currentTheme.id, filter, customText, printCopies]);
 
   const value: BoothContextValue = {
     language, t, step, goTo, backToHome: onBackToHome,
     selectedStyle, selectStyle, theme, setTheme, filter, setFilter,
-    currentTheme, styleThemes, layout, totalShots, cameraRatio,
+    currentTheme, styleThemes, totalShots, cameraRatio,
     customText, setCustomText, printCopies, setPrintCopies,
-    videoRef, fileInputRef, cameraActive, cameraError, facingMode, isMirror, setIsMirror,
+    videoRef, fileInputRef, cameraActive, cameraError, facingMode, isMirror, setIsMirror: updateMirror,
     countdownDuration, setCountdownDuration, countdown, isFlashing, toggleCameraFacing,
     startCamera, triggerCapture,
     shots, currentShotIndex, retakeIndex, isSessionActive, startRetake, goToRetake, startNewStrip,

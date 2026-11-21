@@ -27,8 +27,11 @@ export const applyCanvasFilter = (ctx: CanvasRenderingContext2D, filter: FilterT
 };
 
 const GRAIN_TILE = 256;
+const grainTiles = new Map<number, HTMLCanvasElement>();
 
-const createGrainPattern = (ctx: CanvasRenderingContext2D, intensity: number): CanvasPattern | null => {
+const getGrainTile = (intensity: number): HTMLCanvasElement | null => {
+  const cached = grainTiles.get(intensity);
+  if (cached) return cached;
   const tile = document.createElement('canvas');
   tile.width = GRAIN_TILE;
   tile.height = GRAIN_TILE;
@@ -45,7 +48,13 @@ const createGrainPattern = (ctx: CanvasRenderingContext2D, intensity: number): C
     image.data[i + 3] = alpha;
   }
   tileCtx.putImageData(image, 0, 0);
-  return ctx.createPattern(tile, 'repeat');
+  grainTiles.set(intensity, tile);
+  return tile;
+};
+
+const createGrainPattern = (ctx: CanvasRenderingContext2D, intensity: number): CanvasPattern | null => {
+  const tile = getGrainTile(intensity);
+  return tile ? ctx.createPattern(tile, 'repeat') : null;
 };
 
 const drawGrain = (ctx: CanvasRenderingContext2D, width: number, height: number, intensity = 0.04) => {
@@ -65,16 +74,19 @@ export const renderPhotostripToCanvas = async (options: RenderOptions): Promise<
   // Custom Canva PNG frames have transparent photo slots. Paint each shot
   // into its measured slot, then lay the frame art over it so stickers stay
   // on top of the photos.
-  if (themeCfg.imagePath && themeCfg.slots && themeCfg.slots.length > 0 && images.length > 0) {
-    const frame = await loadImage(themeCfg.imagePath);
+  if (themeCfg.imagePath && themeCfg.slots && themeCfg.slots.length > 0 && images.length === themeCfg.slots.length) {
+    const [frame, ...photos] = await Promise.all([
+      loadImage(themeCfg.imagePath),
+      ...images.map((src) => loadImage(src)),
+    ]);
     const canvas = document.createElement('canvas');
     canvas.width = frame.naturalWidth;
     canvas.height = frame.naturalHeight;
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Could not get canvas context');
 
-    for (let i = 0; i < themeCfg.slots.length && i < images.length; i++) {
-      const photo = await loadImage(images[i]);
+    for (let i = 0; i < themeCfg.slots.length; i++) {
+      const photo = photos[i];
       const { x, y, w, h } = themeCfg.slots[i];
       const targetAspect = w / h;
       const imgAspect = photo.width / photo.height;
@@ -97,9 +109,7 @@ export const renderPhotostripToCanvas = async (options: RenderOptions): Promise<
     if (caption) {
       if (document.fonts?.ready) await document.fonts.ready;
       const [r, g, b, a] = ctx.getImageData(caption.centerX, caption.centerY, 1, 1).data;
-      const alpha = a / 255;
-      const blend = (channel: number) => Math.round(channel * alpha + 255 * (1 - alpha));
-      ctx.fillStyle = captionTextColor(blend(r), blend(g), blend(b));
+      ctx.fillStyle = captionTextColor(r, g, b, a);
       ctx.font = `600 ${caption.fontSize}px "Playfair Display", "Cormorant Garamond", Georgia, serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -193,7 +203,7 @@ export const renderIndividualPhoto = async (
 export const printCanvas = async (
   canvas: HTMLCanvasElement,
   copies = 1,
-  strings: { popupBlocked: string; printTitle: string },
+  strings: { printTitle: string },
   printWindow: Window
 ): Promise<void> => {
   const url = URL.createObjectURL(await toDpiPngBlob(canvas));

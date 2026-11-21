@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { FrameTheme } from './types';
-import { getThemeById, CUSTOM_FRAMES } from './FrameThemes';
+import { getThemesForStyle, getThemeById } from './FrameThemes';
 import { getFrameCaptionBox, captionTextColor } from './frameCaption';
 
 interface ThemedFramePreviewProps {
@@ -21,38 +21,51 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
   previousThemeLabel,
   nextThemeLabel,
 }) => {
-  const themes = CUSTOM_FRAMES.filter((t) => t.style === (selectedStyle ?? 1));
+  const themes = getThemesForStyle(selectedStyle ?? 1);
   const effectiveTheme = themes.find((t) => t.id === theme) ?? themes[0];
   const currentTheme = getThemeById(effectiveTheme?.id ?? theme);
-
-  const stepTheme = (delta: number) => {
-    const currentIndex = themes.findIndex((t) => t.id === theme);
-    const nextIndex = (currentIndex + delta + themes.length) % themes.length;
-    onThemeChange(themes[nextIndex].id);
-  };
 
   const captionBox = currentTheme.imageWidth && currentTheme.imageHeight
     ? getFrameCaptionBox(currentTheme.imageWidth, currentTheme.imageHeight, currentTheme.slots ?? [], customText)
     : null;
   const [captionFill, setCaptionFill] = useState<string>('#111111');
+  const frameImageRef = useRef<HTMLImageElement | null>(null);
+  const captionX = captionBox?.centerX;
+  const captionY = captionBox?.centerY;
+  const sampleCaption = useCallback((image: HTMLImageElement) => {
+    if (captionX === undefined || captionY === undefined) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = 1;
+    canvas.height = 1;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.drawImage(image, captionX, captionY, 1, 1, 0, 0, 1, 1);
+    const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
+    setCaptionFill(captionTextColor(r, g, b, a));
+  }, [captionX, captionY]);
+
+  useEffect(() => {
+    if (frameImageRef.current) sampleCaption(frameImageRef.current);
+  }, [sampleCaption, customText]);
+
+  if (themes.length === 0) return null;
+
+  const currentIndex = Math.max(0, themes.findIndex((t) => t.id === effectiveTheme?.id));
+  const stepTheme = (delta: number) => {
+    onThemeChange(themes[(currentIndex + delta + themes.length) % themes.length].id);
+  };
+
   const isLongCaption = captionBox
     ? customText.trim().length * captionBox.fontSize * 0.6 > captionBox.maxWidth
     : false;
 
   const handleFrameLoad = (image: HTMLImageElement) => {
-    if (!captionBox) return;
-    const canvas = document.createElement('canvas');
-    canvas.width = image.naturalWidth;
-    canvas.height = image.naturalHeight;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    ctx.drawImage(image, 0, 0);
-    const [r, g, b] = ctx.getImageData(captionBox.centerX, captionBox.centerY, 1, 1).data;
-    setCaptionFill(captionTextColor(r, g, b));
+    frameImageRef.current = image;
+    sampleCaption(image);
   };
 
   return (
-    <div className="relative w-full max-w-4xl mx-auto flex items-center justify-center gap-2 sm:gap-4 md:gap-6 select-none">
+    <div className="relative w-full max-w-4xl mx-auto flex-1 min-h-0 flex items-center justify-center gap-2 sm:gap-4 md:gap-6 select-none">
       <button
         onClick={() => stepTheme(-1)}
         className="w-8 h-8 sm:w-11 sm:h-11 md:w-14 md:h-14 rounded-full border border-black/30 bg-white/90 hover:bg-black hover:text-white transition-all flex items-center justify-center text-black shadow-md cursor-pointer hover:scale-105 active:scale-95 z-20"
@@ -65,7 +78,7 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
         <img
           src={currentTheme.imagePath}
           alt={currentTheme.nameEn}
-          className="max-h-[46vh] w-auto max-w-full object-contain"
+          className="max-h-[46vh] max-h-full w-auto max-w-full object-contain"
           onLoad={(event) => handleFrameLoad(event.currentTarget)}
         />
         {captionBox && (

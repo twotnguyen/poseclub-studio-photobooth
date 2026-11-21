@@ -127,6 +127,7 @@ def get_fonts(scale=1.0):
         font_bar = ImageFont.truetype('C:/Windows/Fonts/arial.ttf', int(32 * scale))
         font_symbol = ImageFont.truetype('C:/Windows/Fonts/seguiemj.ttf', int(48 * scale))
     except Exception:
+        # Requires Pillow >= 10.1: load_default() then returns a TrueType font that supports anchor="...".
         font_serif = font_sans = font_bar = font_symbol = ImageFont.load_default()
     return font_serif, font_sans, font_bar, font_symbol
 
@@ -244,6 +245,10 @@ def main():
     # Scratch output only: never overwrite the shipped public/exported-frames catalog.
     base_out = "scratch/export_all_frames/exported-frames"
     public_out = "scratch/export_all_frames/catalog"
+    scratch_root = os.path.realpath("scratch")
+    for out in (base_out, public_out):
+        assert os.path.commonpath([scratch_root, os.path.realpath(out)]) == scratch_root, \
+            f"refusing to write outside scratch/: {out}"
     os.makedirs(base_out, exist_ok=True)
     os.makedirs(public_out, exist_ok=True)
 
