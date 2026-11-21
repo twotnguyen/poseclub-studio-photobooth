@@ -129,7 +129,7 @@ export const StudioTab: React.FC<StudioTabProps> = ({ language }) => {
         {/* Right Card: Google Maps & Highlight Badges */}
         <div className="studio-tab__card md:col-span-7 bg-white border border-black/15 rounded-2xl overflow-hidden flex flex-col shadow-sm">
           {/* Map & Visual */}
-          <div className="studio-tab__map w-full relative h-24 sm:h-[260px] md:h-auto md:flex-1 bg-[#EFECE6] flex items-center justify-center overflow-hidden">
+          <div className="studio-tab__map w-full relative flex-1 min-h-0 sm:min-h-[240px] bg-[#EFECE6] flex items-center justify-center overflow-hidden">
             <iframe
               title={t.mapTitle}
               src={STUDIO_CONFIG.mapsEmbedUrl}

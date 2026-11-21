@@ -73,8 +73,8 @@ export const Navigation: React.FC<NavigationProps> = ({
           </span>
         </Link>
 
-        {/* Desktop Tabs (hidden on mobile, visible on md+) */}
-        <nav className="hidden md:flex items-center space-x-1 sm:space-x-2">
+        {/* Desktop Tabs (hidden on mobile, visible on lg+) */}
+        <nav className="hidden lg:flex items-center space-x-1 sm:space-x-2">
           {tabs.map((tab) => {
             const isActive =
               tab.path === '/'
@@ -154,7 +154,7 @@ export const Navigation: React.FC<NavigationProps> = ({
           <button
             ref={menuButtonRef}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden w-11 h-11 shrink-0 rounded-full border border-black/20 bg-white/70 hover:bg-black hover:text-white transition-colors flex items-center justify-center text-black shadow-sm cursor-pointer"
+            className="lg:hidden w-11 h-11 shrink-0 rounded-full border border-black/20 bg-white/70 hover:bg-black hover:text-white transition-colors flex items-center justify-center text-black shadow-sm cursor-pointer"
             aria-label={mobileMenuOpen ? t.nav.closeMenu : t.nav.openMenu}
             aria-expanded={mobileMenuOpen}
           >
@@ -165,7 +165,7 @@ export const Navigation: React.FC<NavigationProps> = ({
 
       {/* Mobile Navigation Drawer Modal */}
       {mobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-40 bg-black/40 backdrop-blur-sm flex flex-col justify-start pt-16">
+        <div className="lg:hidden fixed inset-0 z-40 bg-black/40 backdrop-blur-sm flex flex-col justify-start pt-16">
           <div
             id="mobile-navigation-drawer"
             ref={drawerRef}

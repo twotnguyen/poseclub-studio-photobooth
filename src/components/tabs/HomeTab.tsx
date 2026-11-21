@@ -157,7 +157,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
         </div>
 
         {/* 6 Polaroid Thumbnails */}
-        <div className="home-tab__thumbs flex items-center justify-center gap-1 sm:gap-3.5 md:gap-5 px-2 py-2 sm:px-4 sm:py-4 overflow-x-auto max-w-full">
+        <div className="home-tab__thumbs flex items-center justify-center gap-1.5 sm:gap-3.5 md:gap-6 px-4 py-4 overflow-x-auto max-w-full">
           {GALLERY_ITEMS.map((item, index) => {
             const meta = t.gallery.find((g) => g.id === item.id) || { title: '', subtitle: '' };
             const isActive = activeIdx === index;
@@ -184,7 +184,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
                 }}
                 title={`${meta.title} — ${t.galleryHint}`}
               >
-                <div className="home-tab__thumb-photo w-10 h-[3.25rem] sm:w-16 sm:h-[5.5rem] md:w-24 md:h-[7.8rem] overflow-hidden rounded-[2px] bg-black/5 relative">
+                <div className="home-tab__thumb-photo w-12 h-16 sm:w-16 sm:h-[5.5rem] md:w-28 md:h-[9rem] overflow-hidden rounded-[2px] bg-black/5 relative">
                   <img
                     src={item.src}
                     alt={meta.title}

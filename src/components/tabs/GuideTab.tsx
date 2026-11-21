@@ -29,13 +29,13 @@ export const GuideTab: React.FC<GuideTabProps> = ({ language, onStartBooth }) =>
       </div>
 
       {/* 3 Step Cards */}
-      <div className="guide-tab__cards grid grid-cols-3 gap-1.5 sm:gap-6 max-w-5xl w-full mx-auto my-auto py-1">
+      <div className="guide-tab__cards grid grid-cols-3 items-start sm:items-stretch gap-1.5 sm:gap-6 max-w-5xl w-full mx-auto my-auto py-1">
         {steps.map((step, idx) => {
           const Icon = step.icon;
           return (
             <div
               key={idx}
-              className="guide-tab__card bg-white border border-black/15 rounded-xl sm:rounded-2xl p-2 sm:p-6 flex flex-col justify-between shadow-sm hover:border-black transition-all group"
+              className="guide-tab__card bg-white border border-black/15 rounded-xl sm:rounded-2xl p-2.5 sm:p-6 flex flex-col justify-start sm:justify-between shadow-sm hover:border-black transition-all group"
             >
               <div className="space-y-2 sm:space-y-4">
                 <div className="flex items-center justify-between">

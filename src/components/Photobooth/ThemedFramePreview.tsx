@@ -68,17 +68,17 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
     <div className="relative w-full max-w-4xl mx-auto flex-1 min-h-0 flex items-center justify-center gap-2 sm:gap-4 md:gap-6 select-none">
       <button
         onClick={() => stepTheme(-1)}
-        className="w-8 h-8 sm:w-11 sm:h-11 md:w-14 md:h-14 rounded-full border border-black/30 bg-white/90 hover:bg-black hover:text-white transition-all flex items-center justify-center text-black shadow-md cursor-pointer hover:scale-105 active:scale-95 z-20"
+        className="w-11 h-11 sm:w-11 md:w-14 rounded-full border border-black/30 bg-white/90 hover:bg-black hover:text-white transition-all flex items-center justify-center text-black shadow-md cursor-pointer hover:scale-105 active:scale-95 z-20"
         title={previousThemeLabel}
       >
         <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 md:w-7 md:h-7" />
       </button>
 
-      <div className="relative inline-block leading-none">
+      <div className="relative flex h-full min-h-0 items-center justify-center leading-none">
         <img
           src={currentTheme.imagePath}
           alt={currentTheme.nameEn}
-          className="max-h-[46vh] max-h-full w-auto max-w-full object-contain"
+          className="max-h-full w-auto max-w-full object-contain"
           onLoad={(event) => handleFrameLoad(event.currentTarget)}
         />
         {captionBox && (
@@ -107,7 +107,7 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
 
       <button
         onClick={() => stepTheme(1)}
-        className="w-8 h-8 sm:w-11 sm:h-11 md:w-14 md:h-14 rounded-full border border-black/30 bg-white/90 hover:bg-black hover:text-white transition-all flex items-center justify-center text-black shadow-md cursor-pointer hover:scale-105 active:scale-95 z-20"
+        className="w-11 h-11 sm:w-11 md:w-14 rounded-full border border-black/30 bg-white/90 hover:bg-black hover:text-white transition-all flex items-center justify-center text-black shadow-md cursor-pointer hover:scale-105 active:scale-95 z-20"
         title={nextThemeLabel}
       >
         <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 md:w-7 md:h-7" />

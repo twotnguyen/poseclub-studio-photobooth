@@ -20,8 +20,8 @@ export const ConfirmStep: React.FC = () => {
   const columnCount = Math.min(Math.max(new Set(slots.map((s) => Math.round(s.x / 10))).size, 1), 4);
   const isLandscapeFrame = slot ? slot.w > slot.h : false;
   const frameSizeClass = isLandscapeFrame
-    ? 'w-20 sm:w-24 [@media(max-height:500px)]:w-14 lg:w-[min(46vw,520px)] xl:w-[min(64vw,670px)]'
-    : 'w-20 sm:w-24 [@media(max-height:500px)]:w-14 lg:w-[min(260px,36vh)] xl:w-[min(310px,42vh)]';
+    ? 'w-28 sm:w-32 [@media(max-height:500px)]:w-14 lg:w-[min(46vw,520px)] xl:w-[min(64vw,670px)]'
+    : 'w-28 sm:w-32 [@media(max-height:500px)]:w-14 lg:w-[min(260px,36vh)] xl:w-[min(310px,42vh)]'
   return (
     <div className="h-full flex flex-col pb-1 sm:pb-2 [@media(max-height:500px)]:pb-0">
       <div className="shrink-0 text-center pt-1 pb-1 sm:pt-2 sm:pb-3 [@media(max-height:500px)]:py-0">
@@ -34,7 +34,7 @@ export const ConfirmStep: React.FC = () => {
         </p>
       </div>
 
-      <div className="flex-1 min-h-0 w-full grid grid-cols-1 [@media(max-height:500px)]:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 lg:gap-6 [@media(max-height:500px)]:gap-1 px-3 sm:px-8 [@media(max-height:500px)]:px-2">
+      <div className="flex-1 min-h-0 w-full grid content-center grid-cols-1 [@media(max-height:500px)]:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 lg:gap-6 [@media(max-height:500px)]:gap-1 px-3 sm:px-8 [@media(max-height:500px)]:px-2">
         <div className="hidden xl:block" aria-hidden="true" />
 
         <div className="order-1 lg:order-1 xl:order-2 lg:col-start-1 xl:col-start-2 lg:translate-y-3 flex flex-col items-center justify-center min-h-0 justify-self-center">

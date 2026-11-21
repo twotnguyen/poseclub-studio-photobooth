@@ -12,7 +12,7 @@ export const CaptureStep: React.FC = () => {
     uploadError, handleFileUpload, goTo, totalShots, cameraRatio, currentTheme, renderCustomFrame, getFilterStyle,
   } = useBooth();
   const isLandscapeFrame = (currentTheme.imageWidth ?? 1240) > (currentTheme.imageHeight ?? 1844);
-  const frameSizeClass = isLandscapeFrame ? 'w-[min(43vw,560px)]' : 'w-[440px]';
+  const frameSizeClass = isLandscapeFrame ? 'w-[min(38vw,460px)]' : 'w-[min(34vh,400px)]';
 
   return (
     <div className="h-full flex flex-col pb-1 [@media(max-height:500px)]:pb-0">
@@ -29,20 +29,20 @@ export const CaptureStep: React.FC = () => {
 
       </div>
 
-      <div className="flex-1 min-h-0 w-full flex flex-col md:grid md:grid-cols-[1fr_auto_1fr] items-center gap-2 [@media(max-height:500px)]:gap-1 px-2 sm:px-6">
+      <div className="flex-1 min-h-0 w-full flex flex-col justify-evenly md:grid md:grid-cols-[1fr_auto_1fr] md:justify-center items-center gap-2 [@media(max-height:500px)]:gap-1 px-2 sm:px-6">
         {shots.some(Boolean) && (
           <div className="order-2 md:hidden w-full flex items-center justify-center gap-2 py-1 [@media(max-height:500px)]:hidden overflow-x-auto">
             {renderCustomFrame('w-[120px]')}
           </div>
         )}
 
-        <div className={`order-3 md:order-1 hidden md:flex [@media(max-height:500px)]:hidden relative md:-top-20 ${isLandscapeFrame ? 'md:-ml-10' : 'md:-ml-24'} justify-self-center flex-col items-center justify-center`}>
+        <div className="order-3 md:order-1 hidden md:flex [@media(max-height:500px)]:hidden relative md:justify-self-center flex-col items-center justify-center">
           {renderCustomFrame(frameSizeClass)}
         </div>
 
-        <div className="order-1 md:order-2 w-full md:w-auto md:translate-x-6 md:-translate-y-8 justify-self-center flex flex-col items-center justify-center">
+        <div className="order-1 md:order-2 w-full md:w-auto md:justify-self-center flex flex-col items-center justify-center">
           <div
-            className="relative w-full h-auto max-h-[min(38dvh,400px)] [@media(max-height:500px)]:max-h-[29vh] md:w-auto md:h-[min(46vh,400px)] overflow-hidden border-2 border-black bg-black shadow-2xl flex items-center justify-center"
+            className="relative w-full h-auto max-h-[min(50dvh,440px)] [@media(max-height:500px)]:max-h-[29vh] md:w-auto md:h-[min(46vh,400px)] overflow-hidden border-2 border-black bg-black shadow-2xl flex items-center justify-center"
             style={{ aspectRatio: cameraRatio }}
           >
             <video
@@ -139,7 +139,7 @@ export const CaptureStep: React.FC = () => {
         <div className="hidden md:block order-4" aria-hidden="true" />
       </div>
 
-      <div className="w-full max-w-4xl mx-auto grid grid-cols-[auto_1fr_auto] lg:grid-cols-3 items-center gap-2 [@media(max-height:500px)]:gap-1 py-0">
+      <div className="w-full max-w-6xl mx-auto px-2 sm:px-6 grid grid-cols-[auto_1fr_auto] lg:grid-cols-3 items-center gap-2 [@media(max-height:500px)]:gap-1 py-0">
         <button
           onClick={() => goTo('theme')}
           disabled={isSessionActive}
@@ -173,7 +173,7 @@ export const CaptureStep: React.FC = () => {
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={isSessionActive}
-            className="px-3 sm:px-4 py-2 min-h-11 [@media(max-height:500px)]:py-1 rounded-full border border-black/30 hover:border-black text-[10px] sm:text-xs font-mono text-black transition-colors flex items-center gap-1.5 cursor-pointer"
+            className="px-3 sm:px-4 py-2 min-h-11 [@media(max-height:500px)]:py-1 rounded-full border border-black/30 hover:border-black text-[10px] sm:text-xs font-mono text-black transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
           >
             <Upload className="w-3.5 h-3.5" />
             <span>{t.uploadBtn}</span>
@@ -191,7 +191,7 @@ export const CaptureStep: React.FC = () => {
           <button
             onClick={triggerCapture}
             disabled={isSessionActive || !cameraActive}
-            className="px-5 sm:px-8 py-2 min-h-11 [@media(max-height:500px)]:py-1 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-[10px] sm:text-xs font-mono uppercase tracking-wider sm:tracking-widest transition-all shadow-lg flex items-center gap-1.5 sm:gap-2 disabled:opacity-40 cursor-pointer hover:scale-105 active:scale-95"
+            className="px-4 sm:px-8 py-2 min-h-11 [@media(max-height:500px)]:py-1 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-[10px] sm:text-xs font-mono uppercase tracking-wider sm:tracking-widest transition-all shadow-lg flex items-center gap-1.5 sm:gap-2 disabled:opacity-40 cursor-pointer hover:scale-105 active:scale-95 whitespace-nowrap"
           >
             <Camera className="w-4 h-4" />
             <span>{isSessionActive ? t.capturing : t.captureBtn}</span>

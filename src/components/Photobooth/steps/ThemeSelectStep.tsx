@@ -47,7 +47,7 @@ export const ThemeSelectStep: React.FC = () => {
         </div>
       </div>
 
-      <div className="w-full max-w-3xl mx-auto grid grid-cols-3 items-center pt-1 pb-1 [@media(max-height:500px)]:pt-0">
+      <div className="w-full max-w-3xl mx-auto flex items-center justify-between pt-1 pb-1 sm:grid sm:grid-cols-3 [@media(max-height:500px)]:pt-0">
         <button
           onClick={() => goTo('frame')}
           className="justify-self-center w-11 h-11 sm:w-14 sm:h-14 rounded-full border border-black/50 bg-white hover:bg-black hover:text-white transition-all flex flex-col items-center justify-center text-black shadow-sm cursor-pointer group"
@@ -65,7 +65,7 @@ export const ThemeSelectStep: React.FC = () => {
 
         <button
           onClick={() => { startNewStrip(); goTo('capture'); }}
-          className="justify-self-center px-6 sm:px-8 py-2.5 min-h-11 [@media(max-height:500px)]:py-1.5 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-[11px] sm:text-xs font-mono uppercase tracking-widest transition-all shadow-md flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95"
+          className="justify-self-center px-4 sm:px-8 py-2.5 min-h-11 [@media(max-height:500px)]:py-1.5 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-[11px] sm:text-xs font-mono uppercase tracking-widest whitespace-nowrap transition-all shadow-md flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95"
         >
           <span>{t.startCapture}</span>
           <span>✦</span>
