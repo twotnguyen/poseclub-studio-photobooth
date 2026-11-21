@@ -9,17 +9,30 @@ interface HomeTabProps {
 }
 
 const GALLERY_ITEMS = [
-  { id: 'photowall-gold-frame', src: '/images/photowall-gold-frame.jpg', rotate: -2 },
-  { id: 'props-headbands', src: '/images/props-headbands.jpg', rotate: 1.5 },
-  { id: 'booth-frame-menu', src: '/images/booth-frame-menu.jpg', rotate: -1 },
-  { id: 'props-clips-glasses', src: '/images/props-clips-glasses.jpg', rotate: 2 },
-  { id: 'photowall-plushie', src: '/images/photowall-plushie.jpg', rotate: -1.5 },
-  { id: 'props-glasses-shelf', src: '/images/props-glasses-shelf.jpg', rotate: 1 },
+  { id: 'photowall-gold-frame', src: '/images/photowall-gold-frame.jpg' },
+  { id: 'props-headbands', src: '/images/props-headbands.jpg' },
+  { id: 'booth-frame-menu', src: '/images/booth-frame-menu.jpg' },
+  { id: 'props-clips-glasses', src: '/images/props-clips-glasses.jpg' },
+  { id: 'photowall-plushie', src: '/images/photowall-plushie.jpg' },
+  { id: 'props-glasses-shelf', src: '/images/props-glasses-shelf.jpg' },
 ];
+
+const TILT_STATES = [0, -6, 6] as const; // upright, left, right
+const INITIAL_TILTS = [2, 0, 0, 1, 2, 0];
 
 export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudio }) => {
   const t = TRANSLATIONS[language].home;
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+  const [tilts, setTilts] = useState<number[]>(INITIAL_TILTS);
+  const [activeIdx, setActiveIdx] = useState<number | null>(null);
+
+  const activateCard = (index: number) => {
+    const offset = 1 + Math.floor(Math.random() * (TILT_STATES.length - 1));
+    setTilts((prev) =>
+      prev.map((value, i) => (i === index ? (value + offset) % TILT_STATES.length : value))
+    );
+    setActiveIdx(index);
+  };
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
@@ -150,6 +163,8 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
         <div className="flex items-center justify-center gap-2.5 sm:gap-3.5 md:gap-4 px-2 overflow-x-auto max-w-full py-1">
           {GALLERY_ITEMS.map((item, index) => {
             const meta = t.gallery.find((g) => g.id === item.id) || { title: '', subtitle: '' };
+            const isActive = activeIdx === index;
+            const tilt = TILT_STATES[tilts[index]];
             return (
               <button
                 key={item.id}
@@ -158,8 +173,14 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
                   triggerRef.current = e.currentTarget;
                   setSelectedIdx(index);
                 }}
-                className="group relative flex-shrink-0 flex flex-col items-center p-1 sm:p-1.5 bg-white border border-black/15 rounded-md shadow-sm hover:shadow-xl hover:-translate-y-1 hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer focus:outline-none focus:ring-1 focus:ring-black/30"
-                style={{ transform: `rotate(${item.rotate}deg)` }}
+                onMouseEnter={() => activateCard(index)}
+                onMouseLeave={() => setActiveIdx(null)}
+                onFocus={() => activateCard(index)}
+                onBlur={() => setActiveIdx(null)}
+                className="group relative flex-shrink-0 flex flex-col items-center p-1 sm:p-1.5 bg-white border border-black/15 rounded-md shadow-sm hover:shadow-xl active:scale-95 transition-all duration-300 cursor-pointer focus:outline-none focus:ring-1 focus:ring-black/30"
+                style={{
+                  transform: `rotate(${tilt}deg) translateY(${isActive ? '-4px' : '0'}) scale(${isActive ? 1.06 : 1})`,
+                }}
                 title={`${meta.title} — ${t.galleryHint}`}
               >
                 <div className="w-[3.25rem] h-[4.25rem] sm:w-16 sm:h-[5.5rem] md:w-20 md:h-[6.5rem] overflow-hidden rounded-[2px] bg-black/5 relative">
