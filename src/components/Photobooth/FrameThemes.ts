@@ -85,7 +85,8 @@ export const CUSTOM_FRAMES: ThemeConfig[] = [
     const num = String(id).padStart(2, '0');
     return {
       id: `custom-${id}` as FrameTheme,
-      style,
+      // Asset dirs keep legacy numbering, so swap public styles 4 and 5 here.
+      style: style === 4 ? 5 : style === 5 ? 4 : style,
       nameEn: `Custom ${num}`,
       imagePath: `/exported-frames/${dir}/${file}`,
       imageWidth: w,

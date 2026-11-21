@@ -45,7 +45,7 @@ Mỗi chức năng hoạt động trên một đường dẫn URL độc lập, 
 
 ### 📸 4. Quy trình Buồng chụp Photobooth 4 bước chuyên sâu
 * **Bước 1 — Chọn kiểu bố cục (Select Frame Layout)**: 
-* 6 kiểu khung PNG (72 thiết kế): Style 1 — Polaroid 1 ảnh; Style 2 — dải 1×2; Style 3 — lưới 2×2; Style 4 — lưới 2×4 (8 ảnh); Style 5 — khung ngang 3×2 (6 ảnh); Style 6 — lưới 3×3 (9 ảnh).
+* 6 kiểu khung PNG (72 thiết kế): Style 1 — Polaroid 1 ảnh; Style 2 — dải 1×2; Style 3 — lưới 2×2; Style 4 — khung ngang 3×2 (6 ảnh); Style 5 — lưới 2×4 (8 ảnh); Style 6 — lưới 3×3 (9 ảnh).
 * Mỗi thiết kế là overlay PNG trong suốt: ảnh của khách được vẽ vào các ô đã đo, sau đó khung được vẽ lên trên để giữ sticker/tim/logo.
 * **Bước 2 — Chọn thiết kế khung (Design)**:
   * Khung ảnh đặt ngay **chính giữa màn hình**, tự động thay đổi theo Style đã chọn ở Bước 1.

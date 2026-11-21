@@ -12,8 +12,8 @@ const frameShapeByStyle: Record<number, { slots: number; frames: number }> = {
   1: { slots: 1, frames: 23 },
   2: { slots: 2, frames: 9 },
   3: { slots: 4, frames: 10 },
-  4: { slots: 8, frames: 10 },
-  5: { slots: 6, frames: 15 },
+  4: { slots: 6, frames: 15 },
+  5: { slots: 8, frames: 10 },
   6: { slots: 9, frames: 5 },
 };
 

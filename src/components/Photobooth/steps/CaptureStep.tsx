@@ -42,7 +42,7 @@ export const CaptureStep: React.FC = () => {
 
         <div className="order-1 md:order-2 w-full md:w-auto md:translate-x-6 md:-translate-y-8 justify-self-center flex flex-col items-center justify-center">
           <div
-            className="relative w-full h-auto max-h-[min(38dvh,400px)] [@media(max-height:500px)]:max-h-[32vh] md:w-auto md:h-[min(46vh,400px)] overflow-hidden border-2 border-black bg-black shadow-2xl flex items-center justify-center"
+            className="relative w-full h-auto max-h-[min(38dvh,400px)] [@media(max-height:500px)]:max-h-[29vh] md:w-auto md:h-[min(46vh,400px)] overflow-hidden border-2 border-black bg-black shadow-2xl flex items-center justify-center"
             style={{ aspectRatio: cameraRatio }}
           >
             <video
@@ -124,7 +124,7 @@ export const CaptureStep: React.FC = () => {
                 key={item.id}
                 onClick={() => setFilter(item.id as FilterType)}
                 aria-pressed={filter === item.id}
-                className={`px-4 sm:px-6 [@media(max-height:500px)]:px-3 py-2 sm:py-2.5 [@media(max-height:500px)]:py-1 min-h-11 [@media(max-height:500px)]:min-h-9 rounded-full border text-[11px] sm:text-[13px] font-mono uppercase tracking-wider transition-all cursor-pointer ${
+                className={`px-4 sm:px-6 [@media(max-height:500px)]:px-3 py-2 sm:py-2.5 [@media(max-height:500px)]:py-1 min-h-11 rounded-full border text-[11px] sm:text-[13px] font-mono uppercase tracking-wider transition-all cursor-pointer ${
                   filter === item.id
                     ? 'border-2 border-black bg-black text-white shadow-sm'
                     : 'border-black/25 bg-white hover:border-black text-black'

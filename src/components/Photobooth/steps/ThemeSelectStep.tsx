@@ -41,7 +41,7 @@ export const ThemeSelectStep: React.FC = () => {
               onChange={(e) => setCustomText(e.target.value)}
               placeholder={t.customTextPlaceholder}
               maxLength={26}
-              className="w-full px-3 py-1.5 [@media(max-height:500px)]:py-0.5 rounded-xl border border-black/20 bg-stone-50 text-xs font-mono focus:border-black focus:outline-none"
+              className="w-full px-3 py-1.5 [@media(max-height:500px)]:py-0.5 [@media(max-height:500px)]:min-h-11 rounded-xl border border-black/20 bg-stone-50 text-xs font-mono focus:border-black focus:outline-none"
             />
           </div>
         </div>

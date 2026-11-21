@@ -58,6 +58,7 @@
     gap: 0 !important;
     padding: 0.25rem 0.75rem !important;
   }
+  header a[href*="instagram"] { min-height: 2.75rem !important; }
   .home-tab > .absolute,
   .home-tab > .flex-1,
   .home-tab__footer p,
@@ -67,13 +68,13 @@
   .home-tab__hero { margin: 0 !important; }
   .home-tab__hero > * + * { margin-top: 0 !important; }
   .home-tab__hero h1 { padding: 0 !important; }
-  .home-tab__hero h1 img { width: auto !important; height: 3.5rem !important; max-width: 100% !important; }
-  .home-tab__hero > div { padding-top: 0.25rem !important; }
-  .home-tab__hero > div button { padding: 0.25rem 1rem !important; }
+  .home-tab__hero h1 { font-size: 3.25rem !important; line-height: 0.8 !important; }
+  .home-tab__hero > div { padding-top: 0.5rem !important; }
+  .home-tab__hero > div button { padding: 0.25rem 1rem !important; min-height: 2.75rem !important; }
   .home-tab__gallery { margin: 0 !important; padding: 0 !important; }
   .home-tab__gallery > div:first-child { margin-bottom: 0.25rem !important; }
   .home-tab__thumbs { padding: 0 !important; }
-  .home-tab__thumb { padding: 0.125rem !important; }
+  .home-tab__thumb { padding: 0.125rem !important; min-width: 2.75rem !important; }
   .home-tab__thumb-photo { width: 2rem !important; height: 2.5rem !important; }
   .home-tab__footer { padding-bottom: 0 !important; }
 
@@ -82,16 +83,16 @@
   .studio-tab__header h2 { font-size: 1.25rem !important; }
   .studio-tab__grid { grid-template-columns: 1fr 1fr !important; gap: 0.5rem !important; margin: 0 !important; }
   .studio-tab__card { grid-column: auto !important; padding: 0.5rem !important; }
-  .studio-tab__card > div:last-child { padding: 0.25rem !important; }
+  .studio-tab__grid > .studio-tab__card:first-child > div:last-child { display: none !important; }
   .studio-tab__card .space-y-1 > * + *,
   .studio-tab__card .space-y-2 > * + *,
   .studio-tab__card .space-y-4 > * + * { margin-top: 0.125rem !important; }
   .studio-tab__card .border-b { padding-bottom: 0.125rem !important; }
-  .studio-tab__card h3 { font-size: 0.875rem !important; }
+  .studio-tab__card h3 { display: none !important; }
   .studio-tab__card p,
   .studio-tab__card span { font-size: 0.625rem !important; line-height: 1.1 !important; }
   .studio-tab__card button,
-  .studio-tab__card a { min-height: 1.5rem !important; padding: 0.125rem 0.375rem !important; }
+  .studio-tab__card a { min-height: 2.75rem !important; padding: 0.125rem 0.375rem !important; }
   .studio-tab__map { height: 5rem !important; flex: none !important; }
   .studio-tab__hours { gap: 0 !important; }
 
@@ -107,7 +108,7 @@
   .guide-tab__card p { font-size: 0.625rem !important; line-height: 1.1 !important; }
   .guide-tab__card-footer { display: none !important; }
   .guide-tab__cta { padding: 0.25rem 0 !important; }
-  .guide-tab__cta button { padding: 0.35rem 1.25rem !important; }
+  .guide-tab__cta button { padding: 0.35rem 1.25rem !important; min-height: 2.75rem !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {

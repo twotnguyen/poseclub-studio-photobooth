@@ -20,8 +20,8 @@ export const ConfirmStep: React.FC = () => {
   const columnCount = Math.min(Math.max(new Set(slots.map((s) => Math.round(s.x / 10))).size, 1), 4);
   const isLandscapeFrame = slot ? slot.w > slot.h : false;
   const frameSizeClass = isLandscapeFrame
-    ? 'w-20 sm:w-24 [@media(max-height:500px)]:w-16 lg:w-[min(46vw,520px)] xl:w-[min(64vw,670px)]'
-    : 'w-20 sm:w-24 [@media(max-height:500px)]:w-16 lg:w-[min(260px,36vh)] xl:w-[min(310px,42vh)]';
+    ? 'w-20 sm:w-24 [@media(max-height:500px)]:w-14 lg:w-[min(46vw,520px)] xl:w-[min(64vw,670px)]'
+    : 'w-20 sm:w-24 [@media(max-height:500px)]:w-14 lg:w-[min(260px,36vh)] xl:w-[min(310px,42vh)]';
   return (
     <div className="h-full flex flex-col pb-1 sm:pb-2 [@media(max-height:500px)]:pb-0">
       <div className="shrink-0 text-center pt-1 pb-1 sm:pt-2 sm:pb-3 [@media(max-height:500px)]:py-0">
@@ -55,7 +55,7 @@ export const ConfirmStep: React.FC = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setPrintCopies(Math.max(1, printCopies - 1))}
-                className="w-8 h-8 min-w-11 min-h-11 [@media(max-height:500px)]:min-w-8 [@media(max-height:500px)]:min-h-8 rounded-full border border-black/25 flex items-center justify-center hover:bg-black hover:text-white transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880]"
+                className="w-8 h-8 min-w-11 min-h-11 [@media(max-height:500px)]:min-w-11 [@media(max-height:500px)]:min-h-11 rounded-full border border-black/25 flex items-center justify-center hover:bg-black hover:text-white transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880]"
               >
                 <Minus className="w-3.5 h-3.5" />
               </button>
@@ -64,7 +64,7 @@ export const ConfirmStep: React.FC = () => {
               </span>
               <button
                 onClick={() => setPrintCopies(Math.min(20, printCopies + 1))}
-                className="w-8 h-8 min-w-11 min-h-11 [@media(max-height:500px)]:min-w-8 [@media(max-height:500px)]:min-h-8 rounded-full border border-black/25 flex items-center justify-center hover:bg-black hover:text-white transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880]"
+                className="w-8 h-8 min-w-11 min-h-11 [@media(max-height:500px)]:min-w-11 [@media(max-height:500px)]:min-h-11 rounded-full border border-black/25 flex items-center justify-center hover:bg-black hover:text-white transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880]"
               >
                 <Plus className="w-3.5 h-3.5" />
               </button>
@@ -87,7 +87,7 @@ export const ConfirmStep: React.FC = () => {
                   <img src={shot} alt={t.thumbAlt.replace('{n}', String(idx + 1))} decoding="async" style={getFilterStyle()} className="w-full h-full object-cover" />
                   <button
                     onClick={() => goToRetake(idx)}
-                    className="absolute inset-0 bg-black/70 text-white opacity-100 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880]"
+                    className="absolute inset-0 bg-black/70 text-white opacity-100 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A880] min-h-11 min-w-11"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                     <span className="font-mono text-[8px] uppercase tracking-wider">{t.changePhoto}</span>
@@ -106,7 +106,7 @@ export const ConfirmStep: React.FC = () => {
             <button
               onClick={handleDownload}
               disabled={isExporting}
-              className="w-full py-2.5 md:py-3 min-h-11 [@media(max-height:500px)]:py-1 [@media(max-height:500px)]:min-h-8 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-[9px] sm:text-xs font-mono uppercase tracking-normal sm:tracking-widest whitespace-nowrap transition-all ring-1 ring-black/10 ring-offset-2 ring-offset-[#FAF8F5] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              className="w-full py-2.5 md:py-3 min-h-11 [@media(max-height:500px)]:py-1 [@media(max-height:500px)]:min-h-11 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-[9px] sm:text-xs font-mono uppercase tracking-normal sm:tracking-widest whitespace-nowrap transition-all ring-1 ring-black/10 ring-offset-2 ring-offset-[#FAF8F5] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {downloadSuccess ? (
                 <>
@@ -125,7 +125,7 @@ export const ConfirmStep: React.FC = () => {
               <button
                 onClick={handleDownloadSingles}
                 disabled={isExporting}
-                className="min-w-0 py-2 md:py-2.5 min-h-11 [@media(max-height:500px)]:py-1 [@media(max-height:500px)]:min-h-8 rounded-full border border-black/25 hover:border-black hover:bg-black/5 text-black text-[9px] sm:text-[10px] font-mono uppercase tracking-normal whitespace-nowrap transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                className="min-w-0 py-2 md:py-2.5 min-h-11 [@media(max-height:500px)]:py-1 [@media(max-height:500px)]:min-h-11 rounded-full border border-black/25 hover:border-black hover:bg-black/5 text-black text-[9px] sm:text-[10px] font-mono uppercase tracking-normal whitespace-nowrap transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 {singlesDownloaded ? (
                   <>
@@ -143,7 +143,7 @@ export const ConfirmStep: React.FC = () => {
               <button
                 onClick={handlePrint}
                 disabled={isExporting}
-                className="px-4 py-2 md:py-2.5 min-h-11 [@media(max-height:500px)]:py-1 [@media(max-height:500px)]:min-h-8 rounded-full border border-black/25 hover:border-black hover:bg-black/5 text-black text-[9px] sm:text-[10px] font-mono uppercase tracking-normal whitespace-nowrap transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                className="px-4 py-2 md:py-2.5 min-h-11 [@media(max-height:500px)]:py-1 [@media(max-height:500px)]:min-h-11 rounded-full border border-black/25 hover:border-black hover:bg-black/5 text-black text-[9px] sm:text-[10px] font-mono uppercase tracking-normal whitespace-nowrap transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 <Printer className="w-3.5 h-3.5" />
                 <span>{t.printBtn}</span>

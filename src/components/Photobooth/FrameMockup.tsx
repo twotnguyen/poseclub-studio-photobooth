@@ -39,8 +39,20 @@ export const FrameMockup: React.FC<FrameMockupProps> = ({ styleId }) => {
             }}
           />
         ))}
-        {theme.imagePath && (
-          <img src={theme.imagePath} alt="" className="absolute inset-0 w-full h-full pointer-events-none invert" />
+        {/* Style 3 stays plain on this page; its decorated PNG is still used for capture and export. */}
+        {theme.style === 3 ? (
+          <div className="absolute inset-0 pointer-events-none text-white">
+            <span className="absolute inset-x-0 top-[2%] text-center font-mono text-[4px] sm:text-[6px] tracking-[0.25em]">
+              POSECLUB
+            </span>
+            <span className="absolute inset-x-0 bottom-[3%] text-center font-script text-[13px] sm:text-[20px] leading-none">
+              studio
+            </span>
+          </div>
+        ) : (
+          theme.imagePath && (
+            <img src={theme.imagePath} alt="" className="absolute inset-0 w-full h-full pointer-events-none invert" />
+          )
         )}
       </div>
     </div>

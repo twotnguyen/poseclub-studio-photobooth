@@ -108,7 +108,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
       </div>
 
       {/* Spacer */}
-      <div className="flex-1" />
+      <div className="flex-1 md:flex-[0.7]" />
 
       {/* Main Center Content */}
       <div className="home-tab__hero text-center space-y-4 max-w-3xl mx-auto my-auto">
@@ -116,19 +116,13 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
           {t.studio}
         </p>
 
-        {/* Exact Canva wordmark artwork */}
-        <h1 className="py-1 sm:py-2">
-          <img
-            src="/images/poseclub-wordmark.png"
-            alt="Poseclub"
-            width={2140}
-            height={621}
-            className="mx-auto h-auto w-[min(78vw,620px)] drop-shadow-sm"
-          />
+        {/* Text wordmark approximating the original calligraphy artwork */}
+        <h1 className="pt-2 pb-0 sm:pt-4 font-wordmark text-[clamp(3.25rem,14vw,10rem)] leading-[0.8] tracking-[-0.02em] whitespace-nowrap text-black">
+          Poseclub
         </h1>
 
         {/* Action Button: ✦ START */}
-        <div className="pt-8">
+        <div className="pt-1 sm:pt-2">
           <button
             onClick={onStart}
             className="group relative inline-flex items-center justify-center px-10 py-3.5 rounded-full border-2 border-black bg-white/70 hover:bg-black hover:text-white text-black transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105 active:scale-95"
@@ -163,7 +157,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
         </div>
 
         {/* 6 Polaroid Thumbnails */}
-        <div className="home-tab__thumbs flex items-center justify-center gap-1 sm:gap-3.5 md:gap-4 px-2 py-2 sm:px-4 sm:py-4 overflow-x-auto max-w-full">
+        <div className="home-tab__thumbs flex items-center justify-center gap-1 sm:gap-3.5 md:gap-5 px-2 py-2 sm:px-4 sm:py-4 overflow-x-auto max-w-full">
           {GALLERY_ITEMS.map((item, index) => {
             const meta = t.gallery.find((g) => g.id === item.id) || { title: '', subtitle: '' };
             const isActive = activeIdx === index;
@@ -180,7 +174,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
                 onMouseLeave={() => setActiveIdx(null)}
                 onFocus={() => activateCard(index)}
                 onBlur={() => setActiveIdx(null)}
-                className="home-tab__thumb group relative flex-shrink-0 flex flex-col items-center p-0.5 sm:p-1.5 bg-white border border-black/15 rounded-md shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer focus:outline-none focus:ring-1 focus:ring-black/30"
+                className="home-tab__thumb group relative flex-shrink-0 flex flex-col items-center p-0.5 sm:p-1.5 md:p-2 bg-white border border-black/15 rounded-md shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer focus:outline-none focus:ring-1 focus:ring-black/30"
                 onPointerDown={() => setPressedIdx(index)}
                 onPointerUp={() => setPressedIdx(null)}
                 onPointerCancel={() => setPressedIdx(null)}
@@ -190,7 +184,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
                 }}
                 title={`${meta.title} — ${t.galleryHint}`}
               >
-                <div className="home-tab__thumb-photo w-10 h-[3.25rem] sm:w-16 sm:h-[5.5rem] md:w-20 md:h-[6.5rem] overflow-hidden rounded-[2px] bg-black/5 relative">
+                <div className="home-tab__thumb-photo w-10 h-[3.25rem] sm:w-16 sm:h-[5.5rem] md:w-24 md:h-[7.8rem] overflow-hidden rounded-[2px] bg-black/5 relative">
                   <img
                     src={item.src}
                     alt={meta.title}
@@ -213,7 +207,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
       </div>
 
       {/* Spacer */}
-      <div className="flex-1" />
+      <div className="flex-1 md:flex-[1.3]" />
 
       {/* Bottom Center Brand Signature & Ornament */}
       <div className="home-tab__footer w-full flex flex-col items-center justify-center gap-1.5 pb-2">
