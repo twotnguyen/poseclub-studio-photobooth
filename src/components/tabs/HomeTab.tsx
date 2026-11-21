@@ -160,7 +160,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
         </div>
 
         {/* 6 Polaroid Thumbnails */}
-        <div className="flex items-center justify-center gap-2.5 sm:gap-3.5 md:gap-4 px-2 overflow-x-auto max-w-full py-1">
+        <div className="flex items-center justify-center gap-2.5 sm:gap-3.5 md:gap-4 px-4 py-4 overflow-x-auto max-w-full">
           {GALLERY_ITEMS.map((item, index) => {
             const meta = t.gallery.find((g) => g.id === item.id) || { title: '', subtitle: '' };
             const isActive = activeIdx === index;
