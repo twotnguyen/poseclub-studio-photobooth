@@ -96,7 +96,7 @@ Mỗi chức năng hoạt động trên một đường dẫn URL độc lập, 
 ## 🚀 Hướng dẫn Cài đặt & Chạy cục bộ (Local Development)
 
 ### Yêu cầu môi trường
-* **Bắt buộc**: Node.js >= 22.18 cho **mọi npm script** (dev, build, test — kể cả `node --test` chạy file `.ts`). Bun >= 1.2 chỉ là tiện ích chạy nhanh, **không** thay thế được Node khi dùng npm script.
+* **Bắt buộc**: Node.js >= 22.18 cho **mọi npm script** (dev, build, test — kể cả `node --test` chạy file `.ts`). Bun >= 1.4 chỉ là tiện ích chạy nhanh, **không** thay thế được Node khi dùng npm script; bản 1.2 không đọc được `bun.lock` lockfileVersion 2.
 
 ### Các bước cài đặt
 ```bash
