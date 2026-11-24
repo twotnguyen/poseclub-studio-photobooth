@@ -66,8 +66,8 @@ export const TRANSLATIONS = {
       filterLabel: 'Bộ lọc màu sắc (Filters)',
       filters: [
         { id: 'bw-contrast', label: 'B&W Contrast', desc: 'Đen trắng điện ảnh tương phản cao' },
-        { id: 'bw-film', label: 'B&W Film Grain', desc: 'Hạt phim hoài niệm cổ điển' },
         { id: 'natural', label: 'Clean Natural', desc: 'Màu tự nhiên sáng trong trẻo' },
+        { id: 'bw-film', label: 'B&W Film Grain', desc: 'Hạt phim hoài niệm cổ điển' },
       ],
       customTextLabel: 'Chữ in trên chân dải ảnh (Tùy chọn)',
       customTextPlaceholder: 'VD: POSECLUB STUDIO, HAPPY BIRTHDAY...',
@@ -213,8 +213,8 @@ export const TRANSLATIONS = {
       filterLabel: 'Color & Tone Filters',
       filters: [
         { id: 'bw-contrast', label: 'B&W Contrast', desc: 'Cinematic high-contrast monochrome' },
-        { id: 'bw-film', label: 'B&W Film Grain', desc: 'Nostalgic retro film grain' },
         { id: 'natural', label: 'Clean Natural', desc: 'Natural clean and bright colors' },
+        { id: 'bw-film', label: 'B&W Film Grain', desc: 'Nostalgic retro film grain' },
       ],
       customTextLabel: 'Custom Text on Strip (Optional)',
       customTextPlaceholder: 'e.g. POSECLUB STUDIO, HAPPY BIRTHDAY...',

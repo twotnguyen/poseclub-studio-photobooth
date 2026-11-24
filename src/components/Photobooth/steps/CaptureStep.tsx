@@ -3,6 +3,7 @@ import { ArrowLeft, Camera, RefreshCw, SwitchCamera, Upload } from 'lucide-react
 import { isStripComplete } from '../strip';
 import type { FilterType } from '../types';
 import { useBooth } from '../BoothContext';
+import { StepBrand, StepFooter } from './StepFooter';
 
 export const CaptureStep: React.FC = () => {
   const {
@@ -114,17 +115,19 @@ export const CaptureStep: React.FC = () => {
             )}
           </div>
 
-        <div className="mt-3 sm:mt-4 [@media(max-height:500px)]:mt-1 flex flex-col items-center gap-1.5 sm:gap-2 [@media(max-height:500px)]:gap-1">
+        </div>
+
+        <div className="order-3 md:order-4 md:col-span-3 w-full flex flex-col items-center gap-1.5 sm:gap-2 [@media(max-height:500px)]:gap-1 [@media(max-height:500px)]:mt-1">
           <span className="text-[10px] sm:text-[11px] [@media(max-height:500px)]:hidden font-mono uppercase tracking-[0.2em] text-black/50">
             {t.filterLabel}
           </span>
-          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 [@media(max-height:500px)]:gap-1">
+          <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-3 [@media(max-height:500px)]:gap-1">
             {t.filters.map((item) => (
               <button
                 key={item.id}
                 onClick={() => setFilter(item.id as FilterType)}
                 aria-pressed={filter === item.id}
-                className={`px-4 sm:px-6 [@media(max-height:500px)]:px-3 py-2 sm:py-2.5 [@media(max-height:500px)]:py-1 min-h-11 rounded-full border text-[11px] sm:text-[13px] font-mono uppercase tracking-wider transition-all cursor-pointer ${
+                className={`min-w-[6.5rem] sm:min-w-[10rem] px-2 sm:px-6 [@media(max-height:500px)]:px-2 py-1.5 sm:py-2.5 [@media(max-height:500px)]:py-1 min-h-11 rounded-full border text-[10px] sm:text-[13px] font-mono uppercase tracking-wider transition-all cursor-pointer ${
                   filter === item.id
                     ? 'border-2 border-black bg-black text-white shadow-sm'
                     : 'border-black/25 bg-white hover:border-black text-black'
@@ -135,69 +138,59 @@ export const CaptureStep: React.FC = () => {
             ))}
           </div>
         </div>
-        </div>
-        <div className="hidden md:block order-4" aria-hidden="true" />
       </div>
 
-      <div className="w-full max-w-6xl mx-auto px-2 sm:px-6 grid grid-cols-[auto_1fr_auto] lg:grid-cols-3 items-center gap-2 [@media(max-height:500px)]:gap-1 py-0">
-        <button
-          onClick={() => goTo('theme')}
-          disabled={isSessionActive}
-          className="justify-self-center w-11 h-11 rounded-full border border-black/40 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-black disabled:opacity-40 cursor-pointer"
-          title={t.back}
-        >
-          <ArrowLeft className="w-4 h-4" />
-        </button>
-
-        <div className="flex items-center justify-center gap-1.5">
-          {Array.from({ length: totalShots }, (_, idx) => (
-            <span
-              key={idx}
-              className={`h-1.5 w-1.5 rounded-full transition-colors ${
-                shots[idx] ? 'bg-black' : 'bg-black/15'
-              }`}
-            />
-          ))}
-        </div>
-
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileUpload}
-          multiple
-          accept="image/*"
-          className="hidden"
-        />
-
-        <div className="justify-self-center flex items-center gap-2 sm:gap-3">
+      <StepFooter
+        back={
           <button
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => goTo('theme')}
             disabled={isSessionActive}
-            className="px-3 sm:px-4 py-2 min-h-11 [@media(max-height:500px)]:py-1 rounded-full border border-black/30 hover:border-black text-[10px] sm:text-xs font-mono text-black transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+            className="w-11 h-11 sm:w-14 sm:h-14 rounded-full border border-black/40 flex items-center justify-center hover:bg-black hover:text-white transition-colors text-black disabled:opacity-40 cursor-pointer"
+            title={t.back}
           >
-            <Upload className="w-3.5 h-3.5" />
-            <span>{t.uploadBtn}</span>
+            <ArrowLeft className="w-4 h-4" />
           </button>
+        }
+        center={<StepBrand />}
+        next={
+          <>
+            {isStripComplete(shots, totalShots) && !isSessionActive && (
+              <button
+                onClick={() => goTo('confirm')}
+                className="px-5 py-2 min-h-11 [@media(max-height:500px)]:py-1 rounded-full border border-black/40 bg-white hover:bg-black hover:text-white text-xs font-mono tracking-wider uppercase transition-all shadow-sm cursor-pointer"
+              >
+                {t.viewStrip}
+              </button>
+            )}
 
-          {isStripComplete(shots, totalShots) && !isSessionActive && (
             <button
-              onClick={() => goTo('confirm')}
-              className="px-5 py-2 min-h-11 [@media(max-height:500px)]:py-1 rounded-full border border-black/40 bg-white hover:bg-black hover:text-white text-xs font-mono tracking-wider uppercase transition-all shadow-sm cursor-pointer"
+              onClick={triggerCapture}
+              disabled={isSessionActive || !cameraActive}
+              className="px-4 sm:px-8 py-2 min-h-11 [@media(max-height:500px)]:py-1 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-[10px] sm:text-xs font-mono uppercase tracking-wider sm:tracking-widest transition-all shadow-lg flex items-center gap-1.5 sm:gap-2 disabled:opacity-40 cursor-pointer hover:scale-105 active:scale-95 whitespace-nowrap"
             >
-              {t.viewStrip}
+              <Camera className="w-4 h-4" />
+              <span>{isSessionActive ? t.capturing : t.captureBtn}</span>
             </button>
-          )}
 
-          <button
-            onClick={triggerCapture}
-            disabled={isSessionActive || !cameraActive}
-            className="px-4 sm:px-8 py-2 min-h-11 [@media(max-height:500px)]:py-1 rounded-full border-2 border-black bg-black text-white hover:bg-white hover:text-black text-[10px] sm:text-xs font-mono uppercase tracking-wider sm:tracking-widest transition-all shadow-lg flex items-center gap-1.5 sm:gap-2 disabled:opacity-40 cursor-pointer hover:scale-105 active:scale-95 whitespace-nowrap"
-          >
-            <Camera className="w-4 h-4" />
-            <span>{isSessionActive ? t.capturing : t.captureBtn}</span>
-          </button>
-        </div>
-      </div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+              multiple
+              accept="image/*"
+              className="hidden"
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isSessionActive}
+              className="px-3 sm:px-4 py-2 min-h-11 [@media(max-height:500px)]:py-1 rounded-full border border-black/30 hover:border-black text-[10px] sm:text-xs font-mono text-black transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+            >
+              <Upload className="w-3.5 h-3.5" />
+              <span>{t.uploadBtn}</span>
+            </button>
+          </>
+        }
+      />
     </div>
   );
 };
