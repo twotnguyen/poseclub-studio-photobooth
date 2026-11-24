@@ -29,9 +29,9 @@ export const ThemeSelectStep: React.FC = () => {
           nextThemeLabel={t.nextTheme}
         />
 
-        <div className="max-w-sm w-full mx-auto bg-white/95 backdrop-blur-sm border border-black/15 rounded-2xl p-2.5 sm:p-3 [@media(max-height:500px)]:p-1 shadow-sm">
+        <div className="max-w-[260px] sm:max-w-sm w-full mx-auto -translate-y-6 sm:translate-y-0 bg-white/95 backdrop-blur-sm border border-black/15 rounded-2xl p-2 sm:p-3 [@media(max-height:500px)]:p-1 [@media(max-height:500px)]:translate-y-0 shadow-sm">
           <div className="space-y-1">
-            <label htmlFor="custom-strip-text" className="text-[10px] font-mono uppercase tracking-widest text-black/60 font-semibold">
+            <label htmlFor="custom-strip-text" className="text-center text-[10px] font-mono uppercase tracking-widest text-black/60 font-semibold">
               {t.customTextLabel}
             </label>
             <input
@@ -41,7 +41,7 @@ export const ThemeSelectStep: React.FC = () => {
               onChange={(e) => setCustomText(e.target.value)}
               placeholder={t.customTextPlaceholder}
               maxLength={26}
-              className="w-full px-3 py-1.5 [@media(max-height:500px)]:py-0.5 [@media(max-height:500px)]:min-h-11 rounded-xl border border-black/20 bg-stone-50 text-xs font-mono focus:border-black focus:outline-none"
+              className="w-full px-3 py-1.5 min-h-11 text-center [@media(max-height:500px)]:py-0.5 [@media(max-height:500px)]:min-h-11 rounded-xl border border-black/20 bg-stone-50 text-xs font-mono focus:border-black focus:outline-none"
             />
           </div>
         </div>

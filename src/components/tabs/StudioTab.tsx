@@ -100,7 +100,7 @@ export const StudioTab: React.FC<StudioTabProps> = ({ language }) => {
                 {STUDIO_CONFIG.hours.map((h, i) => (
                   <div key={i} className="flex justify-between items-center border-b border-black/5 pb-0.5 sm:pb-1">
                     <span className="text-black/70">{language === 'vi' ? h.daysVi : h.days}</span>
-                    <span className="font-mono text-black font-medium">{t.timeVi[i]}</span>
+                    <span className="font-mono text-black font-medium">{language === 'vi' ? h.timeVi : h.time}</span>
                   </div>
                 ))}
               </div>

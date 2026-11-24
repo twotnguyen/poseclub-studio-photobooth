@@ -11,6 +11,7 @@ import {
   downloadCanvas,
   printCanvas,
   renderIndividualPhoto,
+  downloadImagesAsZip,
   renderPhotostripToCanvas,
 } from './CanvasExporter';
 
@@ -298,7 +299,7 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
         goTo('confirm');
       }, 600);
     }
-  }, [shots, goTo, totalShots, scheduleTimeout]);
+  }, [goTo, totalShots, scheduleTimeout]);
 
   const startNewStrip = useCallback(() => {
     shotIndexRef.current = 0;
@@ -487,15 +488,22 @@ export const BoothProvider: React.FC<BoothProviderProps> = ({ language, onBackTo
     setIsExporting(true);
     setExportError(null);
     try {
-      for (let i = 0; i < shots.length; i++) {
-        const canvas = await renderIndividualPhoto(
-          shots[i], i, filter,
+      const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const photos = await Promise.all(
+        shots.map((shot, i) => renderIndividualPhoto(
+          shot, i, filter,
           customText.trim() || 'poseclub studio',
-          new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-        );
-        await downloadCanvas(canvas, `poseclub-individual-0${i + 1}-${Date.now()}.png`);
-        await new Promise((resolve) => setTimeout(resolve, 250));
-      }
+          dateStr
+        ))
+      );
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+      await downloadImagesAsZip(
+        photos.map((canvas, i) => ({
+          canvas,
+          name: `poseclub-individual-${String(i + 1).padStart(2, '0')}.png`,
+        })),
+        `poseclub-individuals-${timestamp}.zip`
+      );
       setSinglesDownloaded(true);
       setTimeout(() => setSinglesDownloaded(false), 2500);
     } catch (err) {

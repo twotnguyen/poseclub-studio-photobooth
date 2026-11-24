@@ -59,12 +59,12 @@ Mỗi chức năng hoạt động trên một đường dẫn URL độc lập, 
 * **Bước 4 — Xác nhận, In & Xuất ảnh độ phân giải cao (Confirm & Export)**:
   * Tùy chọn số lượng bản in `- 1 +`.
   * **✦ Tải dải ảnh High-Res (PNG) ✦**: Render bằng Canvas — tất cả 72 khung đã đăng ký đều có overlay PNG và ảnh xuất dùng đúng kích thước pixel gốc của PNG đó (ví dụ 1240×1844 px). Mọi PNG đều mang metadata 300 DPI (chunk `pHYs`); khổ giấy vẫn do người dùng chọn trong hộp thoại in.
-  * **✦ Tải từng ảnh đơn lẻ ✦**: Tải mỗi tấm ảnh thành một card polaroid riêng biệt.
+  * **✦ Tải từng ảnh đơn lẻ ✦**: Mỗi tấm ảnh được render thành card polaroid riêng và đóng gói trong **1 file ZIP** (tránh bị trình duyệt chặn nhiều lượt tải tự động).
   * **✦ PRINT NGAY ✦**: Mở hộp thoại in riêng với `@page { margin: 0 }`; khổ giấy do người dùng chọn trong trình duyệt.
 
 ### 🔒 5. Bảo mật & Chi phí vận hành 0đ (100% Client-Side)
 * Toàn bộ thao tác xử lý camera, lọc màu, ghép khung và xuất ảnh chạy 100% trên trình duyệt người dùng qua HTML5 Canvas API.
-* Không lưu trữ ảnh người dùng lên máy chủ, đảm bảo quyền riêng tư tuyệt đối.
+* Font được tự host tại `public/fonts/` (kèm license OFL); không có request tới Google Fonts, kể cả trang catalog trong `public/exported-frames/index.html`.
 * Không cần backend, chi phí server $0 khi triển khai lên Vercel (đã có `vercel.json` rewrite cho SPA). Với host tĩnh khác cần tự cấu hình fallback về `index.html`.
 
 ---

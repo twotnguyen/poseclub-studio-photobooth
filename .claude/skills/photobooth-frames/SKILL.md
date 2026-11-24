@@ -111,7 +111,9 @@ Use the browse MCP tools in the user's Chrome for this; camera works there.
 - Styles 2–6 now have their own multi-slot PNG frames (`public/exported-frames/style-{2..6}-*/`), generated with
   `scripts/detect_slots.py` (transparent-region slot detection) and registered in `FrameThemes.ts` via `STYLE_FRAMES`.
   ThemeConfig carries `style` + `slots[]` (reading order); the single `photoBox` was replaced by `slots` everywhere.
-  Style-5 frames are landscape 1844x1240 (files renamed 41–55 to avoid clashing with style-1 numbering).
+  Directory names are legacy: `style-4-classic-2x4/` holds 8-slot frames registered as app style 5, and
+  `style-5-grid-2x3/` holds 6-slot landscape frames registered as app style 4. `LEGACY_STYLE_TO_APP_STYLE`
+  in `FrameThemes.ts` is the only place that swap lives; keep it in sync when adding frames.
 
 - The ZIP in the catalog is a static file — regenerate it whenever the frame
   set changes.

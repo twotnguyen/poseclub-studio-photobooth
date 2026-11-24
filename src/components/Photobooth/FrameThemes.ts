@@ -14,6 +14,10 @@ export interface ThemeConfig {
 // Style 1: photo-slot bounds [left, top, right, bottom] measured from each Canva PNG.
 const STYLE1_BOXES: [number, number, number, number][] = [[37,85,1202,1442],[64,112,1175,1415],[64,112,1175,1415],[40,90,1200,1440],[37,85,1202,1442],[37,85,1200,1442],[37,85,1200,1442],[42,92,1200,1440],[40,90,1200,1440],[40,90,1200,1440],[40,90,1200,1440],[40,90,1200,1440],[40,90,1200,1440],[37,85,1202,1442],[37,85,1202,1442],[37,85,1202,1442],[37,85,1202,1442],[37,85,1202,1442],[90,140,1150,1390],[130,180,1110,1350],[40,90,1200,1440],[40,90,1200,1440],[42,92,1200,1440]];
 
+// Asset directories use legacy numbering: dir style-4-* holds 8-slot frames (app style 5),
+// dir style-5-* holds 6-slot landscape frames (app style 4). This is the only place that swap lives.
+const LEGACY_STYLE_TO_APP_STYLE: Record<number, number> = { 4: 5, 5: 4 };
+
 // Styles 2-6: multi-slot PNG frames. Slots were auto-detected from the
 // transparent regions of each RGBA overlay (.claude/skills/photobooth-frames).
 const STYLE_FRAMES: { style: number; id: number; dir: string; file: string; w: number; h: number; boxes: number[][] }[] = [
@@ -85,8 +89,7 @@ export const CUSTOM_FRAMES: ThemeConfig[] = [
     const num = String(id).padStart(2, '0');
     return {
       id: `custom-${id}` as FrameTheme,
-      // Asset dirs keep legacy numbering, so swap public styles 4 and 5 here.
-      style: style === 4 ? 5 : style === 5 ? 4 : style,
+      style: LEGACY_STYLE_TO_APP_STYLE[style] ?? style,
       nameEn: `Custom ${num}`,
       imagePath: `/exported-frames/${dir}/${file}`,
       imageWidth: w,

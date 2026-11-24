@@ -14,7 +14,7 @@ export const FrameMockup: React.FC<FrameMockupProps> = ({ styleId }) => {
   const isLandscape = fw > fh;
 
   return (
-    <div className="relative w-full h-auto aspect-[150/116] flex items-center justify-center">
+    <div className="relative w-full h-auto aspect-[150/116] max-h-[92px] sm:max-h-none flex items-center justify-center">
       <div
         className="relative shadow-md"
         style={{

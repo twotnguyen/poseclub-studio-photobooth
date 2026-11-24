@@ -23,6 +23,7 @@ export default {
         },
       },
       fontFamily: {
+        sans: ['"Inter"', 'system-ui', 'sans-serif'],
         serif: ['"Playfair Display"', 'Georgia', 'serif'],
         editorial: ['"Cormorant Garamond"', 'Didot', 'serif'],
         script: ['"Alex Brush"', '"Pinyon Script"', 'cursive'],

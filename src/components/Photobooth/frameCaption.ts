@@ -11,6 +11,9 @@ export interface CaptionBox {
   fontSize: number;
   maxWidth: number;
 }
+/** Keeps the customer's typing exactly as entered, including letter case. */
+export const formatCaptionText = (text: string): string => text.trim();
+
 export const getFrameCaptionBox = (
   width: number,
   height: number,

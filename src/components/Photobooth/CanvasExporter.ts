@@ -1,9 +1,10 @@
 import type { FilterType, FrameTheme } from './types';
 import { getThemeById } from './FrameThemes';
 import { getFilterCss } from './color';
-import { getFrameCaptionBox, captionTextColor } from './frameCaption';
+import { getFrameCaptionBox, captionTextColor, formatCaptionText } from './frameCaption';
 import { withPngDpi } from './pngDpi';
 import { buildPrintDocument } from './printDocument';
+import { buildZip } from './zip.ts';
 
 interface RenderOptions {
   images: string[];
@@ -104,16 +105,16 @@ export const renderPhotostripToCanvas = async (options: RenderOptions): Promise<
     }
     ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
 
-    const captionText = (customFooterText ?? '').trim();
+    const captionText = formatCaptionText(customFooterText ?? '');
     const caption = getFrameCaptionBox(canvas.width, canvas.height, themeCfg.slots, captionText);
     if (caption) {
-      if (document.fonts?.ready) await document.fonts.ready;
+      if (document.fonts?.load) await document.fonts.load('600 48px "Playfair Display"');
       const [r, g, b, a] = ctx.getImageData(caption.centerX, caption.centerY, 1, 1).data;
       ctx.fillStyle = captionTextColor(r, g, b, a);
       ctx.font = `600 ${caption.fontSize}px "Playfair Display", "Cormorant Garamond", Georgia, serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(captionText.toUpperCase(), caption.centerX, caption.centerY, caption.maxWidth);
+      ctx.fillText(captionText, caption.centerX, caption.centerY, caption.maxWidth);
     }
     if (filter === 'bw-film') drawGrain(ctx, canvas.width, canvas.height, 0.035);
     return canvas;
@@ -130,8 +131,8 @@ const toDpiPngBlob = async (canvas: HTMLCanvasElement): Promise<Blob> => {
   return new Blob([out], { type: 'image/png' });
 };
 
-export const downloadCanvas = async (canvas: HTMLCanvasElement, filename: string): Promise<void> => {
-  const url = URL.createObjectURL(await toDpiPngBlob(canvas));
+const downloadBlob = (blob: Blob, filename: string): void => {
+  const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.download = filename;
   link.href = url;
@@ -139,6 +140,21 @@ export const downloadCanvas = async (canvas: HTMLCanvasElement, filename: string
   link.click();
   document.body.removeChild(link);
   setTimeout(() => URL.revokeObjectURL(url), 0);
+};
+
+export const downloadCanvas = async (canvas: HTMLCanvasElement, filename: string): Promise<void> => {
+  downloadBlob(await toDpiPngBlob(canvas), filename);
+};
+
+export const downloadImagesAsZip = async (
+  photos: { canvas: HTMLCanvasElement; name: string }[],
+  archiveName: string
+): Promise<void> => {
+  const files = await Promise.all(photos.map(async ({ canvas, name }) => ({
+    name,
+    bytes: new Uint8Array(await (await toDpiPngBlob(canvas)).arrayBuffer()),
+  })));
+  downloadBlob(buildZip(files), archiveName);
 };
 
 export const renderIndividualPhoto = async (
@@ -163,7 +179,7 @@ export const renderIndividualPhoto = async (
   ctx.lineWidth = 2;
   ctx.strokeRect(40, 40, W - 80, H - 80);
 
-  if (document.fonts?.ready) await document.fonts.ready;
+  if (document.fonts?.load) await document.fonts.load('600 48px "Playfair Display"');
   const img = await loadImage(imageSrc);
   const photoW = W - 120;
   const photoH = 1180;

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { getFrameCaptionBox, type CaptionBox, type PhotoSlotBounds } from '../src/components/Photobooth/frameCaption.ts';
+import { getFrameCaptionBox, formatCaptionText, type CaptionBox, type PhotoSlotBounds } from '../src/components/Photobooth/frameCaption.ts';
 import { CUSTOM_FRAMES } from '../src/components/Photobooth/FrameThemes.ts';
 
 function assertCaptionFits(box: CaptionBox, width: number, height: number, slots: PhotoSlotBounds[]): void {
@@ -59,4 +59,9 @@ test('every registered frame leaves room for the caption below its slots', () =>
     assert.ok(box, `${frame.id} has a caption box`);
     assertCaptionFits(box, frame.imageWidth ?? 0, frame.imageHeight ?? 0, slots);
   }
+});
+
+test('caption text preserves the letter case typed by the customer', () => {
+  assert.equal(formatCaptionText('  zTwtz  '), 'zTwtz');
+  assert.equal(formatCaptionText('Happy Birthday'), 'Happy Birthday');
 });

@@ -16,20 +16,20 @@ export const FrameSelectStep: React.FC = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 [@media(max-height:500px)]:grid-cols-3 gap-1 sm:gap-5 [@media(max-height:500px)]:gap-1 max-w-4xl w-full mx-auto my-auto py-1 [@media(max-height:500px)]:py-0">
+      <div className="grid grid-cols-2 sm:grid-cols-3 [@media(max-height:500px)]:grid-cols-3 gap-3.5 sm:gap-5 [@media(max-height:500px)]:gap-1 max-w-[340px] sm:max-w-4xl [@media(max-height:500px)]:max-w-4xl w-full mx-auto my-auto py-1 [@media(max-height:500px)]:py-0">
         {t.styles.map((style) => {
           const isSelected = selectedStyle === style.id;
           return (
             <button
               key={style.id}
               onClick={() => { if (!isSelected) selectStyle(style.id); }}
-              className={`relative p-1.5 sm:p-3.5 [@media(max-height:500px)]:p-1 rounded-[18px] sm:rounded-[26px] bg-white transition-all flex flex-col items-center justify-between text-center group cursor-pointer ${
+              className={`relative p-2 sm:p-3.5 [@media(max-height:500px)]:p-1 rounded-[18px] sm:rounded-[26px] bg-white transition-all flex flex-col items-center justify-between text-center group cursor-pointer ${
                 isSelected
                   ? 'border border-black shadow-xl scale-105 ring-2 ring-black/20 bg-black/[0.015]'
                   : 'border border-black hover:shadow-md hover:ring-1 hover:ring-black/30'
               }`}
             >
-              <p className="font-serif text-xs [@media(max-height:500px)]:text-[10px] tracking-[0.2em] uppercase font-medium text-black pt-0.5">
+              <p className="font-serif text-[11px] sm:text-xs [@media(max-height:500px)]:text-[10px] tracking-[0.2em] uppercase font-medium text-black pt-0.5">
                 {style.title}
               </p>
 

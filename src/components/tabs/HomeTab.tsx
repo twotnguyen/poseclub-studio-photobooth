@@ -230,7 +230,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
       {selectedIdx !== null && (
         <div
           ref={dialogRef}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md transition-opacity animate-fadeIn"
+          className="fixed -inset-px z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md transition-opacity animate-fadeIn"
           onClick={() => setSelectedIdx(null)}
           role="dialog"
           aria-modal="true"
@@ -255,7 +255,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
               e.stopPropagation();
               setSelectedIdx((prev) => (prev !== null && prev > 0 ? prev - 1 : GALLERY_ITEMS.length - 1));
             }}
-            className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center border border-white/20 transition-all z-20 backdrop-blur-sm shadow-lg hover:scale-105 active:scale-95"
+            className="absolute left-1 sm:left-6 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center border border-white/20 transition-all z-20 backdrop-blur-sm shadow-lg hover:scale-105 active:scale-95"
             aria-label={t.galleryPrevious}
           >
             <ChevronLeft className="w-6 h-6" />
@@ -268,7 +268,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
               e.stopPropagation();
               setSelectedIdx((prev) => (prev !== null && prev < GALLERY_ITEMS.length - 1 ? prev + 1 : 0));
             }}
-            className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center border border-white/20 transition-all z-20 backdrop-blur-sm shadow-lg hover:scale-105 active:scale-95"
+            className="absolute right-1 sm:right-6 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center border border-white/20 transition-all z-20 backdrop-blur-sm shadow-lg hover:scale-105 active:scale-95"
             aria-label={t.galleryNext}
           >
             <ChevronRight className="w-6 h-6" />
@@ -277,7 +277,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
           {/* Centered Modal Card: clicking inside DOES NOT close */}
           <div
             onClick={(e) => e.stopPropagation()}
-            className="home-tab__modal relative max-w-xl md:max-w-2xl w-full max-h-[92dvh] flex flex-col items-center bg-[#FAF8F5] rounded-2xl shadow-2xl border border-white/20 p-3 sm:p-4 animate-scaleUp overflow-hidden"
+            className="home-tab__modal relative max-w-xl md:max-w-2xl w-[calc(100%-6.5rem)] sm:w-full max-h-[92dvh] flex flex-col items-center bg-[#FAF8F5] rounded-2xl shadow-2xl border border-white/20 p-3 sm:p-4 animate-scaleUp overflow-hidden"
           >
             {/* Full Color Image Container */}
             <div className="w-full flex items-center justify-center max-h-[calc(92dvh-8rem)] overflow-hidden rounded-xl bg-black/5">
@@ -297,10 +297,10 @@ export const HomeTab: React.FC<HomeTabProps> = ({ language, onStart, onGoToStudi
                   <span className="font-script text-lg text-black/70">poseclub</span>
                   <span className="text-[10px] font-mono tracking-widest text-black/40 uppercase">studio</span>
                 </div>
-                <h3 className="font-editorial text-lg sm:text-xl text-black font-semibold tracking-wide line-clamp-2">
+                <h3 className="font-editorial text-lg sm:text-xl text-black font-semibold tracking-wide line-clamp-3 sm:line-clamp-2">
                   {t.gallery[selectedIdx]?.title}
                 </h3>
-                <p className="text-xs text-black/60 font-light line-clamp-2">
+                <p className="text-xs text-black/60 font-light line-clamp-3 sm:line-clamp-2">
                   {t.gallery[selectedIdx]?.subtitle}
                 </p>
               </div>

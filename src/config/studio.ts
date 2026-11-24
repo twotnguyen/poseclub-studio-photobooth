@@ -15,6 +15,7 @@ export interface StudioConfig {
     days: string;
     daysVi: string;
     time: string;
+    timeVi: string;
   }[];
 }
 
@@ -32,8 +33,8 @@ export const STUDIO_CONFIG: StudioConfig = {
     url: "https://www.instagram.com/poseclub.photobooth",
   },
   hours: [
-    { days: "Monday – Thursday", daysVi: "Thứ 2 – Thứ 5", time: "11:00 AM – 10:00 PM" },
-    { days: "Friday – Saturday", daysVi: "Thứ 6 – Thứ 7", time: "11:00 AM – 11:00 PM" },
-    { days: "Sunday", daysVi: "Chủ Nhật", time: "11:00 AM – 11:00 PM" },
+    { days: "Monday – Thursday", daysVi: "Thứ 2 – Thứ 5", time: "11:00 AM – 10:00 PM", timeVi: "11:00 – 22:00" },
+    { days: "Friday – Saturday", daysVi: "Thứ 6 – Thứ 7", time: "11:00 AM – 11:00 PM", timeVi: "11:00 – 23:00" },
+    { days: "Sunday", daysVi: "Chủ Nhật", time: "11:00 AM – 11:00 PM", timeVi: "11:00 – 23:00" },
   ],
 };

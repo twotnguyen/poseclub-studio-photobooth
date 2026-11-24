@@ -93,7 +93,7 @@ export const TRANSLATIONS = {
       singleRetakeLabel: 'Chụp lại riêng từng tấm',
       changePhoto: 'Đổi ảnh',
       downloadBtn: '✦ Tải dải ảnh độ phân giải cao (PNG) ✦',
-      downloadSinglesBtn: '✦ Tải {count} ảnh đơn lẻ ✦',
+      downloadSinglesBtn: '✦ Tải {count} ảnh đơn lẻ (ZIP) ✦',
       downloadSuccess: 'Đã tải ảnh thành công!',
       exportError: 'Có lỗi khi xuất ảnh. Vui lòng thử lại.',
       stripIncomplete: 'Vui lòng chụp hoặc tải đủ ảnh trước khi xuất.',
@@ -118,7 +118,6 @@ export const TRANSLATIONS = {
       ],
       venueName: 'Poseclub Studio Fullerton',
       mapTitle: 'Bản đồ Poseclub Fullerton',
-      timeVi: ['11:00 – 22:00', '11:00 – 23:00', '11:00 – 23:00'],
       largeMapBtn: 'Mở bản đồ lớn',
     },
     guide: {
@@ -241,7 +240,7 @@ export const TRANSLATIONS = {
       singleRetakeLabel: 'Retake Individual Shots',
       changePhoto: 'Retake',
       downloadBtn: '✦ Download High-Resolution Strip (PNG) ✦',
-      downloadSinglesBtn: '✦ Download {count} Individual Photos ✦',
+      downloadSinglesBtn: '✦ Download {count} Individual Photos (ZIP) ✦',
       downloadSuccess: 'Photos downloaded successfully!',
       exportError: 'Could not export the photos. Please try again.',
       stripIncomplete: 'Please capture or upload all photos before exporting.',
@@ -266,7 +265,6 @@ export const TRANSLATIONS = {
       ],
       venueName: 'Poseclub Studio Fullerton',
       mapTitle: 'Poseclub Fullerton Map',
-      timeVi: ['11:00 AM – 10:00 PM', '11:00 AM – 11:00 PM', '11:00 AM – 11:00 PM'],
       largeMapBtn: 'Open large map',
     },
     guide: {

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { FrameTheme } from './types';
 import { getThemesForStyle, getThemeById } from './FrameThemes';
-import { getFrameCaptionBox, captionTextColor } from './frameCaption';
+import { getFrameCaptionBox, captionTextColor, formatCaptionText } from './frameCaption';
 
 interface ThemedFramePreviewProps {
   theme: FrameTheme;
@@ -26,7 +26,7 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
   const currentTheme = getThemeById(effectiveTheme?.id ?? theme);
 
   const captionBox = currentTheme.imageWidth && currentTheme.imageHeight
-    ? getFrameCaptionBox(currentTheme.imageWidth, currentTheme.imageHeight, currentTheme.slots ?? [], customText)
+    ? getFrameCaptionBox(currentTheme.imageWidth, currentTheme.imageHeight, currentTheme.slots ?? [], formatCaptionText(customText))
     : null;
   const [captionFill, setCaptionFill] = useState<string>('#111111');
   const frameImageRef = useRef<HTMLImageElement | null>(null);
@@ -56,7 +56,7 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
   };
 
   const isLongCaption = captionBox
-    ? customText.trim().length * captionBox.fontSize * 0.6 > captionBox.maxWidth
+    ? formatCaptionText(customText).length * captionBox.fontSize * 0.6 > captionBox.maxWidth
     : false;
 
   const handleFrameLoad = (image: HTMLImageElement) => {
@@ -99,7 +99,7 @@ export const ThemedFramePreview: React.FC<ThemedFramePreviewProps> = ({
               textLength={isLongCaption ? captionBox.maxWidth : undefined}
               lengthAdjust={isLongCaption ? 'spacingAndGlyphs' : undefined}
             >
-              {customText.trim().toUpperCase()}
+              {formatCaptionText(customText)}
             </text>
           </svg>
         )}
